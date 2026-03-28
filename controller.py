@@ -590,63 +590,65 @@ class KeyboardHandler:
     """Handles USB keyboard input (arrow keys)"""
     def __init__(self, on_key_callback):
         self.on_key_callback = on_key_callback
-        self.device = None
+        self.devices = []
         self.running = False
-        self.thread = None
-        self.find_keyboard()
-    
-    def find_keyboard(self):
-        """Find the USB keyboard device"""
-        devices = [InputDevice(path) for path in list_devices()]
-        
-        # Look for a device with arrow keys
-        for device in devices:
-            capabilities = device.capabilities(verbose=False)
-            if ecodes.EV_KEY in capabilities:
-                keys = capabilities[ecodes.EV_KEY]
-                # Check if it has arrow keys
-                if (KEY_UP in keys and KEY_DOWN in keys and 
-                    KEY_LEFT in keys and KEY_RIGHT in keys):
-                    self.device = device
-                    print(f"Found keyboard: {device.name} at {device.path}")
-                    return True
-        
-        print("Warning: No keyboard with arrow keys found")
-        return False
-    
+        self.threads = []
+        self.find_keyboards()
+
+    def find_keyboards(self):
+        """Find all input devices with arrow keys"""
+        for path in list_devices():
+            try:
+                device = InputDevice(path)
+                capabilities = device.capabilities(verbose=False)
+                if ecodes.EV_KEY in capabilities:
+                    keys = capabilities[ecodes.EV_KEY]
+                    if (KEY_UP in keys and KEY_DOWN in keys and
+                            KEY_LEFT in keys and KEY_RIGHT in keys):
+                        self.devices.append(device)
+                        print(f"Found keyboard: {device.name} at {device.path}")
+            except Exception:
+                pass
+
+        if not self.devices:
+            print("Warning: No keyboard with arrow keys found")
+        return bool(self.devices)
+
     def start(self):
         """Start listening for keyboard input"""
-        if not self.device:
+        if not self.devices:
             print("No keyboard device available")
             return False
-        
+
         self.running = True
-        self.thread = threading.Thread(target=self._input_loop, daemon=True)
-        self.thread.start()
+        for device in self.devices:
+            t = threading.Thread(target=self._input_loop, args=(device,), daemon=True)
+            t.start()
+            self.threads.append(t)
         return True
-    
-    def _input_loop(self):
-        """Main input loop (runs in separate thread)"""
-        print("Keyboard handler started")
+
+    def _input_loop(self, device):
+        """Main input loop (runs in separate thread per device)"""
+        print(f"Keyboard handler started: {device.name}")
         try:
-            for event in self.device.read_loop():
+            for event in device.read_loop():
                 if not self.running:
                     break
-                
+
                 # Only process key down events
                 if event.type == ecodes.EV_KEY:
                     key_event = categorize(event)
                     if key_event.keystate == 1:  # Key down
                         self.on_key_callback(event.code)
-        
+
         except Exception as e:
-            print(f"Keyboard handler error: {e}")
-    
+            print(f"Keyboard handler error ({device.name}): {e}")
+
     def stop(self):
         """Stop the keyboard handler"""
         self.running = False
-        if self.thread:
-            self.thread.join(timeout=1.0)
+        for t in self.threads:
+            t.join(timeout=1.0)
 
 
 # ============================================================================

@@ -4,12 +4,12 @@ After=network.target sound.target pipewire.service
 
 [Service]
 Type=simple
-User=pi
-Group=pi
-WorkingDirectory=/home/pi/rig
+User=nmlstyl
+Group=nmlstyl
+WorkingDirectory=/home/nmlstyl/rig
 Environment="DISPLAY=:0"
-Environment="XAUTHORITY=/home/pi/.Xauthority"
-ExecStart=/home/pi/rig/venv/bin/python /home/pi/rig/controller.py
+Environment="XAUTHORITY=/home/nmlstyl/.Xauthority"
+ExecStart=/usr/bin/python3 /home/nmlstyl/rig/controller.py
 Restart=on-failure
 RestartSec=5
 
