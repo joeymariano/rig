@@ -43,7 +43,7 @@ MIDI_PORT_FOR_PROCESSING = "Real Time Sequencer"  # What Processing expects
 #   AUDIO_DEVICE = None  # Use default
 #   AUDIO_DEVICE = "L6: USB Audio"  # By name
 #   AUDIO_DEVICE = 3  # By device index
-AUDIO_DEVICE = 3  # Zoom L6 (device 3 from sounddevice list)
+AUDIO_DEVICE = 2  # Zoom L6 (device 2 from sounddevice list)
 
 # Button mapping (arrow keys)
 KEY_UP = ecodes.KEY_UP
