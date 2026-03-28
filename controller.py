@@ -863,9 +863,14 @@ class PerformanceRig:
         try:
             while True:
                 time.sleep(0.1)
-                
+                # Exit cleanly if Processing closes on its own (e.g. user hits Escape)
+                if self.processing_process and self.processing_process.poll() is not None:
+                    print("\nProcessing sketch exited — shutting down...")
+                    break
+
         except KeyboardInterrupt:
             print("\nShutting down...")
+        finally:
             self.cleanup()
     
     def _systemctl(self, action, service):
