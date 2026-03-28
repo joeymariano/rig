@@ -22,6 +22,7 @@ W, H              = 128, 64
 
 KEY_UP,   KEY_DOWN  = ecodes.KEY_UP,    ecodes.KEY_DOWN
 KEY_LEFT, KEY_RIGHT = ecodes.KEY_LEFT,  ecodes.KEY_RIGHT
+KEY_ESC             = ecodes.KEY_ESC
 
 
 # ── Track / TrackManager ─────────────────────────────────────────────────────
@@ -240,11 +241,15 @@ class Display:
 
 class Keyboard:
     """evdev arrow-key reader; spawns one thread per device."""
-    EXCLUDE = ('vc4-hdmi', 'cec', 'consumer control')
+    EXCLUDE    = ('vc4-hdmi', 'cec', 'consumer control')
+    COMBO_EXIT = frozenset([KEY_UP, KEY_LEFT, KEY_RIGHT])
 
-    def __init__(self, callback):
+    def __init__(self, callback, on_exit=None):
         self.callback = callback
+        self.on_exit  = on_exit
         self.running  = False
+        self._held    = set()
+        self._lock    = threading.Lock()
         self.devices  = []
         for path in list_devices():
             try:
@@ -266,8 +271,22 @@ class Keyboard:
         try:
             for ev in dev.read_loop():
                 if not self.running: break
-                if ev.type == ecodes.EV_KEY and categorize(ev).keystate == 1:
-                    self.callback(ev.code)
+                if ev.type != ecodes.EV_KEY: continue
+                state = categorize(ev).keystate
+                code  = ev.code
+                if state == 1:   # key down
+                    with self._lock:
+                        self._held.add(code)
+                        held = frozenset(self._held)
+                    if code == KEY_ESC and self.on_exit:
+                        self.on_exit()
+                    elif held >= self.COMBO_EXIT and self.on_exit:
+                        self.on_exit()
+                    else:
+                        self.callback(code)
+                elif state == 0:  # key up
+                    with self._lock:
+                        self._held.discard(code)
         except Exception as e:
             print(f"Keyboard error ({dev.name}): {e}")
 
@@ -279,12 +298,13 @@ class Keyboard:
 class Rig:
     def __init__(self):
         print("Starting Performance Rig...")
+        self._exit_evt = threading.Event()
         self._stop_panel()
         self._stop_argon()
         self.display  = Display()
         self.tracks   = TrackManager(MUSIC_ROOT)
         self.player   = Player(VIRTUAL_MIDI_PORT, AUDIO_DEVICE)
-        self.keyboard = Keyboard(self._on_key)
+        self.keyboard = Keyboard(self._on_key, on_exit=self._request_exit)
         self._proc    = None
 
         if not self.tracks.tracks:
@@ -293,7 +313,7 @@ class Rig:
         self._launch_processing()
         self._refresh_display()
         self.keyboard.start()
-        print("Ready!  ← prev  → next  ↓ play  ↑ pause")
+        print("Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit")
 
     def _launch_processing(self):
         if not PROCESSING_SKETCH.exists():
@@ -324,6 +344,10 @@ class Rig:
             print(f"MIDI bridged {our}:0 → {vir}:0" if r.returncode == 0 else f"aconnect: {r.stderr.strip()}")
         except FileNotFoundError:
             print("aconnect not found — sudo apt install alsa-utils")
+
+    def _request_exit(self):
+        print("\nShutting down (key)")
+        self._exit_evt.set()
 
     def _on_key(self, code):
         if   code == KEY_LEFT:  self.player.stop();          self.tracks.prev(); self._refresh_display()
@@ -370,7 +394,7 @@ class Rig:
 
     def run(self):
         try:
-            while True:
+            while not self._exit_evt.is_set():
                 time.sleep(0.1)
                 if self._proc and self._proc.poll() is not None:
                     print("Processing exited — shutting down"); break
@@ -386,8 +410,13 @@ class Rig:
             self._proc.terminate()
             try: self._proc.wait(timeout=5)
             except subprocess.TimeoutExpired: self._proc.kill()
-        self.display.clear()
-        if self._argon_svc: self._systemctl('start', self._argon_svc)
+        try:
+            self.display.clear()
+        except Exception as e:
+            print(f"Display clear: {e}")
+        if self._argon_svc:
+            self._systemctl('start', self._argon_svc)
+            print(f"Restarted {self._argon_svc}")
         self._restore_panel()
 
 
