@@ -66,7 +66,11 @@ class Track:
         self.title_wav = self.path / "title.wav"
         self.metronome_wav = self.path / "metronome.wav"
         self.midi_file = self.path / "midi-for-processing.midi"
-        
+
+        # Read BPM from bpm.txt if present
+        bpm_file = self.path / "bpm.txt"
+        self.bpm = float(bpm_file.read_text().strip()) if bpm_file.exists() else None
+
         # Extract display info from path
         # ~/rig/set-01/song-01 -> Set: 01, Song: 01
         parts = self.path.parts
@@ -248,7 +252,19 @@ class AudioMidiPlayer:
             title_data, title_sr = sf.read(str(track.title_wav), dtype='float32')
             metronome_data, metronome_sr = sf.read(str(track.metronome_wav), dtype='float32')
             midi_file = MidiFile(str(track.midi_file))
-            
+
+            # Inject tempo if bpm.txt exists and MIDI has no set_tempo message
+            if track.bpm is not None:
+                tempo_us = int(mido.bpm2tempo(track.bpm))
+                has_tempo = any(
+                    msg.type == 'set_tempo'
+                    for track_ in midi_file.tracks
+                    for msg in track_
+                )
+                if not has_tempo:
+                    midi_file.tracks[0].insert(0, mido.MetaMessage('set_tempo', tempo=tempo_us, time=0))
+                    print(f"Injected tempo: {track.bpm} BPM ({tempo_us} µs/beat)")
+
             # Verify sample rates match
             if title_sr != metronome_sr:
                 print(f"WARNING: Sample rate mismatch! title={title_sr}Hz, metronome={metronome_sr}Hz")
@@ -289,23 +305,33 @@ class AudioMidiPlayer:
             self.pause_flag.clear()
             self.is_playing = True
             self.is_paused = False
-            
+
+            # Barrier so audio and MIDI fire together
+            start_event = threading.Event()
+            # MIDI starts this many seconds after the event fires to compensate
+            # for the audio stream's internal buffer latency
+            midi_delay = 1024 / title_sr  # blocksize / samplerate ≈ 21 ms
+
             # Start audio playback thread
             self.audio_thread = threading.Thread(
                 target=self._play_audio_thread,
-                args=(output_data, title_sr, device_id),
+                args=(output_data, title_sr, device_id, start_event),
                 daemon=True
             )
             self.audio_thread.start()
-            
+
             # Start MIDI playback thread
             self.midi_thread = threading.Thread(
                 target=self._play_midi_thread,
-                args=(midi_file,),
+                args=(midi_file, start_event, midi_delay),
                 daemon=True
             )
             self.midi_thread.start()
-            
+
+            # Give threads time to set up, then release the barrier
+            time.sleep(0.2)
+            start_event.set()
+
             print("Playback started")
             return True
             
@@ -319,7 +345,7 @@ class AudioMidiPlayer:
             traceback.print_exc()
             return False
     
-    def _play_audio_thread(self, data, samplerate, device):
+    def _play_audio_thread(self, data, samplerate, device, start_event=None):
         """Audio playback thread for sounddevice"""
         try:
             # Create an output stream
@@ -330,7 +356,9 @@ class AudioMidiPlayer:
                 blocksize=1024,
                 dtype='float32'
             )
-            
+
+            if start_event:
+                start_event.wait()
             stream.start()
             
             # Playback loop
@@ -411,15 +439,18 @@ class AudioMidiPlayer:
         print("Playback started (pygame - mixed stereo)")
         return True
     
-    def _play_midi_thread(self, midi_file):
+    def _play_midi_thread(self, midi_file, start_event=None, start_delay=0):
         """Play MIDI file in a separate thread"""
         if not self.midi_output:
             print("No MIDI output available")
             return
-        
+
+        if start_event:
+            start_event.wait()
+        if start_delay > 0:
+            time.sleep(start_delay)
+
         try:
-            start_time = time.time()
-            
             for msg in midi_file.play():
                 if self.stop_flag.is_set():
                     break
