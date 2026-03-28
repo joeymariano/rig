@@ -1,947 +1,378 @@
 #!/usr/bin/env python3
-"""
-Live Performance Rig Controller
-Handles keyboard input, OLED display, dual audio playback, and MIDI routing
-"""
+"""Live Performance Rig — keyboard, OLED, 4-ch audio, MIDI"""
 
-import os
-import sys
-import time
-import threading
-import subprocess
-import signal
+import os, re, sys, time, threading, subprocess
 from pathlib import Path
 from evdev import InputDevice, categorize, ecodes, list_devices
-
-# Audio
-import pygame
+import sounddevice as sd
+import soundfile as sf
 import numpy as np
-
-# MIDI
 import mido
 from mido import MidiFile, Message
-
-# OLED Display
-import board
-import busio
+import board, busio
 from adafruit_ssd1306 import SSD1306_I2C
 from PIL import Image, ImageDraw, ImageFont
 
-# ============================================================================
-# CONFIGURATION
-# ============================================================================
-
-MUSIC_ROOT = Path("/home/nmlstyl/rig")  # ~/rig/set-01/song-01/...
+# ── Config ───────────────────────────────────────────────────────────────────
+MUSIC_ROOT        = Path("/home/nmlstyl/rig")
 PROCESSING_SKETCH = Path("/home/nmlstyl/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner")
-VIRTUAL_MIDI_PORT = "RigMIDI"  # Our internal port name
-MIDI_PORT_FOR_PROCESSING = "Real Time Sequencer"  # What Processing expects
+VIRTUAL_MIDI_PORT = "RigMIDI"
+AUDIO_DEVICE      = 2      # Zoom L6 device index; None = auto-detect by name
+W, H              = 128, 64
 
-# Audio device configuration
-# Set to None to use system default
-# Set to device name or number for Zoom L6
-# Examples: 
-#   AUDIO_DEVICE = None  # Use default
-#   AUDIO_DEVICE = "L6: USB Audio"  # By name
-#   AUDIO_DEVICE = 3  # By device index
-AUDIO_DEVICE = 2  # Zoom L6 (device 2 from sounddevice list)
+KEY_UP,   KEY_DOWN  = ecodes.KEY_UP,    ecodes.KEY_DOWN
+KEY_LEFT, KEY_RIGHT = ecodes.KEY_LEFT,  ecodes.KEY_RIGHT
 
-# Button mapping (arrow keys)
-KEY_UP = ecodes.KEY_UP
-KEY_DOWN = ecodes.KEY_DOWN
-KEY_LEFT = ecodes.KEY_LEFT
-KEY_RIGHT = ecodes.KEY_RIGHT
 
-# Display settings
-DISPLAY_WIDTH = 128
-DISPLAY_HEIGHT = 64
-
-# ============================================================================
-# TRACK MANAGER
-# ============================================================================
+# ── Track / TrackManager ─────────────────────────────────────────────────────
 
 class Track:
-    """Represents a single song/track"""
     def __init__(self, path):
-        self.path = Path(path)
-        self.title_wav = self.path / "title.wav"
+        self.path          = Path(path)
+        self.title_wav     = self.path / "title.wav"
         self.metronome_wav = self.path / "metronome.wav"
-        self.midi_file = self.path / "midi-for-processing.midi"
-
-        # Read BPM from bpm.txt if present
+        self.midi_file     = self.path / "midi-for-processing.midi"
+        self.song_name     = self.path.parts[-1]
         bpm_file = self.path / "bpm.txt"
         self.bpm = float(bpm_file.read_text().strip()) if bpm_file.exists() else None
 
-        # Extract display info from path
-        # ~/rig/set-01/song-01 -> Set: 01, Song: 01
-        parts = self.path.parts
-        self.set_name = parts[-2] if len(parts) >= 2 else "unknown"
-        self.song_name = parts[-1] if len(parts) >= 1 else "unknown"
-        
-    def exists(self):
-        """Check if all required files exist"""
-        return (self.title_wav.exists() and 
-                self.metronome_wav.exists() and 
-                self.midi_file.exists())
-    
-    def get_display_title(self):
-        """Format title for OLED display"""
-        # Extract numbers from set-01 and song-01
-        set_num = ''.join(filter(str.isdigit, self.set_name))
-        song_num = ''.join(filter(str.isdigit, self.song_name))
-        return f"Set {set_num} - Song {song_num}"
-    
-    def get_song_number(self):
-        """Get just the song number"""
-        song_num = ''.join(filter(str.isdigit, self.song_name))
-        return song_num if song_num else "?"
+    def is_complete(self):
+        return self.title_wav.exists() and self.metronome_wav.exists() and self.midi_file.exists()
+
+    def display_title(self):
+        sn = ''.join(filter(str.isdigit, self.path.parts[-2]))
+        sg = ''.join(filter(str.isdigit, self.song_name))
+        return f"Set {sn} - Song {sg}"
 
 
 class TrackManager:
-    """Manages the playlist and current track position"""
-    def __init__(self, music_root):
-        self.music_root = Path(music_root)
-        self.tracks = []
-        self.current_index = 0
-        self.scan_tracks()
-        
-    def scan_tracks(self):
-        """Scan directory structure for tracks"""
-        self.tracks = []
-        
-        # Find all directories matching set-*/song-* pattern
-        set_dirs = sorted(self.music_root.glob("set-*"))
-        
-        for set_dir in set_dirs:
-            song_dirs = sorted(set_dir.glob("song-*"))
-            for song_dir in song_dirs:
-                track = Track(song_dir)
-                if track.exists():
-                    self.tracks.append(track)
-                else:
-                    print(f"Warning: Incomplete track at {song_dir}")
-        
+    def __init__(self, root):
+        self.root  = Path(root)
+        self.index = 0
+        self.tracks = [
+            t for set_dir in sorted(self.root.glob("set-*"))
+            for t in (Track(p) for p in sorted(set_dir.glob("song-*")))
+            if t.is_complete()
+        ]
         print(f"Found {len(self.tracks)} tracks")
-        for i, track in enumerate(self.tracks, 1):
-            print(f"  {i}. {track.get_display_title()}")
-    
-    def get_current_track(self):
-        """Get current track"""
-        if not self.tracks:
-            return None
-        return self.tracks[self.current_index]
-    
-    def next_track(self):
-        """Advance to next track"""
-        if self.tracks:
-            self.current_index = (self.current_index + 1) % len(self.tracks)
-            return self.get_current_track()
-        return None
-    
-    def previous_track(self):
-        """Go to previous track"""
-        if self.tracks:
-            self.current_index = (self.current_index - 1) % len(self.tracks)
-            return self.get_current_track()
-        return None
-    
-    def get_track_count(self):
-        """Get total number of tracks"""
-        return len(self.tracks)
-    
-    def get_track_position(self):
-        """Get current position (1-indexed)"""
-        return self.current_index + 1 if self.tracks else 0
+        for i, t in enumerate(self.tracks, 1):
+            print(f"  {i}. {t.display_title()}")
+
+    def current(self):  return self.tracks[self.index] if self.tracks else None
+    def next(self):     self.index = (self.index + 1) % len(self.tracks); return self.current()
+    def prev(self):     self.index = (self.index - 1) % len(self.tracks); return self.current()
+    def position(self): return (self.index + 1, len(self.tracks))
 
 
-# ============================================================================
-# AUDIO/MIDI PLAYER
-# ============================================================================
+# ── Player ───────────────────────────────────────────────────────────────────
 
-class AudioMidiPlayer:
-    """Handles synchronized playback of 2 audio files + MIDI with multi-channel routing"""
-    def __init__(self, midi_port_name, audio_device=None):
-        self.midi_port_name = midi_port_name
+class Player:
+    """Synchronized 4-channel audio + MIDI playback."""
+    def __init__(self, midi_port, audio_device=None):
         self.audio_device = audio_device
-        self.midi_output = None
-        self.is_playing = False
-        self.is_paused = False
-        self.midi_thread = None
-        self.audio_thread = None
-        self.stop_flag = threading.Event()
-        self.pause_flag = threading.Event()
-        
-        # Audio playback using sounddevice for multi-channel
-        try:
-            import sounddevice as sd
-            self.use_sounddevice = True
-            self.sd = sd
-            print("Using sounddevice for multi-channel audio")
-        except ImportError:
-            print("WARNING: sounddevice not installed. Falling back to pygame (no channel separation)")
-            print("Install with: pip install sounddevice --break-system-packages")
-            self.use_sounddevice = False
-            self.init_pygame_audio()
-        
-        # Open MIDI output port
-        self.open_midi_port()
-    
-    def init_pygame_audio(self):
-        """Fallback: Initialize pygame mixer (mixed stereo output)"""
-        os.environ['SDL_AUDIODRIVER'] = 'pipewire,pulseaudio,alsa'
-        
-        if self.audio_device:
-            print(f"Initializing pygame audio with device: {self.audio_device}")
-            os.environ['SDL_AUDIO_DEVICE_NAME'] = str(self.audio_device)
-        
-        pygame.mixer.init(frequency=48000, size=-16, channels=2, buffer=512)
-        self.channel_title = pygame.mixer.Channel(0)
-        self.channel_metronome = pygame.mixer.Channel(1)
-        print(f"Pygame audio initialized: {pygame.mixer.get_init()}")
-    
-    def open_midi_port(self):
-        """Create virtual MIDI output port — aconnect wires it to Processing after launch"""
-        try:
-            # Clean up stale RigMIDI ports from previous runs before creating a new one
-            self._cleanup_stale_midi_ports()
+        self.is_playing   = False
+        self.is_paused    = False
+        self._stop        = threading.Event()
+        self._audio_t     = self._midi_t = None
+        self._cleanup_stale_midi()
+        self.midi_out = mido.open_output(midi_port, virtual=True)
+        print(f"Virtual MIDI port: {midi_port}")
 
-            available_ports = mido.get_output_names()
-            print(f"Available MIDI output ports: {available_ports}")
-
-            # Always create a fresh virtual port
-            self.midi_output = mido.open_output(self.midi_port_name, virtual=True)
-            print(f"Created virtual MIDI port: {self.midi_port_name}")
+    def _cleanup_stale_midi(self):
+        try:
+            out = subprocess.run(['aconnect', '-i'], capture_output=True, text=True)
+            for ln in out.stdout.split('\n'):
+                if 'RtMidiOut' in ln and f'pid={os.getpid()}' not in ln:
+                    m = re.search(r'pid=(\d+)', ln)
+                    if m: subprocess.run(['kill', m.group(1)], capture_output=True)
+            time.sleep(0.5)
         except Exception as e:
-            print(f"Error opening MIDI port: {e}")
-            self.midi_output = None
+            print(f"MIDI cleanup: {e}")
 
-    def _cleanup_stale_midi_ports(self):
-        """Kill stale RtMidiOut processes left over from previous runs"""
-        try:
-            result = subprocess.run(['aconnect', '-i'], capture_output=True, text=True)
-            current_pid = str(os.getpid())
-            for line in result.stdout.split('\n'):
-                if 'RtMidiOut' in line and f'pid={current_pid}' not in line:
-                    import re
-                    pid_match = re.search(r'pid=(\d+)', line)
-                    if pid_match:
-                        stale_pid = pid_match.group(1)
-                        subprocess.run(['kill', stale_pid], capture_output=True)
-                        print(f"Cleaned up stale MIDI port (PID {stale_pid})")
-            time.sleep(0.5)  # Give ALSA time to release the port
-        except Exception as e:
-            print(f"MIDI cleanup warning: {e}")
-    
-    def play(self, track):
-        """Start playing a track (2 WAVs + MIDI synchronized)"""
-        if self.is_playing:
-            self.stop()
-        
-        print(f"Loading track: {track.get_display_title()}")
-        
-        if self.use_sounddevice:
-            return self._play_sounddevice(track)
-        else:
-            return self._play_pygame(track)
-    
-    def _play_sounddevice(self, track):
-        """Play using sounddevice (multi-channel routing)"""
-        try:
-            import soundfile as sf
-            
-            # Load audio files
-            title_data, title_sr = sf.read(str(track.title_wav), dtype='float32')
-            metronome_data, metronome_sr = sf.read(str(track.metronome_wav), dtype='float32')
-            midi_file = MidiFile(str(track.midi_file))
-
-            # Inject tempo if bpm.txt exists and MIDI has no set_tempo message
-            if track.bpm is not None:
-                tempo_us = int(mido.bpm2tempo(track.bpm))
-                has_tempo = any(
-                    msg.type == 'set_tempo'
-                    for track_ in midi_file.tracks
-                    for msg in track_
-                )
-                if not has_tempo:
-                    midi_file.tracks[0].insert(0, mido.MetaMessage('set_tempo', tempo=tempo_us, time=0))
-                    print(f"Injected tempo: {track.bpm} BPM ({tempo_us} µs/beat)")
-
-            # Verify sample rates match
-            if title_sr != metronome_sr:
-                print(f"WARNING: Sample rate mismatch! title={title_sr}Hz, metronome={metronome_sr}Hz")
-                return False
-            
-            # Ensure both are stereo
-            if title_data.ndim == 1:
-                title_data = np.column_stack([title_data, title_data])
-            if metronome_data.ndim == 1:
-                metronome_data = np.column_stack([metronome_data, metronome_data])
-            
-            # Pad shorter file to match length
-            max_len = max(len(title_data), len(metronome_data))
-            if len(title_data) < max_len:
-                title_data = np.pad(title_data, ((0, max_len - len(title_data)), (0, 0)))
-            if len(metronome_data) < max_len:
-                metronome_data = np.pad(metronome_data, ((0, max_len - len(metronome_data)), (0, 0)))
-            
-            # Create 4-channel output: [title_L, title_R, metronome_L, metronome_R]
-            output_data = np.column_stack([
-                title_data[:, 0],      # Channel 1 (Output 1)
-                title_data[:, 1],      # Channel 2 (Output 2)
-                metronome_data[:, 0],  # Channel 3 (Output 3)
-                metronome_data[:, 1]   # Channel 4 (Output 4)
-            ])
-            
-            # Find Zoom L6 device
-            device_id = self._find_audio_device()
-            
-            print(f"Starting 4-channel playback on device {device_id}")
-            print(f"  Channels 1-2: title.wav")
-            print(f"  Channels 3-4: metronome.wav")
-            print(f"  Sample rate: {title_sr}Hz")
-            print(f"  Duration: {max_len / title_sr:.2f}s")
-            
-            # Reset flags
-            self.stop_flag.clear()
-            self.pause_flag.clear()
-            self.is_playing = True
-            self.is_paused = False
-
-            # Barrier so audio and MIDI fire together
-            start_event = threading.Event()
-            # MIDI starts this many seconds after the event fires to compensate
-            # for the audio stream's internal buffer latency
-            midi_delay = 1024 / title_sr  # blocksize / samplerate ≈ 21 ms
-
-            # Start audio playback thread
-            self.audio_thread = threading.Thread(
-                target=self._play_audio_thread,
-                args=(output_data, title_sr, device_id, start_event),
-                daemon=True
-            )
-            self.audio_thread.start()
-
-            # Start MIDI playback thread
-            self.midi_thread = threading.Thread(
-                target=self._play_midi_thread,
-                args=(midi_file, start_event, midi_delay),
-                daemon=True
-            )
-            self.midi_thread.start()
-
-            # Give threads time to set up, then release the barrier
-            time.sleep(0.2)
-            start_event.set()
-
-            print("Playback started")
-            return True
-            
-        except ImportError:
-            print("ERROR: soundfile not installed")
-            print("Install with: pip install soundfile --break-system-packages")
-            return False
-        except Exception as e:
-            print(f"Error loading track files: {e}")
-            import traceback
-            traceback.print_exc()
-            return False
-    
-    def _play_audio_thread(self, data, samplerate, device, start_event=None):
-        """Audio playback thread for sounddevice"""
-        try:
-            # Create an output stream
-            stream = self.sd.OutputStream(
-                device=device,
-                channels=4,  # 4-channel output
-                samplerate=samplerate,
-                blocksize=1024,
-                dtype='float32'
-            )
-
-            if start_event:
-                start_event.wait()
-            stream.start()
-            
-            # Playback loop
-            frame = 0
-            frames_per_block = 1024
-            
-            while frame < len(data) and not self.stop_flag.is_set():
-                # Handle pause
-                while self.is_paused and not self.stop_flag.is_set():
-                    time.sleep(0.01)
-                
-                if self.stop_flag.is_set():
-                    break
-                
-                # Get next block
-                end_frame = min(frame + frames_per_block, len(data))
-                block = data[frame:end_frame]
-                
-                # Pad if needed
-                if len(block) < frames_per_block:
-                    block = np.pad(block, ((0, frames_per_block - len(block)), (0, 0)))
-                
-                # Write to stream
-                stream.write(block)
-                frame = end_frame
-            
-            stream.stop()
-            stream.close()
-            
-        except Exception as e:
-            print(f"Error in audio playback: {e}")
-            import traceback
-            traceback.print_exc()
-    
-    def _find_audio_device(self):
-        """Find Zoom L6 audio device"""
-        devices = self.sd.query_devices()
-
+    def _find_device(self):
+        devs = sd.query_devices()
         if self.audio_device is not None:
             try:
-                dev = devices[self.audio_device]
-                if dev['max_output_channels'] >= 4:
+                d = devs[self.audio_device]
+                if d['max_output_channels'] >= 4:
                     return self.audio_device
-                print(f"WARNING: Device {self.audio_device} '{dev['name']}' only has "
-                      f"{dev['max_output_channels']} output channels (need 4) — falling back to auto-detect")
+                print(f"WARNING: device {self.audio_device} has only {d['max_output_channels']} output channels")
             except (IndexError, KeyError):
-                print(f"WARNING: Device {self.audio_device} not found — falling back to auto-detect")
-            # Print available devices to help diagnose
+                print(f"WARNING: device {self.audio_device} not found")
             print("Available output devices:")
-            for i, d in enumerate(devices):
+            for i, d in enumerate(devs):
                 if d['max_output_channels'] > 0:
                     print(f"  [{i}] {d['name']}  (out={d['max_output_channels']})")
-
-        # Try to find Zoom L6 automatically
-        for i, device in enumerate(devices):
-            name = device['name'].lower()
-            if ('zoom' in name or 'l6' in name or 'l-6' in name) and device['max_output_channels'] >= 4:
-                print(f"Auto-detected Zoom L6: {device['name']} (device {i})")
+        for i, d in enumerate(devs):
+            n = d['name'].lower()
+            if ('zoom' in n or 'l6' in n or 'l-6' in n) and d['max_output_channels'] >= 4:
+                print(f"Auto-detected Zoom L6: {d['name']} (device {i})")
                 return i
-
-        print("WARNING: Zoom L6 not auto-detected, using default device")
+        print("WARNING: Zoom L6 not found, using default")
         return None
-    
-    def _play_pygame(self, track):
-        """Fallback: Play using pygame (mixed stereo)"""
-        try:
-            sound_title = pygame.mixer.Sound(str(track.title_wav))
-            sound_metronome = pygame.mixer.Sound(str(track.metronome_wav))
-            midi_file = MidiFile(str(track.midi_file))
-        except Exception as e:
-            print(f"Error loading track files: {e}")
-            return False
-        
-        # Reset flags
-        self.stop_flag.clear()
-        self.is_playing = True
-        self.is_paused = False
-        
-        # Start both audio channels simultaneously
-        self.channel_title.play(sound_title)
-        self.channel_metronome.play(sound_metronome)
-        
-        # Start MIDI playback in separate thread
-        self.midi_thread = threading.Thread(
-            target=self._play_midi_thread,
-            args=(midi_file,),
-            daemon=True
-        )
-        self.midi_thread.start()
-        
-        print("Playback started (pygame - mixed stereo)")
-        return True
-    
-    def _play_midi_thread(self, midi_file, start_event=None, start_delay=0):
-        """Play MIDI file in a separate thread"""
-        if not self.midi_output:
-            print("No MIDI output available")
-            return
 
-        if start_event:
-            start_event.wait()
-        if start_delay > 0:
-            time.sleep(start_delay)
-
-        try:
-            for msg in midi_file.play():
-                if self.stop_flag.is_set():
-                    break
-                
-                # Wait for pause to be released
-                while self.is_paused and not self.stop_flag.is_set():
-                    time.sleep(0.01)
-                
-                if self.stop_flag.is_set():
-                    break
-                
-                # Send MIDI message
-                if not msg.is_meta:
-                    self.midi_output.send(msg)
-            
-            # Send all notes off when done
-            for channel in range(16):
-                self.midi_output.send(Message('control_change', 
-                                             control=123, 
-                                             value=0, 
-                                             channel=channel))
-            
-        except Exception as e:
-            print(f"Error in MIDI playback: {e}")
-    
-    def pause(self):
-        """Pause playback"""
-        if self.is_playing and not self.is_paused:
-            if self.use_sounddevice:
-                self.is_paused = True
-            else:
-                self.channel_title.pause()
-                self.channel_metronome.pause()
-                self.is_paused = True
-            print("Playback paused")
-    
-    def unpause(self):
-        """Resume playback"""
-        if self.is_playing and self.is_paused:
-            if self.use_sounddevice:
-                self.is_paused = False
-            else:
-                self.channel_title.unpause()
-                self.channel_metronome.unpause()
-                self.is_paused = False
-            print("Playback resumed")
-    
-    def toggle_pause(self):
-        """Toggle pause state"""
-        if self.is_paused:
-            self.unpause()
-        else:
-            self.pause()
-    
-    def stop(self):
-        """Stop playback"""
+    def play(self, track):
         if self.is_playing:
-            self.stop_flag.set()
-            
-            if not self.use_sounddevice:
-                self.channel_title.stop()
-                self.channel_metronome.stop()
-            
-            # Send all notes off
-            if self.midi_output:
-                for channel in range(16):
-                    try:
-                        self.midi_output.send(Message('control_change', 
-                                                     control=123, 
-                                                     value=0, 
-                                                     channel=channel))
-                    except:
-                        pass
-            
-            # Wait for threads
-            if self.audio_thread:
-                self.audio_thread.join(timeout=1.0)
-            if self.midi_thread:
-                self.midi_thread.join(timeout=1.0)
-            
-            self.is_playing = False
-            self.is_paused = False
-            print("Playback stopped")
-    
-    def is_active(self):
-        """Check if currently playing"""
-        return self.is_playing
-    
-    def cleanup(self):
-        """Clean up resources"""
-        self.stop()
-        if self.midi_output:
-            self.midi_output.close()
-        if not self.use_sounddevice:
-            pygame.mixer.quit()
-
-
-# ============================================================================
-# OLED DISPLAY
-# ============================================================================
-
-class OLEDDisplay:
-    """Manages the Argon case OLED display"""
-    def __init__(self):
-        # Initialize I2C and display
-        i2c = busio.I2C(board.SCL, board.SDA)
-        self.oled = SSD1306_I2C(DISPLAY_WIDTH, DISPLAY_HEIGHT, i2c, addr=0x3C)
-        
-        # Create blank image for drawing
-        self.image = Image.new("1", (DISPLAY_WIDTH, DISPLAY_HEIGHT))
-        self.draw = ImageDraw.Draw(self.image)
-        
-        # Try to load a font, fall back to default if not available
+            self.stop()
         try:
-            self.font_large = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 16)
-            self.font_medium = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 12)
-            self.font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 10)
+            title_data, sr  = sf.read(str(track.title_wav),     dtype='float32')
+            metro_data, msr = sf.read(str(track.metronome_wav), dtype='float32')
+            midi            = MidiFile(str(track.midi_file))
+        except Exception as e:
+            print(f"Error loading track: {e}"); return False
+
+        if sr != msr:
+            print(f"WARNING: sample rate mismatch ({sr} vs {msr})"); return False
+
+        # Inject BPM tempo if bpm.txt exists and MIDI has no set_tempo
+        if track.bpm and not any(m.type == 'set_tempo' for tr in midi.tracks for m in tr):
+            midi.tracks[0].insert(0, mido.MetaMessage('set_tempo', tempo=int(mido.bpm2tempo(track.bpm)), time=0))
+            print(f"Injected tempo: {track.bpm} BPM")
+
+        # Ensure stereo, pad to equal length
+        if title_data.ndim == 1: title_data = np.column_stack([title_data, title_data])
+        if metro_data.ndim == 1: metro_data = np.column_stack([metro_data, metro_data])
+        n = max(len(title_data), len(metro_data))
+        title_data = np.pad(title_data, ((0, n - len(title_data)), (0, 0)))
+        metro_data = np.pad(metro_data, ((0, n - len(metro_data)), (0, 0)))
+
+        # 4-channel interleave: [title_L, title_R, metro_L, metro_R]
+        out = np.column_stack([title_data[:, 0], title_data[:, 1], metro_data[:, 0], metro_data[:, 1]])
+        dev = self._find_device()
+
+        self._stop.clear()
+        self.is_playing = self.is_paused = False
+        start = threading.Event()
+
+        self._audio_t = threading.Thread(target=self._audio_loop, args=(out, sr, dev, start), daemon=True)
+        self._midi_t  = threading.Thread(target=self._midi_loop,  args=(midi, start, 1024/sr), daemon=True)
+        self._audio_t.start(); self._midi_t.start()
+        time.sleep(0.2); start.set()
+        self.is_playing = True
+        print(f"Playing: {track.display_title()}  ({n/sr:.1f}s, device {dev})")
+        return True
+
+    def _audio_loop(self, data, sr, device, start):
+        stream = sd.OutputStream(device=device, channels=4, samplerate=sr, blocksize=1024, dtype='float32')
+        start.wait(); stream.start()
+        frame, bsize = 0, 1024
+        while frame < len(data) and not self._stop.is_set():
+            while self.is_paused and not self._stop.is_set(): time.sleep(0.01)
+            if self._stop.is_set(): break
+            block = data[frame:frame+bsize]
+            if len(block) < bsize: block = np.pad(block, ((0, bsize - len(block)), (0, 0)))
+            stream.write(block); frame += bsize
+        stream.stop(); stream.close()
+
+    def _midi_loop(self, midi, start, delay):
+        start.wait(); time.sleep(delay)
+        try:
+            for msg in midi.play():
+                while self.is_paused and not self._stop.is_set(): time.sleep(0.01)
+                if self._stop.is_set(): break
+                if not msg.is_meta: self.midi_out.send(msg)
+        except Exception as e:
+            print(f"MIDI error: {e}")
+        finally:
+            self._all_notes_off()
+
+    def _all_notes_off(self):
+        for ch in range(16):
+            try: self.midi_out.send(Message('control_change', control=123, value=0, channel=ch))
+            except: pass
+
+    def toggle_pause(self):
+        if not self.is_playing: return
+        self.is_paused = not self.is_paused
+        print("Paused" if self.is_paused else "Resumed")
+
+    def stop(self):
+        if not self.is_playing: return
+        self._stop.set(); self._all_notes_off()
+        if self._audio_t: self._audio_t.join(timeout=1.0)
+        if self._midi_t:  self._midi_t.join(timeout=1.0)
+        self.is_playing = self.is_paused = False
+
+    def cleanup(self):
+        self.stop(); self.midi_out.close()
+
+
+# ── Display ──────────────────────────────────────────────────────────────────
+
+class Display:
+    """SSD1306 128×64 OLED via I2C."""
+    def __init__(self):
+        i2c = busio.I2C(board.SCL, board.SDA)
+        self.oled = SSD1306_I2C(W, H, i2c, addr=0x3C)
+        self.img  = Image.new("1", (W, H))
+        self.draw = ImageDraw.Draw(self.img)
+        try:
+            base = "/usr/share/fonts/truetype/dejavu/DejaVuSans"
+            self.fl = ImageFont.truetype(f"{base}-Bold.ttf", 16)
+            self.fm = ImageFont.truetype(f"{base}.ttf", 12)
+            self.fs = ImageFont.truetype(f"{base}.ttf", 10)
         except:
-            self.font_large = ImageFont.load_default()
-            self.font_medium = ImageFont.load_default()
-            self.font_small = ImageFont.load_default()
-        
-        self.clear()
-        self.show_startup()
-    
+            self.fl = self.fm = self.fs = ImageFont.load_default()
+        self._clear(); self._text(10, 20, "Performance Rig", self.fm)
+        self._text(20, 40, "Initializing...", self.fs); self._show()
+
+    def _clear(self): self.draw.rectangle((0, 0, W, H), fill=0)
+    def _text(self, x, y, s, f): self.draw.text((x, y), s, font=f, fill=255)
+    def _show(self): self.oled.image(self.img); self.oled.show()
+
+    def update(self, track, pos, total, playing, paused):
+        self._clear()
+        self._text(2,  2, f"Track {pos}/{total}", self.fs)
+        self._text(2, 16, track.display_title(), self.fl)
+        self._text(2, 36, track.song_name, self.fm)
+        status = "|| PAUSED" if paused else "> PLAYING" if playing else "Press DOWN to play"
+        self._text(2, 52, status, self.fs)
+        self._show()
+
+    def error(self, msg):
+        self._clear(); self._text(2, 20, "ERROR:", self.fm); self._text(2, 35, msg, self.fs); self._show()
+
     def clear(self):
-        """Clear the display"""
-        self.draw.rectangle((0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT), outline=0, fill=0)
-        self.oled.image(self.image)
-        self.oled.show()
-    
-    def show_startup(self):
-        """Show startup message"""
-        self.draw.rectangle((0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT), outline=0, fill=0)
-        self.draw.text((10, 20), "Performance Rig", font=self.font_medium, fill=255)
-        self.draw.text((20, 40), "Initializing...", font=self.font_small, fill=255)
-        self.oled.image(self.image)
-        self.oled.show()
-    
-    def show_track(self, track, position, total, is_playing=False, is_paused=False):
-        """Display current track information"""
-        self.draw.rectangle((0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT), outline=0, fill=0)
-        
-        # Line 1: Track position
-        track_text = f"Track {position}/{total}"
-        self.draw.text((2, 2), track_text, font=self.font_small, fill=255)
-        
-        # Line 2: Set and Song number
-        title = track.get_display_title()
-        self.draw.text((2, 16), title, font=self.font_large, fill=255)
-        
-        # Line 3: Song name/folder
-        song_name = track.song_name
-        self.draw.text((2, 36), song_name, font=self.font_medium, fill=255)
-        
-        # Line 4: Status
-        if is_paused:
-            status = "|| PAUSED"
-        elif is_playing:
-            status = "> PLAYING"
-        else:
-            status = "Press DOWN to play"
-        
-        self.draw.text((2, 52), status, font=self.font_small, fill=255)
-        
-        self.oled.image(self.image)
-        self.oled.show()
-    
-    def show_error(self, message):
-        """Display error message"""
-        self.draw.rectangle((0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT), outline=0, fill=0)
-        self.draw.text((2, 20), "ERROR:", font=self.font_medium, fill=255)
-        self.draw.text((2, 35), message, font=self.font_small, fill=255)
-        self.oled.image(self.image)
-        self.oled.show()
+        self._clear(); self._show()
 
 
-# ============================================================================
-# KEYBOARD INPUT HANDLER
-# ============================================================================
+# ── Keyboard ─────────────────────────────────────────────────────────────────
 
-class KeyboardHandler:
-    """Handles USB keyboard input (arrow keys)"""
-    def __init__(self, on_key_callback):
-        self.on_key_callback = on_key_callback
-        self.devices = []
-        self.running = False
-        self.threads = []
-        self.find_keyboards()
+class Keyboard:
+    """evdev arrow-key reader; spawns one thread per device."""
+    EXCLUDE = ('vc4-hdmi', 'cec', 'consumer control')
 
-    def find_keyboards(self):
-        """Find all input devices with arrow keys, excluding virtual/CEC devices"""
-        EXCLUDE = ('vc4-hdmi', 'cec', 'consumer control')
+    def __init__(self, callback):
+        self.callback = callback
+        self.running  = False
+        self.devices  = []
         for path in list_devices():
             try:
-                device = InputDevice(path)
-                name_lower = device.name.lower()
-                if any(x in name_lower for x in EXCLUDE):
-                    continue
-                capabilities = device.capabilities(verbose=False)
-                if ecodes.EV_KEY in capabilities:
-                    keys = capabilities[ecodes.EV_KEY]
-                    if (KEY_UP in keys and KEY_DOWN in keys and
-                            KEY_LEFT in keys and KEY_RIGHT in keys):
-                        self.devices.append(device)
-                        print(f"Found keyboard: {device.name} at {device.path}")
-            except Exception:
-                pass
-
-        if not self.devices:
-            print("Warning: No keyboard with arrow keys found")
-        return bool(self.devices)
+                dev  = InputDevice(path)
+                if any(x in dev.name.lower() for x in self.EXCLUDE): continue
+                keys = dev.capabilities(verbose=False).get(ecodes.EV_KEY, [])
+                if all(k in keys for k in (KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT)):
+                    self.devices.append(dev)
+                    print(f"Keyboard: {dev.name}")
+            except Exception: pass
+        if not self.devices: print("Warning: no keyboard with arrow keys found")
 
     def start(self):
-        """Start listening for keyboard input"""
-        if not self.devices:
-            print("No keyboard device available")
-            return False
-
         self.running = True
-        for device in self.devices:
-            t = threading.Thread(target=self._input_loop, args=(device,), daemon=True)
-            t.start()
-            self.threads.append(t)
-        return True
+        for d in self.devices:
+            threading.Thread(target=self._loop, args=(d,), daemon=True).start()
 
-    def _input_loop(self, device):
-        """Main input loop (runs in separate thread per device)"""
-        print(f"Keyboard handler started: {device.name}")
+    def _loop(self, dev):
         try:
-            for event in device.read_loop():
-                if not self.running:
-                    break
-
-                # Only process key down events
-                if event.type == ecodes.EV_KEY:
-                    key_event = categorize(event)
-                    if key_event.keystate == 1:  # Key down
-                        self.on_key_callback(event.code)
-
+            for ev in dev.read_loop():
+                if not self.running: break
+                if ev.type == ecodes.EV_KEY and categorize(ev).keystate == 1:
+                    self.callback(ev.code)
         except Exception as e:
-            print(f"Keyboard handler error ({device.name}): {e}")
+            print(f"Keyboard error ({dev.name}): {e}")
 
-    def stop(self):
-        """Stop the keyboard handler"""
-        self.running = False
-        for t in self.threads:
-            t.join(timeout=1.0)
+    def stop(self): self.running = False
 
 
-# ============================================================================
-# MAIN CONTROLLER
-# ============================================================================
+# ── Rig ───────────────────────────────────────────────────────────────────────
 
-class PerformanceRig:
-    """Main controller coordinating all components"""
+class Rig:
     def __init__(self):
-        print("Initializing Performance Rig...")
+        print("Starting Performance Rig...")
+        self._stop_argon()
+        self.display  = Display()
+        self.tracks   = TrackManager(MUSIC_ROOT)
+        self.player   = Player(VIRTUAL_MIDI_PORT, AUDIO_DEVICE)
+        self.keyboard = Keyboard(self._on_key)
+        self._proc    = None
 
-        # Stop Argon One daemon so it doesn't clobber our I2C/OLED writes
-        self._stop_argon_daemon()
+        if not self.tracks.tracks:
+            self.display.error("No tracks!"); sys.exit(1)
 
-        # Initialize components
-        self.display = OLEDDisplay()
-        self.track_manager = TrackManager(MUSIC_ROOT)
-        self.player = AudioMidiPlayer(VIRTUAL_MIDI_PORT, audio_device=AUDIO_DEVICE)
-        self.keyboard = KeyboardHandler(self.on_key_press)
-        self.processing_process = None
-        
-        # Check if we have tracks
-        if self.track_manager.get_track_count() == 0:
-            self.display.show_error("No tracks found!")
-            print("ERROR: No tracks found in", MUSIC_ROOT)
-            sys.exit(1)
-        
-        # Start Processing sketch
-        self.start_processing()
-        
-        # Show initial track
-        self.update_display()
-        
-        # Start keyboard handler
+        self._launch_processing()
+        self._refresh_display()
         self.keyboard.start()
-        
-        print("Performance Rig ready!")
-        print("Controls:")
-        print("  LEFT  = Previous track")
-        print("  RIGHT = Next track")
-        print("  DOWN  = Play current track")
-        print("  UP    = Pause/Resume")
-    
-    def start_processing(self):
-        """Launch the Processing sketch"""
+        print("Ready!  ← prev  → next  ↓ play  ↑ pause")
+
+    def _launch_processing(self):
         if not PROCESSING_SKETCH.exists():
-            print(f"Warning: Processing sketch not found at {PROCESSING_SKETCH}")
-            return
+            print(f"Warning: sketch not found at {PROCESSING_SKETCH}"); return
+        os.chmod(PROCESSING_SKETCH, 0o755)
+        self._proc = subprocess.Popen([str(PROCESSING_SKETCH)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self._bridge_midi()
+        print(f"Processing launched (PID {self._proc.pid})")
+        time.sleep(3)
 
+    def _bridge_midi(self):
+        """Wire RigMIDI → VirMIDI via aconnect (must run before Processing opens the port)."""
         try:
-            # Make sure it's executable
-            os.chmod(PROCESSING_SKETCH, 0o755)
-
-            # Launch Processing sketch
-            self.processing_process = subprocess.Popen(
-                [str(PROCESSING_SKETCH)],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
-            # Wire RigMIDI -> VirMIDI before Processing starts so the
-            # connection is live when Java opens the VirMIDI device
-            self._connect_midi_to_processing()
-
-            print(f"Processing sketch launched (PID: {self.processing_process.pid})")
-
-            # Give Processing time to start and open VirMIDI
-            time.sleep(3)
-
-        except Exception as e:
-            print(f"Error launching Processing sketch: {e}")
-
-    def _connect_midi_to_processing(self):
-        """Connect RigMIDI → VirMIDI via aconnect.
-
-        snd_virmidi creates a device visible as both an ALSA sequencer port
-        (writable via aconnect) and a raw MIDI device (visible to Java).
-        This must run BEFORE Processing launches so the connection is live
-        when Java opens the VirMIDI device.
-        """
-        try:
-            import re
-            # Find our RigMIDI client number in ALSA readable ports
-            inputs = subprocess.run(['aconnect', '-i'], capture_output=True, text=True)
-            our_client = None
-            for line in inputs.stdout.split('\n'):
-                if 'RtMidiOut' in line:
-                    m = re.search(r'client (\d+):', line)
-                    if m:
-                        our_client = m.group(1)
-                        break
-
-            # Find first VirMIDI writable port
-            outputs = subprocess.run(['aconnect', '-o'], capture_output=True, text=True)
-            virmidi_client = None
-            for line in outputs.stdout.split('\n'):
-                if 'Virtual Raw MIDI' in line or 'VirMIDI' in line:
-                    m = re.search(r'client (\d+):', line)
-                    if m:
-                        virmidi_client = m.group(1)
-                        break
-
-            if not our_client:
-                print("MIDI bridge: RigMIDI ALSA client not found")
-                return
-            if not virmidi_client:
-                print("MIDI bridge: VirMIDI not found — run: sudo bash ~/rig/patch_midi.sh")
-                return
-
-            result = subprocess.run(
-                ['aconnect', f'{our_client}:0', f'{virmidi_client}:0'],
-                capture_output=True, text=True
-            )
-            if result.returncode == 0:
-                print(f"MIDI bridged: RigMIDI ({our_client}:0) -> VirMIDI ({virmidi_client}:0)")
-            else:
-                print(f"aconnect failed: {result.stderr.strip()}")
+            ins  = subprocess.run(['aconnect', '-i'], capture_output=True, text=True)
+            outs = subprocess.run(['aconnect', '-o'], capture_output=True, text=True)
+            our = vir = None
+            for ln in ins.stdout.split('\n'):
+                if 'RtMidiOut' in ln:
+                    m = re.search(r'client (\d+):', ln)
+                    if m: our = m.group(1); break
+            for ln in outs.stdout.split('\n'):
+                if 'Virtual Raw MIDI' in ln or 'VirMIDI' in ln:
+                    m = re.search(r'client (\d+):', ln)
+                    if m: vir = m.group(1); break
+            if not our: print("MIDI bridge: RigMIDI not found"); return
+            if not vir: print("MIDI bridge: VirMIDI not found — run patch_midi.sh"); return
+            r = subprocess.run(['aconnect', f'{our}:0', f'{vir}:0'], capture_output=True, text=True)
+            print(f"MIDI bridged {our}:0 → {vir}:0" if r.returncode == 0 else f"aconnect: {r.stderr.strip()}")
         except FileNotFoundError:
-            print("aconnect not found — install with: sudo apt install alsa-utils")
-        except Exception as e:
-            print(f"MIDI bridge error: {e}")
-    
-    def on_key_press(self, key_code):
-        """Handle keyboard input"""
-        if key_code == KEY_LEFT:
-            print("← Previous track")
-            self.player.stop()
-            self.track_manager.previous_track()
-            self.update_display()
-            
-        elif key_code == KEY_RIGHT:
-            print("→ Next track")
-            self.player.stop()
-            self.track_manager.next_track()
-            self.update_display()
-            
-        elif key_code == KEY_DOWN:
-            print("↓ Play")
-            track = self.track_manager.get_current_track()
-            if track:
-                self.player.play(track)
-                self.update_display()
-            
-        elif key_code == KEY_UP:
-            print("↑ Pause/Resume")
-            self.player.toggle_pause()
-            self.update_display()
-    
-    def update_display(self):
-        """Update OLED with current track info"""
-        track = self.track_manager.get_current_track()
-        if track:
-            self.display.show_track(
-                track,
-                self.track_manager.get_track_position(),
-                self.track_manager.get_track_count(),
-                self.player.is_active(),
-                self.player.is_paused
-            )
-    
+            print("aconnect not found — sudo apt install alsa-utils")
+
+    def _on_key(self, code):
+        if   code == KEY_LEFT:  self.player.stop();          self.tracks.prev(); self._refresh_display()
+        elif code == KEY_RIGHT: self.player.stop();          self.tracks.next(); self._refresh_display()
+        elif code == KEY_DOWN:
+            t = self.tracks.current()
+            if t: self.player.play(t); self._refresh_display()
+        elif code == KEY_UP:    self.player.toggle_pause();  self._refresh_display()
+
+    def _refresh_display(self):
+        t = self.tracks.current()
+        if t:
+            pos, total = self.tracks.position()
+            self.display.update(t, pos, total, self.player.is_playing, self.player.is_paused)
+
+    def _systemctl(self, action, svc):
+        cmd = ['systemctl', action, svc]
+        if os.geteuid() != 0: cmd = ['sudo', '-n'] + cmd
+        return subprocess.run(cmd, capture_output=True)
+
+    def _stop_argon(self):
+        self._argon_svc = None
+        for svc in ('argononed', 'argone-oled'):
+            if self._systemctl('stop', svc).returncode == 0:
+                print(f"Stopped {svc}"); self._argon_svc = svc; return
+        print("Note: argononed not stopped (service not found or missing sudoers rule)")
+
     def run(self):
-        """Main run loop"""
         try:
             while True:
                 time.sleep(0.1)
-                # Exit cleanly if Processing closes on its own (e.g. user hits Escape)
-                if self.processing_process and self.processing_process.poll() is not None:
-                    print("\nProcessing sketch exited — shutting down...")
-                    break
-
+                if self._proc and self._proc.poll() is not None:
+                    print("Processing exited — shutting down"); break
         except KeyboardInterrupt:
-            print("\nShutting down...")
+            print("\nShutting down")
         finally:
-            self.cleanup()
-    
-    def _systemctl(self, action, service):
-        """Run systemctl, using sudo if not already root"""
-        cmd = ['systemctl', action, service]
-        if os.geteuid() != 0:
-            cmd = ['sudo', '-n'] + cmd  # -n = non-interactive, never prompt
-        return subprocess.run(cmd, capture_output=True, text=True)
+            self._cleanup()
 
-    def _stop_argon_daemon(self):
-        """Stop Argon One daemon to prevent I2C/OLED conflicts during operation"""
-        self._argon_service = None
-        for service in ('argononed', 'argone-oled'):
-            result = self._systemctl('stop', service)
-            if result.returncode == 0:
-                print(f"Stopped {service}")
-                self._argon_service = service
-                return
-        print("Note: argononed not stopped (service not found, or add sudoers rule — see setup_sudoers.sh)")
-
-    def _start_argon_daemon(self):
-        """Restart Argon One daemon after we release the display"""
-        if self._argon_service:
-            self._systemctl('start', self._argon_service)
-            print(f"Restarted {self._argon_service}")
-
-    def cleanup(self):
-        """Clean up all resources"""
-        print("Cleaning up...")
+    def _cleanup(self):
         self.keyboard.stop()
         self.player.cleanup()
-
-        if self.processing_process:
-            print("Stopping Processing sketch...")
-            self.processing_process.terminate()
-            try:
-                self.processing_process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                self.processing_process.kill()
-
+        if self._proc:
+            self._proc.terminate()
+            try: self._proc.wait(timeout=5)
+            except subprocess.TimeoutExpired: self._proc.kill()
         self.display.clear()
-        self._start_argon_daemon()
-        print("Shutdown complete")
-
-
-# ============================================================================
-# ENTRY POINT
-# ============================================================================
-
-def main():
-    # Check if running as root (needed for some GPIO operations)
-    if os.geteuid() != 0:
-        print("Warning: Not running as root. Some features may not work.")
-    
-    # Create and run the rig
-    rig = PerformanceRig()
-    rig.run()
+        if self._argon_svc: self._systemctl('start', self._argon_svc)
 
 
 if __name__ == "__main__":
-    main()
+    if os.geteuid() != 0:
+        print("Warning: not running as root — keyboard/I2C may fail")
+    Rig().run()

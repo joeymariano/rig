@@ -94,6 +94,25 @@ source ~/rig/venv/bin/activate
 pip install sounddevice soundfile --break-system-packages
 ```
 
+### "Invalid number of channels" / `PaErrorCode -9998`
+
+The hardcoded `AUDIO_DEVICE` index (e.g. `2`) pointed to a device that doesn't
+support 4-channel output. This happens when USB device enumeration order changes
+after a reboot or USB reconnect.
+
+The controller now validates the device channel count and prints available devices
+if the check fails, then auto-detects by name. Check the output for the correct index:
+
+```
+Available output devices:
+  [0] bcm2835 Headphones  (out=8)
+  [1] ...
+  [2] L6: USB Audio       (out=4)   ← use this index
+```
+
+Update `AUDIO_DEVICE` in `controller.py` to match, or set `AUDIO_DEVICE = None`
+to always auto-detect by name.
+
 ### "No audio device found" or Wrong Device Selected
 ```bash
 # List all devices

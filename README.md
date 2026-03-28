@@ -1,350 +1,308 @@
-# Live Performance Rig Controller
+# Live Performance Rig
 
-A Python-based live performance system for Raspberry Pi that synchronizes:
-- 2 audio tracks (title.wav + metronome.wav)
-- MIDI file playback (for Processing visuals)
-- OLED display (Argon case)
-- USB keyboard control (4-button arrow pad)
+Python controller for Raspberry Pi (Argon One V5) that synchronizes:
+- 2 audio tracks routed to separate Zoom L6 outputs
+- MIDI file playback driving a Processing visual sketch
+- SSD1306 OLED display (built into Argon case)
+- USB keyboard control (4 arrow keys)
 
 ## System Architecture
 
 ```
-┌─────────────────┐
-│  USB Keyboard   │ (Arrow keys: ←→↑↓)
-│  (4 buttons)    │
-└────────┬────────┘
-         │
-┌────────▼────────────────────────────────────────┐
-│                                                  │
-│            controller.py (Python)                │
-│                                                  │
-│  ┌──────────────┐  ┌─────────────────────────┐ │
-│  │   Keyboard   │  │    Track Manager        │ │
-│  │   Handler    │  │  (scans ~/rig/set-*/    │ │
-│  └──────────────┘  │   song-* directories)   │ │
-│                    └─────────────────────────┘ │
-│  ┌──────────────┐  ┌─────────────────────────┐ │
-│  │     OLED     │  │   Audio/MIDI Player     │ │
-│  │   Display    │  │  - pygame (2 channels)  │ │
-│  │  (SSD1306)   │  │  - mido (MIDI output)   │ │
-│  └──────────────┘  └─────────────────────────┘ │
-│                                                  │
-└──────────────┬───────────────────────┬───────────┘
-               │                       │
-               │ Launches              │ MIDI: "RigMIDI"
-               │                       │ virtual port
-               │                       │
-        ┌──────▼─────────┐    ┌────────▼────────┐
-        │   Processing   │◄───┤  MIDI Messages  │
-        │     Sketch     │    └─────────────────┘
-        │ (sticker_      │
-        │  spinner)      │
-        └────────────────┘
-               │
-        ┌──────▼──────┐
-        │ HDMI Output │
-        │  (Visuals)  │
-        └─────────────┘
+USB Keyboard (←→↑↓)
+       │
+  controller.py
+  ├── TrackManager  — scans ~/rig/set-*/song-*/
+  ├── Player        — sounddevice 4-ch audio + mido MIDI
+  ├── Display       — SSD1306 OLED via I2C
+  └── Keyboard      — evdev arrow keys
+       │                        │
+  Processing sketch        Zoom L6
+  (HDMI visuals)       Out 1-2: title.wav
+                       Out 3-4: metronome.wav
 ```
 
 ## File Structure
-
-Your music files should be organized as:
 
 ```
 ~/rig/
 ├── set-01/
 │   ├── song-01/
-│   │   ├── title.wav
-│   │   ├── metronome.wav
-│   │   └── midi-for-processing.midi
-│   ├── song-02/
-│   │   ├── title.wav
-│   │   ├── metronome.wav
-│   │   └── midi-for-processing.midi
-│   └── ...
-├── set-02/
-│   └── ...
-└── venv/
-    └── (your Python virtual environment)
+│   │   ├── title.wav              # main audio → L6 outputs 1-2
+│   │   ├── metronome.wav          # click track → L6 outputs 3-4
+│   │   ├── midi-for-processing.midi
+│   │   └── bpm.txt                # optional, e.g. "120"
+│   └── song-02/...
+└── set-02/...
 ```
 
-## Control Mapping
+## Controls
 
-| Button | Function |
-|--------|----------|
-| `←` LEFT  | Previous track |
-| `→` RIGHT | Next track |
-| `↓` DOWN  | Play current track (starts 2 WAVs + MIDI simultaneously) |
-| `↑` UP    | Pause/Resume playback |
+| Key | Action |
+|-----|--------|
+| `←` | Previous track |
+| `→` | Next track |
+| `↓` | Play (starts audio + MIDI simultaneously) |
+| `↑` | Pause / Resume |
 
-## OLED Display Shows
+## OLED Layout
 
 ```
 ┌────────────────────────┐
-│ Track 1/8              │  ← Position in playlist
-│ Set 1 - Song 1         │  ← Set/Song number
-│ song-01                │  ← Folder name
-│ > PLAYING              │  ← Status
+│ Track 1/8              │  position
+│ Set 1 - Song 1         │  set/song number
+│ song-01                │  folder name
+│ > PLAYING              │  status
 └────────────────────────┘
 ```
 
-Status indicators:
-- `Press DOWN to play` - Ready to start
-- `> PLAYING` - Currently playing
-- `|| PAUSED` - Playback paused
+---
 
-## How It Works
+## Raspberry Pi Setup
 
-### Startup Sequence
-1. Controller launches Processing sketch (`~/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner`)
-2. Creates virtual MIDI port "RigMIDI"
-3. Processing connects to MIDI as "Real Time Sequencer"
-4. Scans ~/rig/ for track directories
-5. Shows first track on OLED
-6. Waits for keyboard input
+### 1. Enable I2C (for OLED)
 
-### Playback Flow
-When you press `↓ DOWN`:
-1. Loads `title.wav` and `metronome.wav` into pygame mixer
-2. Loads `midi-for-processing.midi` using mido
-3. **Simultaneously** starts:
-   - Audio channel 0: title.wav
-   - Audio channel 1: metronome.wav
-   - MIDI thread: sends MIDI messages to "RigMIDI" port
-4. Processing receives MIDI messages in real-time
-5. OLED updates to show "PLAYING" status
-
-### Track Navigation
-- `← →` changes tracks without stopping playback
-- If playing, track stops before switching
-- OLED immediately shows new track info
-
-## Installation
-
-### 1. Copy Files
 ```bash
-# Copy controller to your rig directory
-cp controller.py ~/rig/
-
-# Make it executable
-chmod +x ~/rig/controller.py
+sudo raspi-config
+# Interface Options → I2C → Enable
 ```
 
-### 2. Root Permission & Sudoers Setup
+Or add to `/boot/firmware/config.txt`:
+```
+dtparam=i2c_arm=on
+```
 
-`controller.py` must run as root (for evdev keyboard access and I2C/OLED).
+Verify the OLED is detected at `0x3C`:
+```bash
+i2cdetect -y 1
+```
 
-It also needs to stop/start the `argononed` service to prevent OLED conflicts. Grant
-passwordless `systemctl` access for just those services:
+### 2. PipeWire Audio
 
+The rig uses `sounddevice` which routes through PipeWire. Verify it's running:
+```bash
+systemctl --user status pipewire pipewire-pulse wireplumber
+```
+
+If not running:
+```bash
+systemctl --user enable --now pipewire pipewire-pulse wireplumber
+```
+
+To keep PipeWire alive for root (the rig runs as root):
+```bash
+# Add to /etc/systemd/system/performance-rig.service environment:
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+```
+See the service file section below.
+
+### 3. Zoom L6 Multi-Channel Routing
+
+The Zoom L6 presents as a 6-channel USB audio device. Connect via USB; no extra drivers needed on Pi OS.
+
+**Find the device index after connecting:**
+```bash
+python3 -c "import sounddevice as sd; print(sd.query_devices())"
+```
+
+Look for `L6: USB Audio` or `Zoom L-6`. Update `AUDIO_DEVICE` in `controller.py`:
+```python
+AUDIO_DEVICE = 2      # use device index from above
+# or
+AUDIO_DEVICE = None   # auto-detect by name (searches for "zoom"/"l6")
+```
+
+**USB enumeration order can change after reboot.** If you see `PaErrorCode -9998`, the
+index is wrong. Set `AUDIO_DEVICE = None` to always auto-detect, or check:
+```bash
+aplay -l | grep -i zoom
+```
+
+**Zoom L6 must be in 4-ch (multi-track) mode**, not stereo. On the device:
+- Menu → USB → Mode → Multi Track
+
+**ALSA config for consistent device naming** — add to `/etc/udev/rules.d/99-zoom.rules`:
+```
+SUBSYSTEM=="sound", ATTRS{idVendor}=="1686", ATTRS{idProduct}=="0045", ATTR{id}="ZoomL6"
+```
+Then `sudo udevadm control --reload && sudo udevadm trigger`. Now the device always appears as `hw:ZoomL6`.
+
+### 4. VirMIDI Kernel Module (MIDI bridge to Processing)
+
+The controller creates a virtual ALSA MIDI port (`RigMIDI`) and bridges it to VirMIDI, which Processing can open as a raw MIDI device.
+
+**Load the module:**
+```bash
+sudo modprobe snd_virmidi midi_devs=1
+```
+
+**Make it persistent** — add to `/etc/modules`:
+```
+snd_virmidi
+```
+
+Or add to `/etc/modprobe.d/virmidi.conf`:
+```
+options snd_virmidi midi_devs=1
+```
+
+**Verify it loaded:**
+```bash
+aconnect -l
+# Should show: "Virtual Raw MIDI 0-0" or similar
+```
+
+If VirMIDI doesn't appear, run the helper:
+```bash
+sudo bash ~/rig/patch_midi.sh
+```
+
+### 5. Argon One V5 — Stopping the OLED Daemon
+
+The Argon One daemon (`argononed`) controls the case OLED. The rig stops it on startup
+to take exclusive control, then restarts it on exit.
+
+**Grant passwordless systemctl access** (so the rig can stop/start the service without a password):
 ```bash
 sudo bash ~/rig/setup_sudoers.sh
 ```
 
-This writes `/etc/sudoers.d/rig-argon` allowing your user to stop/start
-`argononed` and `argone-oled` without a password prompt.
+This writes `/etc/sudoers.d/rig-argon` with:
+```
+nmlstyl ALL=(ALL) NOPASSWD: /bin/systemctl stop argononed, /bin/systemctl start argononed, \
+    /bin/systemctl stop argone-oled, /bin/systemctl start argone-oled
+```
 
-Run the rig as root:
+**I2C address:** the Argon One OLED is at `0x3C` on I2C bus 1 (the default).
+
+### 6. Run as Root
+
+`evdev` keyboard access and I2C GPIO require root.
+
 ```bash
 sudo python3 ~/rig/controller.py
 ```
 
-### 3. Test Manually
+### 7. Install as a Boot Service
+
 ```bash
-cd ~/rig
-sudo python3 controller.py
-```
-
-You should see:
-```
-Found keyboard: [your keyboard name]
-Created virtual MIDI port: RigMIDI
-Found 8 tracks
-  1. Set 1 - Song 1
-  2. Set 1 - Song 2
-  ...
-Processing sketch launched (PID: 12345)
-Performance Rig ready!
-```
-
-### 3. Install as System Service (Optional)
-```bash
-# Copy service file
-sudo cp performance-rig.service /etc/systemd/system/
-
-# Enable and start
+sudo cp ~/rig/performance-rig.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable performance-rig.service
 sudo systemctl start performance-rig.service
 
-# Check status
+# Check status / live logs
 sudo systemctl status performance-rig.service
-
-# View live logs
 journalctl -u performance-rig.service -f
 ```
 
-## Requirements
+**`performance-rig.service` notes:**
+- Runs as root (`User=root`)
+- Set `DISPLAY=:0` if Processing needs a display
+- Set `XDG_RUNTIME_DIR=/run/user/1000` so PipeWire is reachable from root
+- `After=graphical.target` ensures the desktop/display is up before the rig starts
 
-All dependencies should already be in your venv:
-- `pygame` - Audio playback (2 channels)
-- `mido` - MIDI file reading/playback
-- `python-rtmidi` - Virtual MIDI port creation
-- `evdev` - USB keyboard input
-- `adafruit-circuitpython-ssd1306` - OLED display
-- `Pillow` - Image/font rendering for OLED
+### 8. Python Virtual Environment
+
+```bash
+cd ~/rig
+python3 -m venv venv
+source venv/bin/activate
+pip install sounddevice soundfile numpy mido python-rtmidi evdev \
+            adafruit-circuitpython-ssd1306 pillow
+```
+
+Or run the installer:
+```bash
+bash ~/rig/install_multichannel.sh
+```
+
+---
 
 ## Configuration
 
-Edit these constants in `controller.py` if needed:
+Edit constants at the top of `controller.py`:
 
 ```python
-MUSIC_ROOT = Path.home() / "rig"  # Where your set-*/song-* folders are
-PROCESSING_SKETCH = Path.home() / "sketchbook/sticker_spinner/linux-aarch64/sticker_spinner"
-VIRTUAL_MIDI_PORT = "RigMIDI"  # Internal MIDI port name
-DISPLAY_WIDTH = 128  # OLED width
-DISPLAY_HEIGHT = 64  # OLED height
+MUSIC_ROOT        = Path("/home/nmlstyl/rig")       # set-*/song-* root
+PROCESSING_SKETCH = Path("/home/nmlstyl/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner")
+VIRTUAL_MIDI_PORT = "RigMIDI"
+AUDIO_DEVICE      = 2      # Zoom L6 index (None = auto-detect)
+W, H              = 128, 64  # OLED dimensions
 ```
+
+---
 
 ## Troubleshooting
 
-### "No keyboard with arrow keys found"
+**No keyboard detected**
 ```bash
-# List input devices
-sudo apt install evtest
-evtest
-
-# Add your user to input group
-sudo usermod -a -G input $USER
-# Log out and back in
+sudo usermod -a -G input $USER   # then log out/in
+evtest                            # list and test input devices
 ```
 
-### "Error opening MIDI port"
-Your `mido` installation shows version 0.0.0, which might indicate an issue:
+**OLED not working**
+```bash
+sudo raspi-config   # Interface Options → I2C → Enable
+i2cdetect -y 1      # should show 0x3C
+```
 
+**`Invalid number of channels` / `PaErrorCode -9998`**
+Device index changed after reconnect. Check:
+```bash
+python3 -c "import sounddevice as sd; print(sd.query_devices())"
+```
+Update `AUDIO_DEVICE` or set to `None`.
+
+**`ModuleNotFoundError: sounddevice` or `soundfile`**
 ```bash
 source ~/rig/venv/bin/activate
-pip uninstall mido
-pip install mido --break-system-packages
-
-# If still issues, install rtmidi
-sudo apt install python3-rtmidi
-pip install python-rtmidi --break-system-packages
+pip install sounddevice soundfile --break-system-packages
 ```
 
-### OLED Not Working
+**MIDI port creation fails**
 ```bash
-# Enable I2C
-sudo raspi-config
-# Interface Options → I2C → Enable
-
-# Check I2C address (should see 0x3C)
-i2cdetect -y 1
-
-# If not showing, check connections
+sudo apt install python3-rtmidi alsa-utils
+pip install python-rtmidi mido --break-system-packages
 ```
 
-### Processing Sketch Not Launching
+**VirMIDI not found**
 ```bash
-# Check path exists
-ls -la ~/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner
+sudo modprobe snd_virmidi
+sudo bash ~/rig/patch_midi.sh
+aconnect -l   # verify Virtual Raw MIDI appears
+```
 
-# Make executable
+**Processing sketch doesn't launch**
+```bash
 chmod +x ~/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner
-
-# Test manually
-~/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner
+# test manually:
+DISPLAY=:0 ~/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner
 ```
 
-### Audio/MIDI Not Synced
-The system uses pygame for audio and a separate thread for MIDI. They start simultaneously but:
-- Audio latency: ~10ms (buffer=512 at 48kHz)
-- MIDI has no latency (direct output)
+**Sample rate mismatch**
+Zoom L6 runs at 48kHz. Convert files if needed:
+```bash
+sox input.wav -r 48000 output.wav
+soxi your_file.wav | grep "Sample Rate"
+```
 
-If sync is off, you can adjust:
+**Audio clicks or dropouts**
+Increase blocksize in `_audio_loop`:
 ```python
-pygame.mixer.init(frequency=48000, size=-16, channels=2, buffer=512)
-# Increase buffer for more stability: buffer=1024
-# Decrease for lower latency: buffer=256
+stream = sd.OutputStream(..., blocksize=2048, ...)
 ```
 
-### Tracks Not Found
+**Audio and MIDI out of sync**
+The MIDI thread is delayed by `blocksize/samplerate` (≈21ms) to compensate for the
+audio stream's internal buffer. If still drifting, adjust:
+```python
+# In Player.play():
+delay = 0.030   # increase if MIDI leads audio
+```
+
+**Tracks not found**
 ```bash
-# Check directory structure
-tree ~/rig/
-
-# Should look like:
-# rig/
-# ├── set-01/
-# │   └── song-01/
-# │       ├── title.wav
-# │       ├── metronome.wav
-# │       └── midi-for-processing.midi
+tree ~/rig/ | head -30
+# Each song-XX folder needs title.wav, metronome.wav, midi-for-processing.midi
 ```
-
-Make sure:
-- Folders are named `set-XX` and `song-XX`
-- All three files exist in each song folder
-- WAV files are readable (24-bit is fine)
-
-## Future Enhancements
-
-The UP button currently pauses, but your notes mention:
-> "up arrow will pause the track or swap the main file for a drumless version in a future feature"
-
-To implement drum-less switching:
-1. Add `title-nodrums.wav` to each song folder
-2. Modify `Track` class to detect this file
-3. Update `AudioMidiPlayer.play()` to use alternate file
-4. Change UP button handler to toggle between versions
-
-## Technical Notes
-
-### MIDI Port Naming
-- Python creates: `"RigMIDI"` (virtual port)
-- Processing expects: `"Real Time Sequencer"`
-
-Your Processing sketch currently looks for "Real Time Sequencer" by index:
-```java
-midiBus = new MidiBus("Real Time Sequencer", 0, -1);
-```
-
-The Python controller creates "RigMIDI" which should appear as index 0 in Processing's MIDI input list. If Processing can't find it, check:
-
-```bash
-# List MIDI ports
-aconnect -l
-# or
-amidi -l
-```
-
-### PipeWire Integration
-You mentioned you've already set up PipeWire. The controller uses pygame which should automatically work with PipeWire. If you have issues:
-
-```bash
-# Check PipeWire is running
-systemctl --user status pipewire
-
-# Route audio through specific device if needed
-pw-cli list-objects | grep -i audio
-```
-
-## Stopping the Service
-
-```bash
-# Stop service
-sudo systemctl stop performance-rig.service
-
-# Disable auto-start
-sudo systemctl disable performance-rig.service
-
-# Run manually instead
-cd ~/rig
-source venv/bin/activate
-python controller.py
-```
-
-## License
-
-Custom performance rig for live shows. Modify as needed for your setup.
