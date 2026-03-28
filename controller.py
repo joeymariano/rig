@@ -195,31 +195,37 @@ class AudioMidiPlayer:
         print(f"Pygame audio initialized: {pygame.mixer.get_init()}")
     
     def open_midi_port(self):
-        """Open MIDI output port that Processing can receive from"""
+        """Create virtual MIDI output port — aconnect wires it to Processing after launch"""
         try:
+            # Clean up stale RigMIDI ports from previous runs before creating a new one
+            self._cleanup_stale_midi_ports()
+
             available_ports = mido.get_output_names()
             print(f"Available MIDI output ports: {available_ports}")
 
-            # First priority: open the port Processing is already listening on
-            target_port = None
-            for port in available_ports:
-                if MIDI_PORT_FOR_PROCESSING in port:
-                    target_port = port
-                    break
-
-            if target_port:
-                self.midi_output = mido.open_output(target_port)
-                print(f"Opened Processing MIDI port: {target_port}")
-            elif self.midi_port_name in available_ports:
-                self.midi_output = mido.open_output(self.midi_port_name)
-                print(f"Opened existing MIDI port: {self.midi_port_name}")
-            else:
-                # Create virtual port — will need aconnect to wire to Processing
-                self.midi_output = mido.open_output(self.midi_port_name, virtual=True)
-                print(f"Created virtual MIDI port: {self.midi_port_name}")
+            # Always create a fresh virtual port
+            self.midi_output = mido.open_output(self.midi_port_name, virtual=True)
+            print(f"Created virtual MIDI port: {self.midi_port_name}")
         except Exception as e:
             print(f"Error opening MIDI port: {e}")
             self.midi_output = None
+
+    def _cleanup_stale_midi_ports(self):
+        """Kill stale RtMidiOut processes left over from previous runs"""
+        try:
+            result = subprocess.run(['aconnect', '-i'], capture_output=True, text=True)
+            current_pid = str(os.getpid())
+            for line in result.stdout.split('\n'):
+                if 'RtMidiOut' in line and f'pid={current_pid}' not in line:
+                    import re
+                    pid_match = re.search(r'pid=(\d+)', line)
+                    if pid_match:
+                        stale_pid = pid_match.group(1)
+                        subprocess.run(['kill', stale_pid], capture_output=True)
+                        print(f"Cleaned up stale MIDI port (PID {stale_pid})")
+            time.sleep(0.5)  # Give ALSA time to release the port
+        except Exception as e:
+            print(f"MIDI cleanup warning: {e}")
     
     def play(self, track):
         """Start playing a track (2 WAVs + MIDI synchronized)"""
@@ -605,10 +611,14 @@ class KeyboardHandler:
         self.find_keyboards()
 
     def find_keyboards(self):
-        """Find all input devices with arrow keys"""
+        """Find all input devices with arrow keys, excluding virtual/CEC devices"""
+        EXCLUDE = ('vc4-hdmi', 'cec', 'consumer control')
         for path in list_devices():
             try:
                 device = InputDevice(path)
+                name_lower = device.name.lower()
+                if any(x in name_lower for x in EXCLUDE):
+                    continue
                 capabilities = device.capabilities(verbose=False)
                 if ecodes.EV_KEY in capabilities:
                     keys = capabilities[ecodes.EV_KEY]
@@ -717,39 +727,63 @@ class PerformanceRig:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
             )
+            # Wire RigMIDI -> VirMIDI before Processing starts so the
+            # connection is live when Java opens the VirMIDI device
+            self._connect_midi_to_processing()
+
             print(f"Processing sketch launched (PID: {self.processing_process.pid})")
 
-            # Give Processing time to start and register MIDI
+            # Give Processing time to start and open VirMIDI
             time.sleep(3)
-
-            # Wire virtual MIDI port to Processing's input if needed
-            self._connect_midi_to_processing()
 
         except Exception as e:
             print(f"Error launching Processing sketch: {e}")
 
     def _connect_midi_to_processing(self):
-        """Use aconnect to bridge our virtual MIDI port to Processing's input"""
-        try:
-            # Re-check available ports — Processing may have opened one by now
-            available_ports = mido.get_output_names()
-            for port in available_ports:
-                if MIDI_PORT_FOR_PROCESSING in port:
-                    # Processing's port is already directly openable — nothing to bridge
-                    return
+        """Connect RigMIDI → VirMIDI via aconnect.
 
-            # Virtual port is in use; try to connect it via aconnect
+        snd_virmidi creates a device visible as both an ALSA sequencer port
+        (writable via aconnect) and a raw MIDI device (visible to Java).
+        This must run BEFORE Processing launches so the connection is live
+        when Java opens the VirMIDI device.
+        """
+        try:
+            import re
+            # Find our RigMIDI client number in ALSA readable ports
+            inputs = subprocess.run(['aconnect', '-i'], capture_output=True, text=True)
+            our_client = None
+            for line in inputs.stdout.split('\n'):
+                if 'RtMidiOut' in line:
+                    m = re.search(r'client (\d+):', line)
+                    if m:
+                        our_client = m.group(1)
+                        break
+
+            # Find first VirMIDI writable port
+            outputs = subprocess.run(['aconnect', '-o'], capture_output=True, text=True)
+            virmidi_client = None
+            for line in outputs.stdout.split('\n'):
+                if 'Virtual Raw MIDI' in line or 'VirMIDI' in line:
+                    m = re.search(r'client (\d+):', line)
+                    if m:
+                        virmidi_client = m.group(1)
+                        break
+
+            if not our_client:
+                print("MIDI bridge: RigMIDI ALSA client not found")
+                return
+            if not virmidi_client:
+                print("MIDI bridge: VirMIDI not found — run: sudo bash ~/rig/patch_midi.sh")
+                return
+
             result = subprocess.run(
-                ['aconnect', f'{VIRTUAL_MIDI_PORT}:0', f'{MIDI_PORT_FOR_PROCESSING}:0'],
+                ['aconnect', f'{our_client}:0', f'{virmidi_client}:0'],
                 capture_output=True, text=True
             )
             if result.returncode == 0:
-                print(f"aconnect: {VIRTUAL_MIDI_PORT} -> {MIDI_PORT_FOR_PROCESSING}")
+                print(f"MIDI bridged: RigMIDI ({our_client}:0) -> VirMIDI ({virmidi_client}:0)")
             else:
-                # Log available ALSA ports to help debug
-                ports = subprocess.run(['aconnect', '-i'], capture_output=True, text=True)
                 print(f"aconnect failed: {result.stderr.strip()}")
-                print(f"Available ALSA inputs:\n{ports.stdout}")
         except FileNotFoundError:
             print("aconnect not found — install with: sudo apt install alsa-utils")
         except Exception as e:
