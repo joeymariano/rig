@@ -803,31 +803,29 @@ class PerformanceRig:
             print("\nShutting down...")
             self.cleanup()
     
+    def _systemctl(self, action, service):
+        """Run systemctl, using sudo if not already root"""
+        cmd = ['systemctl', action, service]
+        if os.geteuid() != 0:
+            cmd = ['sudo', '-n'] + cmd  # -n = non-interactive, never prompt
+        return subprocess.run(cmd, capture_output=True, text=True)
+
     def _stop_argon_daemon(self):
         """Stop Argon One daemon to prevent I2C/OLED conflicts during operation"""
-        for service in ('argononed', 'argone-oled'):
-            try:
-                result = subprocess.run(
-                    ['systemctl', 'stop', service],
-                    capture_output=True, text=True
-                )
-                if result.returncode == 0:
-                    print(f"Stopped {service}")
-                    self._argon_service = service
-                    return
-            except Exception:
-                pass
-        print("Note: argononed service not found or already stopped")
         self._argon_service = None
+        for service in ('argononed', 'argone-oled'):
+            result = self._systemctl('stop', service)
+            if result.returncode == 0:
+                print(f"Stopped {service}")
+                self._argon_service = service
+                return
+        print("Note: argononed not stopped (service not found, or add sudoers rule — see setup_sudoers.sh)")
 
     def _start_argon_daemon(self):
         """Restart Argon One daemon after we release the display"""
         if self._argon_service:
-            try:
-                subprocess.run(['systemctl', 'start', self._argon_service], capture_output=True)
-                print(f"Restarted {self._argon_service}")
-            except Exception as e:
-                print(f"Could not restart {self._argon_service}: {e}")
+            self._systemctl('start', self._argon_service)
+            print(f"Restarted {self._argon_service}")
 
     def cleanup(self):
         """Clean up all resources"""
