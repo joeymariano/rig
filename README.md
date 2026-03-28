@@ -44,6 +44,10 @@ USB Keyboard (←→↑↓)
 | `→` | Next track |
 | `↓` | Play (starts audio + MIDI simultaneously) |
 | `↑` | Pause / Resume |
+| `ESC` | Exit (graceful shutdown) |
+| `↑` + `←` + `→` | Exit combo (hold all three) |
+
+Combo keys (`↑ ← →`) are non-destructive: if the combo is never completed, each key fires its normal action on release.
 
 ## OLED Layout
 
@@ -264,8 +268,15 @@ MUSIC_ROOT        = Path("/home/nmlstyl/rig")       # set-*/song-* root
 PROCESSING_SKETCH = Path("/home/nmlstyl/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner")
 VIRTUAL_MIDI_PORT = "RigMIDI"
 AUDIO_DEVICE      = 2      # Zoom L6 index (None = auto-detect)
+KEYBOARD_NAME     = None   # target keyboard substring (None = any arrow-key keyboard)
 W, H              = 128, 64  # OLED dimensions
 ```
+
+If multiple keyboards are attached (e.g. a USB hub plus a built-in), set `KEYBOARD_NAME` to a substring of the target device name:
+```python
+KEYBOARD_NAME = "USB Keyboard"   # matches any device whose name contains this string
+```
+Falls back to any keyboard with arrow keys if the named device isn't found.
 
 ---
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Live Performance Rig — keyboard, OLED, 4-ch audio, MIDI"""
 
-import os, re, sys, time, threading, subprocess
+import os, re, sys, time, threading, subprocess, signal
 from pathlib import Path
 from evdev import InputDevice, categorize, ecodes, list_devices
 import sounddevice as sd
@@ -18,6 +18,7 @@ MUSIC_ROOT        = Path("/home/nmlstyl/rig")
 PROCESSING_SKETCH = Path("/home/nmlstyl/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner")
 VIRTUAL_MIDI_PORT = "RigMIDI"
 AUDIO_DEVICE      = 2      # Zoom L6 device index; None = auto-detect by name
+KEYBOARD_NAME     = None  # target keyboard name (substring match); None = any arrow-key keyboard
 W, H              = 128, 64
 
 KEY_UP,   KEY_DOWN  = ecodes.KEY_UP,    ecodes.KEY_DOWN
@@ -240,27 +241,48 @@ class Display:
 # ── Keyboard ─────────────────────────────────────────────────────────────────
 
 class Keyboard:
-    """evdev arrow-key reader; spawns one thread per device."""
+    """evdev arrow-key reader; spawns one thread per device.
+
+    Combo keys (UP+LEFT+RIGHT): individual actions are suppressed while combo
+    keys are forming; fired on release if the combo was never completed.
+    """
     EXCLUDE    = ('vc4-hdmi', 'cec', 'consumer control')
     COMBO_EXIT = frozenset([KEY_UP, KEY_LEFT, KEY_RIGHT])
 
-    def __init__(self, callback, on_exit=None):
+    def __init__(self, callback, on_exit=None, name_filter=None):
         self.callback = callback
         self.on_exit  = on_exit
         self.running  = False
-        self._held    = set()
-        self._lock    = threading.Lock()
-        self.devices  = []
-        for path in list_devices():
-            try:
-                dev  = InputDevice(path)
-                if any(x in dev.name.lower() for x in self.EXCLUDE): continue
-                keys = dev.capabilities(verbose=False).get(ecodes.EV_KEY, [])
-                if all(k in keys for k in (KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT)):
-                    self.devices.append(dev)
-                    print(f"Keyboard: {dev.name}")
-            except Exception: pass
-        if not self.devices: print("Warning: no keyboard with arrow keys found")
+        self._held             = set()
+        self._combo_triggered  = False
+        self._lock             = threading.Lock()
+        self.devices           = self._find_devices(name_filter)
+
+    def _find_devices(self, name_filter):
+        def _scan(filter_fn=None):
+            found = []
+            for path in list_devices():
+                try:
+                    dev  = InputDevice(path)
+                    if any(x in dev.name.lower() for x in self.EXCLUDE): continue
+                    if filter_fn and not filter_fn(dev.name): continue
+                    keys = dev.capabilities(verbose=False).get(ecodes.EV_KEY, [])
+                    if all(k in keys for k in (KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT)):
+                        found.append(dev)
+                        print(f"Keyboard: {dev.name}")
+                except Exception: pass
+            return found
+
+        if name_filter:
+            devs = _scan(lambda n: name_filter.lower() in n.lower())
+            if devs:
+                return devs
+            print(f"Warning: '{name_filter}' not found — falling back to any arrow-key keyboard")
+
+        devs = _scan()
+        if not devs:
+            print("Warning: no keyboard with arrow keys found")
+        return devs
 
     def start(self):
         self.running = True
@@ -274,6 +296,7 @@ class Keyboard:
                 if ev.type != ecodes.EV_KEY: continue
                 state = categorize(ev).keystate
                 code  = ev.code
+
                 if state == 1:   # key down
                     with self._lock:
                         self._held.add(code)
@@ -281,12 +304,26 @@ class Keyboard:
                     if code == KEY_ESC and self.on_exit:
                         self.on_exit()
                     elif held >= self.COMBO_EXIT and self.on_exit:
+                        with self._lock:
+                            self._combo_triggered = True
                         self.on_exit()
-                    else:
+                    elif code not in self.COMBO_EXIT:
+                        # Non-combo key: dispatch immediately
                         self.callback(code)
+                    # else: combo key held but combo not yet complete — wait
+
                 elif state == 0:  # key up
                     with self._lock:
+                        was_combo_key     = code in self.COMBO_EXIT and code in self._held
+                        was_triggered     = self._combo_triggered
                         self._held.discard(code)
+                        # Reset combo flag once all combo keys are released
+                        if not (self._held & self.COMBO_EXIT):
+                            self._combo_triggered = False
+                    # Fire individual action on release if combo never completed
+                    if was_combo_key and not was_triggered:
+                        self.callback(code)
+
         except Exception as e:
             print(f"Keyboard error ({dev.name}): {e}")
 
@@ -304,7 +341,7 @@ class Rig:
         self.display  = Display()
         self.tracks   = TrackManager(MUSIC_ROOT)
         self.player   = Player(VIRTUAL_MIDI_PORT, AUDIO_DEVICE)
-        self.keyboard = Keyboard(self._on_key, on_exit=self._request_exit)
+        self.keyboard = Keyboard(self._on_key, on_exit=self._request_exit, name_filter=KEYBOARD_NAME)
         self._proc    = None
 
         if not self.tracks.tracks:
@@ -319,7 +356,11 @@ class Rig:
         if not PROCESSING_SKETCH.exists():
             print(f"Warning: sketch not found at {PROCESSING_SKETCH}"); return
         os.chmod(PROCESSING_SKETCH, 0o755)
-        self._proc = subprocess.Popen([str(PROCESSING_SKETCH)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self._proc = subprocess.Popen(
+            [str(PROCESSING_SKETCH)],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            preexec_fn=os.setsid,   # new process group so killpg reaches the JVM too
+        )
         self._bridge_midi()
         print(f"Processing launched (PID {self._proc.pid})")
         time.sleep(3)
@@ -406,10 +447,18 @@ class Rig:
     def _cleanup(self):
         self.keyboard.stop()
         self.player.cleanup()
-        if self._proc:
-            self._proc.terminate()
-            try: self._proc.wait(timeout=5)
-            except subprocess.TimeoutExpired: self._proc.kill()
+        if self._proc and self._proc.poll() is None:
+            try:
+                os.killpg(os.getpgid(self._proc.pid), signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            try:
+                self._proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(os.getpgid(self._proc.pid), signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
         try:
             self.display.clear()
         except Exception as e:
