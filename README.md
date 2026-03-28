@@ -131,11 +131,29 @@ cp controller.py ~/rig/
 chmod +x ~/rig/controller.py
 ```
 
-### 2. Test Manually
+### 2. Root Permission & Sudoers Setup
+
+`controller.py` must run as root (for evdev keyboard access and I2C/OLED).
+
+It also needs to stop/start the `argononed` service to prevent OLED conflicts. Grant
+passwordless `systemctl` access for just those services:
+
+```bash
+sudo bash ~/rig/setup_sudoers.sh
+```
+
+This writes `/etc/sudoers.d/rig-argon` allowing your user to stop/start
+`argononed` and `argone-oled` without a password prompt.
+
+Run the rig as root:
+```bash
+sudo python3 ~/rig/controller.py
+```
+
+### 3. Test Manually
 ```bash
 cd ~/rig
-source venv/bin/activate
-python controller.py
+sudo python3 controller.py
 ```
 
 You should see:

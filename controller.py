@@ -31,8 +31,8 @@ from PIL import Image, ImageDraw, ImageFont
 # CONFIGURATION
 # ============================================================================
 
-MUSIC_ROOT = Path.home() / "rig"  # ~/rig/set-01/song-01/...
-PROCESSING_SKETCH = Path.home() / "sketchbook/sticker_spinner/linux-aarch64/sticker_spinner"
+MUSIC_ROOT = Path("/home/nmlstyl/rig")  # ~/rig/set-01/song-01/...
+PROCESSING_SKETCH = Path("/home/nmlstyl/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner")
 VIRTUAL_MIDI_PORT = "RigMIDI"  # Our internal port name
 MIDI_PORT_FOR_PROCESSING = "Real Time Sequencer"  # What Processing expects
 
@@ -395,17 +395,30 @@ class AudioMidiPlayer:
     
     def _find_audio_device(self):
         """Find Zoom L6 audio device"""
-        if self.audio_device is not None:
-            return self.audio_device
-        
-        # Try to find Zoom L6 automatically
         devices = self.sd.query_devices()
+
+        if self.audio_device is not None:
+            try:
+                dev = devices[self.audio_device]
+                if dev['max_output_channels'] >= 4:
+                    return self.audio_device
+                print(f"WARNING: Device {self.audio_device} '{dev['name']}' only has "
+                      f"{dev['max_output_channels']} output channels (need 4) — falling back to auto-detect")
+            except (IndexError, KeyError):
+                print(f"WARNING: Device {self.audio_device} not found — falling back to auto-detect")
+            # Print available devices to help diagnose
+            print("Available output devices:")
+            for i, d in enumerate(devices):
+                if d['max_output_channels'] > 0:
+                    print(f"  [{i}] {d['name']}  (out={d['max_output_channels']})")
+
+        # Try to find Zoom L6 automatically
         for i, device in enumerate(devices):
             name = device['name'].lower()
             if ('zoom' in name or 'l6' in name or 'l-6' in name) and device['max_output_channels'] >= 4:
                 print(f"Auto-detected Zoom L6: {device['name']} (device {i})")
                 return i
-        
+
         print("WARNING: Zoom L6 not auto-detected, using default device")
         return None
     
