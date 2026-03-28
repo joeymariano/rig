@@ -152,10 +152,17 @@ aconnect -l
 # Should show: "Virtual Raw MIDI 0-0" or similar
 ```
 
-If VirMIDI doesn't appear, run the helper:
+If VirMIDI doesn't appear, or after a fresh clone, run the full setup helper:
 ```bash
 sudo bash ~/rig/patch_midi.sh
 ```
+
+`patch_midi.sh` does three things:
+1. Loads `snd_virmidi` and makes it persistent in `/etc/modules`
+2. Rewrites `MidiHandler.java` in the Processing sketch source to open the VirMIDI device instead of a named ALSA port
+3. Recompiles `MidiHandler.java` and hot-patches the compiled class back into `sticker_spinner.jar`
+
+This is a one-time operation. After running it, the Processing sketch will automatically connect to VirMIDI on every launch.
 
 ### 5. Argon One V5 — Stopping the OLED Daemon
 
@@ -175,10 +182,16 @@ nmlstyl ALL=(ALL) NOPASSWD: /bin/systemctl stop argononed, /bin/systemctl start 
 
 **I2C address:** the Argon One OLED is at `0x3C` on I2C bus 1 (the default).
 
-### 6. Run as Root
+### 6. Keyboard and I2C Permissions
 
-`evdev` keyboard access and I2C GPIO require root.
+`evdev` keyboard access requires the running user to be in the `input` group; I2C requires `i2c` group membership (or root).
 
+```bash
+sudo usermod -a -G input,i2c nmlstyl
+# log out and back in for group membership to take effect
+```
+
+For a quick manual test you can still run as root:
 ```bash
 sudo python3 ~/rig/controller.py
 ```
@@ -197,10 +210,10 @@ journalctl -u performance-rig.service -f
 ```
 
 **`performance-rig.service` notes:**
-- Runs as root (`User=root`)
-- Set `DISPLAY=:0` if Processing needs a display
-- Set `XDG_RUNTIME_DIR=/run/user/1000` so PipeWire is reachable from root
-- `After=graphical.target` ensures the desktop/display is up before the rig starts
+- Runs as `nmlstyl` (`User=nmlstyl`) — requires the `input` and `i2c` group memberships from section 6
+- `DISPLAY=:0` and `XAUTHORITY` are set so Processing can open the display
+- `PIPEWIRE_LATENCY=512/48000` (~10.7 ms) is set to reduce audio latency via PipeWire
+- `After=network.target sound.target pipewire.service` — waits for audio stack before starting
 
 ### 8. Python Virtual Environment
 
