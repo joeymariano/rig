@@ -279,6 +279,7 @@ class Keyboard:
 class Rig:
     def __init__(self):
         print("Starting Performance Rig...")
+        self._stop_panel()
         self._stop_argon()
         self.display  = Display()
         self.tracks   = TrackManager(MUSIC_ROOT)
@@ -343,6 +344,23 @@ class Rig:
         if os.geteuid() != 0: cmd = ['sudo', '-n'] + cmd
         return subprocess.run(cmd, capture_output=True)
 
+    def _stop_panel(self):
+        """Hide the desktop taskbar while the rig is running."""
+        subprocess.run(['pkill', '-f', 'lwrespawn.*wf-panel-pi'], capture_output=True)
+        subprocess.run(['pkill', 'wf-panel-pi'], capture_output=True)
+        time.sleep(0.5)
+        print("Taskbar hidden")
+
+    def _restore_panel(self):
+        """Bring the taskbar back under its supervisor so it stays stable."""
+        env = {**os.environ, 'DISPLAY': ':0'}
+        xauth = '/home/nmlstyl/.Xauthority'
+        if os.path.exists(xauth):
+            env['XAUTHORITY'] = xauth
+        subprocess.Popen(['lwrespawn', 'wf-panel-pi'], env=env,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        print("Taskbar restored")
+
     def _stop_argon(self):
         self._argon_svc = None
         for svc in ('argononed', 'argone-oled'):
@@ -370,6 +388,7 @@ class Rig:
             except subprocess.TimeoutExpired: self._proc.kill()
         self.display.clear()
         if self._argon_svc: self._systemctl('start', self._argon_svc)
+        self._restore_panel()
 
 
 if __name__ == "__main__":

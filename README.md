@@ -196,26 +196,49 @@ For a quick manual test you can still run as root:
 sudo python3 ~/rig/controller.py
 ```
 
-### 7. Install as a Boot Service
+### 7. Desktop Taskbar (labwc / wf-panel-pi)
 
+The rig runs under the labwc Wayland compositor with the `wf-panel-pi` taskbar. The taskbar should be left running — it does not interfere with controller.py.
+
+**Do not kill the panel in autostart.** An earlier hack added these lines to `~/.config/labwc/autostart`:
 ```bash
-sudo cp ~/rig/performance-rig.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable performance-rig.service
-sudo systemctl start performance-rig.service
+# BAD — causes panel to glitch / shell to break after controller exits
+sleep 1 && pkill -f "lwrespawn.*wf-panel-pi" && pkill wf-panel-pi &
+```
+Killing `lwrespawn` (the panel supervisor) and then trying to restart the panel manually via `wf-panel-pi` causes the panel to oscillate between hide/show and eventually the shell stops responding.
 
-# Check status / live logs
-sudo systemctl status performance-rig.service
-journalctl -u performance-rig.service -f
+**Correct autostart** (`~/.config/labwc/autostart`):
+```bash
+bash -c 'until systemctl --user is-active pipewire > /dev/null 2>&1; do sleep 0.5; done; sudo python /home/nmlstyl/rig/controller.py' &
+```
+This polls until PipeWire is ready before launching, avoiding the race condition from a fixed `sleep`. `controller.py` then manages the panel directly:
+- On startup: kills `lwrespawn wf-panel-pi` + `wf-panel-pi` so the taskbar is hidden during the performance
+- On exit: relaunches `lwrespawn wf-panel-pi` to restore it cleanly under its supervisor
+
+This mirrors how the rig already handles the argon OLED daemon.
+
+### 8. Autostart (recommended) vs Systemd Service
+
+**Use the labwc autostart** (`~/.config/labwc/autostart`) — this is the correct launch mechanism because controller.py needs the desktop session (Processing sketch needs a display, taskbar management requires labwc to be running).
+
+The autostart waits for PipeWire before launching:
+```bash
+bash -c 'until systemctl --user is-active pipewire > /dev/null 2>&1; do sleep 0.5; done; sudo python /home/nmlstyl/rig/controller.py' &
 ```
 
-**`performance-rig.service` notes:**
-- Runs as `nmlstyl` (`User=nmlstyl`) — requires the `input` and `i2c` group memberships from section 6
-- `DISPLAY=:0` and `XAUTHORITY` are set so Processing can open the display
-- `PIPEWIRE_LATENCY=512/48000` (~10.7 ms) is set to reduce audio latency via PipeWire
-- `After=network.target sound.target pipewire.service` — waits for audio stack before starting
+**Do NOT enable `performance-rig.service` at the same time.** Running both causes a double-launch: the service fires at boot before the desktop exists, fails, then retries — colliding with the autostart once the desktop loads.
 
-### 8. Python Virtual Environment
+The service file is kept as a reference but should remain **disabled**:
+```bash
+sudo systemctl disable performance-rig.service
+```
+
+To check it's not running twice:
+```bash
+pgrep -a python | grep controller
+```
+
+### 9. Python Virtual Environment
 
 ```bash
 cd ~/rig
