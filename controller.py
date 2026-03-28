@@ -195,17 +195,26 @@ class AudioMidiPlayer:
         print(f"Pygame audio initialized: {pygame.mixer.get_init()}")
     
     def open_midi_port(self):
-        """Open virtual MIDI output port"""
+        """Open MIDI output port that Processing can receive from"""
         try:
-            # Try to open existing port or create new one
             available_ports = mido.get_output_names()
             print(f"Available MIDI output ports: {available_ports}")
-            
-            if self.midi_port_name in available_ports:
+
+            # First priority: open the port Processing is already listening on
+            target_port = None
+            for port in available_ports:
+                if MIDI_PORT_FOR_PROCESSING in port:
+                    target_port = port
+                    break
+
+            if target_port:
+                self.midi_output = mido.open_output(target_port)
+                print(f"Opened Processing MIDI port: {target_port}")
+            elif self.midi_port_name in available_ports:
                 self.midi_output = mido.open_output(self.midi_port_name)
                 print(f"Opened existing MIDI port: {self.midi_port_name}")
             else:
-                # Create virtual port
+                # Create virtual port — will need aconnect to wire to Processing
                 self.midi_output = mido.open_output(self.midi_port_name, virtual=True)
                 print(f"Created virtual MIDI port: {self.midi_port_name}")
         except Exception as e:
@@ -659,7 +668,10 @@ class PerformanceRig:
     """Main controller coordinating all components"""
     def __init__(self):
         print("Initializing Performance Rig...")
-        
+
+        # Stop Argon One daemon so it doesn't clobber our I2C/OLED writes
+        self._stop_argon_daemon()
+
         # Initialize components
         self.display = OLEDDisplay()
         self.track_manager = TrackManager(MUSIC_ROOT)
@@ -694,11 +706,11 @@ class PerformanceRig:
         if not PROCESSING_SKETCH.exists():
             print(f"Warning: Processing sketch not found at {PROCESSING_SKETCH}")
             return
-        
+
         try:
             # Make sure it's executable
             os.chmod(PROCESSING_SKETCH, 0o755)
-            
+
             # Launch Processing sketch
             self.processing_process = subprocess.Popen(
                 [str(PROCESSING_SKETCH)],
@@ -706,12 +718,42 @@ class PerformanceRig:
                 stderr=subprocess.PIPE
             )
             print(f"Processing sketch launched (PID: {self.processing_process.pid})")
-            
+
             # Give Processing time to start and register MIDI
             time.sleep(3)
-            
+
+            # Wire virtual MIDI port to Processing's input if needed
+            self._connect_midi_to_processing()
+
         except Exception as e:
             print(f"Error launching Processing sketch: {e}")
+
+    def _connect_midi_to_processing(self):
+        """Use aconnect to bridge our virtual MIDI port to Processing's input"""
+        try:
+            # Re-check available ports — Processing may have opened one by now
+            available_ports = mido.get_output_names()
+            for port in available_ports:
+                if MIDI_PORT_FOR_PROCESSING in port:
+                    # Processing's port is already directly openable — nothing to bridge
+                    return
+
+            # Virtual port is in use; try to connect it via aconnect
+            result = subprocess.run(
+                ['aconnect', f'{VIRTUAL_MIDI_PORT}:0', f'{MIDI_PORT_FOR_PROCESSING}:0'],
+                capture_output=True, text=True
+            )
+            if result.returncode == 0:
+                print(f"aconnect: {VIRTUAL_MIDI_PORT} -> {MIDI_PORT_FOR_PROCESSING}")
+            else:
+                # Log available ALSA ports to help debug
+                ports = subprocess.run(['aconnect', '-i'], capture_output=True, text=True)
+                print(f"aconnect failed: {result.stderr.strip()}")
+                print(f"Available ALSA inputs:\n{ports.stdout}")
+        except FileNotFoundError:
+            print("aconnect not found — install with: sudo apt install alsa-utils")
+        except Exception as e:
+            print(f"MIDI bridge error: {e}")
     
     def on_key_press(self, key_code):
         """Handle keyboard input"""
@@ -761,12 +803,38 @@ class PerformanceRig:
             print("\nShutting down...")
             self.cleanup()
     
+    def _stop_argon_daemon(self):
+        """Stop Argon One daemon to prevent I2C/OLED conflicts during operation"""
+        for service in ('argononed', 'argone-oled'):
+            try:
+                result = subprocess.run(
+                    ['systemctl', 'stop', service],
+                    capture_output=True, text=True
+                )
+                if result.returncode == 0:
+                    print(f"Stopped {service}")
+                    self._argon_service = service
+                    return
+            except Exception:
+                pass
+        print("Note: argononed service not found or already stopped")
+        self._argon_service = None
+
+    def _start_argon_daemon(self):
+        """Restart Argon One daemon after we release the display"""
+        if self._argon_service:
+            try:
+                subprocess.run(['systemctl', 'start', self._argon_service], capture_output=True)
+                print(f"Restarted {self._argon_service}")
+            except Exception as e:
+                print(f"Could not restart {self._argon_service}: {e}")
+
     def cleanup(self):
         """Clean up all resources"""
         print("Cleaning up...")
         self.keyboard.stop()
         self.player.cleanup()
-        
+
         if self.processing_process:
             print("Stopping Processing sketch...")
             self.processing_process.terminate()
@@ -774,8 +842,9 @@ class PerformanceRig:
                 self.processing_process.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 self.processing_process.kill()
-        
+
         self.display.clear()
+        self._start_argon_daemon()
         print("Shutdown complete")
 
 
