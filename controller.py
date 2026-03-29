@@ -35,8 +35,24 @@ class Track:
         self.metronome_wav = self.path / "metronome.wav"
         self.midi_file     = self.path / "midi-for-processing.midi"
         self.song_name     = self.path.parts[-1]
-        bpm_file = self.path / "bpm.txt"
-        self.bpm = float(bpm_file.read_text().strip()) if bpm_file.exists() else None
+        # Parse info.txt for title, bpm, platform, timing
+        info = {}
+        info_file = self.path / "info.txt"
+        if info_file.exists():
+            for line in info_file.read_text().splitlines():
+                if ':' in line:
+                    k, v = line.split(':', 1)
+                    info[k.strip().lower()] = v.strip()
+        self.title    = info.get('title', self.song_name)
+        self.platform = info.get('platform', '')
+        self.timing   = info.get('timing', '')
+        # BPM: prefer info.txt, fall back to bpm.txt
+        bpm_str = info.get('bpm')
+        if not bpm_str:
+            bpm_file = self.path / "bpm.txt"
+            bpm_str = bpm_file.read_text().strip() if bpm_file.exists() else None
+        try:    self.bpm = float(bpm_str)
+        except: self.bpm = None
 
     def is_complete(self):
         return self.title_wav.exists() and self.metronome_wav.exists() and self.midi_file.exists()
@@ -71,11 +87,15 @@ class TrackManager:
 class Player:
     """Synchronized 4-channel audio + MIDI playback."""
     def __init__(self, midi_port, audio_device=None):
-        self.audio_device = audio_device
-        self.is_playing   = False
-        self.is_paused    = False
-        self._stop        = threading.Event()
-        self._audio_t     = self._midi_t = None
+        self.audio_device   = audio_device
+        self.is_playing     = False
+        self.is_paused      = False
+        self._stop          = threading.Event()
+        self._audio_t       = self._midi_t = None
+        self._play_start    = None
+        self._pause_start   = None
+        self._total_paused  = 0.0
+        self.track_duration = 0.0
         self._cleanup_stale_midi()
         self.midi_out = mido.open_output(midi_port, virtual=True)
         print(f"Virtual MIDI port: {midi_port}")
@@ -126,7 +146,7 @@ class Player:
         if sr != msr:
             print(f"WARNING: sample rate mismatch ({sr} vs {msr})"); return False
 
-        # Inject BPM tempo if bpm.txt exists and MIDI has no set_tempo
+        # Inject BPM tempo if set in info.txt and MIDI has no set_tempo
         if track.bpm and not any(m.type == 'set_tempo' for tr in midi.tracks for m in tr):
             midi.tracks[0].insert(0, mido.MetaMessage('set_tempo', tempo=int(mido.bpm2tempo(track.bpm)), time=0))
             print(f"Injected tempo: {track.bpm} BPM")
@@ -150,7 +170,11 @@ class Player:
         self._midi_t  = threading.Thread(target=self._midi_loop,  args=(midi, start, 1024/sr), daemon=True)
         self._audio_t.start(); self._midi_t.start()
         time.sleep(0.2); start.set()
-        self.is_playing = True
+        self.is_playing    = True
+        self._play_start   = time.time()
+        self._pause_start  = None
+        self._total_paused = 0.0
+        self.track_duration = n / sr
         print(f"Playing: {track.display_title()}  ({n/sr:.1f}s, device {dev})")
         return True
 
@@ -183,9 +207,25 @@ class Player:
             try: self.midi_out.send(Message('control_change', control=123, value=0, channel=ch))
             except: pass
 
+    def playback_info(self):
+        """Returns (elapsed_s, remaining_s) based on wall time minus pauses."""
+        if not self.is_playing or self._play_start is None:
+            return 0.0, 0.0
+        paused = self._total_paused
+        if self.is_paused and self._pause_start:
+            paused += time.time() - self._pause_start
+        elapsed   = max(0.0, min(time.time() - self._play_start - paused, self.track_duration))
+        remaining = max(0.0, self.track_duration - elapsed)
+        return elapsed, remaining
+
     def toggle_pause(self):
         if not self.is_playing: return
         self.is_paused = not self.is_paused
+        if self.is_paused:
+            self._pause_start = time.time()
+        elif self._pause_start:
+            self._total_paused += time.time() - self._pause_start
+            self._pause_start = None
         print("Paused" if self.is_paused else "Resumed")
 
     def stop(self):
@@ -194,6 +234,8 @@ class Player:
         if self._audio_t: self._audio_t.join(timeout=1.0)
         if self._midi_t:  self._midi_t.join(timeout=1.0)
         self.is_playing = self.is_paused = False
+        self._play_start = self._pause_start = None
+        self._total_paused = 0.0
 
     def cleanup(self):
         self.stop(); self.midi_out.close()
@@ -202,33 +244,137 @@ class Player:
 # ── Display ──────────────────────────────────────────────────────────────────
 
 class Display:
-    """SSD1306 128×64 OLED via I2C."""
+    """SSD1306 128×64 OLED via I2C with scrolling tickers."""
+    TICKER_SPEEDS = (1, 1)   # px per tick: both at the same rate
+    TICKER_DIRS   = (1, -1)  # +1 = LTR (left ticker), -1 = RTL (right ticker)
+    TICKER_GAP    = 14       # px gap between wrap-around repeats
+    TICKER_Y      = 1        # y position for the ticker row
+    TICKER_HALF   = W // 2   # 64px — each ticker occupies one half
+
     def __init__(self):
         i2c = busio.I2C(board.SCL, board.SDA)
         self.oled = SSD1306_I2C(W, H, i2c, addr=0x3C)
         self.img  = Image.new("1", (W, H))
         self.draw = ImageDraw.Draw(self.img)
         try:
-            base = "/usr/share/fonts/truetype/dejavu/DejaVuSans"
-            self.fl = ImageFont.truetype(f"{base}-Bold.ttf", 16)
-            self.fm = ImageFont.truetype(f"{base}.ttf", 12)
-            self.fs = ImageFont.truetype(f"{base}.ttf", 10)
+            sans  = "/usr/share/fonts/truetype/liberation/LiberationSans"
+            narrow = "/usr/share/fonts/truetype/liberation/LiberationSansNarrow"
+            self.fb = ImageFont.truetype(f"{sans}-Bold.ttf", 18)
+            self.fm = ImageFont.truetype(f"{sans}-Regular.ttf", 12)
+            self.fs = ImageFont.truetype(f"{sans}-Regular.ttf", 10)
+            self.fe = ImageFont.truetype(f"{narrow}-Bold.ttf", 80)  # elapsed stretch-render
         except:
-            self.fl = self.fm = self.fs = ImageFont.load_default()
-        self._clear(); self._text(10, 20, "Performance Rig", self.fm)
-        self._text(20, 40, "Initializing...", self.fs); self._show()
+            self.fb = self.fm = self.fs = self.fe = ImageFont.load_default()
+        self._lock           = threading.Lock()
+        self._state          = None
+        self._ticker_texts   = ['', '']
+        self._ticker_prefix  = ''   # static song-number prefix for left ticker
+        self._ticker_offsets = [0.0, 0.0]
+        self._clear()
+        self._text(10, 20, "Performance Rig", self.fm)
+        self._text(20, 40, "Initializing...", self.fs)
+        self._show()
 
     def _clear(self): self.draw.rectangle((0, 0, W, H), fill=0)
     def _text(self, x, y, s, f): self.draw.text((x, y), s, font=f, fill=255)
     def _show(self): self.oled.image(self.img); self.oled.show()
 
-    def update(self, track, pos, total, playing, paused):
+    def _tw(self, s, f):
+        bb = self.draw.textbbox((0, 0), s, font=f)
+        return bb[2] - bb[0]
+
+    def update(self, track, pos, total, playing, paused, remaining_s=0.0, set_elapsed_s=0.0):
+        with self._lock:
+            sg = int(''.join(filter(str.isdigit, track.song_name)) or 0)
+            self._ticker_prefix = f"{sg}."
+            title_txt = track.title
+            bpm_s = f"{int(track.bpm)}bpm" if track.bpm else "bpm"
+            right_txt = ' '.join(filter(None, [bpm_s, track.platform]))
+            for i, txt in enumerate([title_txt, right_txt]):
+                if txt != self._ticker_texts[i]:
+                    self._ticker_texts[i]   = txt
+                    self._ticker_offsets[i] = 0.0  # reset: text starts at left edge, immediately visible
+            self._state = dict(track=track, playing=playing, paused=paused,
+                               remaining_s=remaining_s, set_elapsed_s=set_elapsed_s)
+            self._render()
+
+    def tick(self):
+        with self._lock:
+            if self._state is None:
+                return
+            for i, txt in enumerate(self._ticker_texts):
+                if txt:
+                    self._ticker_offsets[i] += self.TICKER_SPEEDS[i] * self.TICKER_DIRS[i]
+            self._render()
+
+    def _draw_half_ticker(self, x_start, txt, tx, direction, prefix=''):
+        """Render a scrolling ticker clipped to a TICKER_HALF-wide region.
+
+        prefix: drawn statically at x=2; scrolling text fills remaining width.
+        Copies are placed via modulo so there is never a blank gap.
+        """
+        w   = self.TICKER_HALF
+        tmp = Image.new("1", (w, 24), 0)
+        tdr = ImageDraw.Draw(tmp)
+
+        # Static prefix (e.g. song number)
+        scroll_x = 2
+        if prefix:
+            tdr.text((2, self.TICKER_Y), prefix, font=self.fs, fill=255)
+            scroll_x = 2 + self._tw(prefix, self.fs) + 3
+
+        scroll_w = w - scroll_x
+        if scroll_w > 0 and txt:
+            tw     = self._tw(txt, self.fs)
+            period = max(1, tw + self.TICKER_GAP)
+            # Modulo base: ensures first copy is at or just before x=0 in scroll space
+            base = int(tx) % period
+            if base > 0:
+                base -= period
+            # Draw enough copies to fill scroll_w with no gaps
+            n_copies = scroll_w // period + 2
+            stmp = Image.new("1", (scroll_w, 24), 0)
+            stdr = ImageDraw.Draw(stmp)
+            for n in range(n_copies):
+                stdr.text((base + n * period, self.TICKER_Y), txt, font=self.fs, fill=255)
+            tmp.paste(stmp, (scroll_x, 0))
+
+        self.img.paste(tmp, (x_start, 0))
+
+    def _render(self):
+        """Redraw full screen. Must be called with _lock held."""
+        s = self._state
         self._clear()
-        self._text(2,  2, f"Track {pos}/{total}", self.fs)
-        self._text(2, 16, track.display_title(), self.fl)
-        self._text(2, 36, track.song_name, self.fm)
-        status = "|| PAUSED" if paused else "> PLAYING" if playing else "Press DOWN to play"
-        self._text(2, 52, status, self.fs)
+
+        # Left half: song number + title ticker; right half: BPM + platform ticker
+        self._draw_half_ticker(0,               self._ticker_texts[0], self._ticker_offsets[0], self.TICKER_DIRS[0], prefix=self._ticker_prefix)
+        self._draw_half_ticker(self.TICKER_HALF, self._ticker_texts[1], self._ticker_offsets[1], self.TICKER_DIRS[1])
+
+        # Countdown
+        track = s['track']
+        if s['playing']:
+            cnt = "PAUSED" if s['paused'] else f"{int(s['remaining_s'])//60}:{int(s['remaining_s'])%60:02d} left"
+        else:
+            cnt = "DOWN to play"
+        self._text((W - self._tw(cnt, self.fs)) // 2, 15, cnt, self.fs)
+
+        # Elapsed — rendered at 80pt, cropped tight, stretched to fill full width × remaining height
+        se          = int(s['set_elapsed_s'])
+        elapsed_str = f"{se // 60:02d}:{se % 60:02d}"
+        el_y0, el_h = 28, H - 28 - 2
+        tmp = Image.new("L", (512, 128), 0)
+        tdr = ImageDraw.Draw(tmp)
+        bb  = tdr.textbbox((0, 0), elapsed_str, font=self.fe)
+        tdr.text((-bb[0], -bb[1]), elapsed_str, font=self.fe, fill=255)
+        text_img    = tmp.crop((0, 0, max(1, bb[2] - bb[0]), max(1, bb[3] - bb[1])))
+        tw, th      = text_img.size
+        scale       = min(W / tw, el_h / th)
+        new_w, new_h = int(tw * scale), int(th * scale)
+        scaled      = text_img.resize((new_w, new_h), Image.LANCZOS).point(lambda p: 255 if p > 64 else 0, '1')
+        x_off       = (W - new_w) // 2
+        y_off       = el_y0 + (el_h - new_h) // 2
+        self.img.paste(scaled, (x_off, y_off))
+
         self._show()
 
     def error(self, msg):
@@ -335,7 +481,8 @@ class Keyboard:
 class Rig:
     def __init__(self):
         print("Starting Performance Rig...")
-        self._exit_evt = threading.Event()
+        self._exit_evt      = threading.Event()
+        self._set_start_time = None
         self._stop_panel()
         self._stop_argon()
         self.display  = Display()
@@ -350,6 +497,8 @@ class Rig:
         self._launch_processing()
         self._refresh_display()
         self.keyboard.start()
+        threading.Thread(target=self._display_loop,  daemon=True).start()
+        threading.Thread(target=self._ticker_loop,   daemon=True).start()
         print("Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit")
 
     def _launch_processing(self):
@@ -395,14 +544,33 @@ class Rig:
         elif code == KEY_RIGHT: self.player.stop();          self.tracks.next(); self._refresh_display()
         elif code == KEY_DOWN:
             t = self.tracks.current()
-            if t: self.player.play(t); self._refresh_display()
+            if t and self.player.play(t):
+                if self._set_start_time is None:
+                    self._set_start_time = time.time()
+                self._refresh_display()
         elif code == KEY_UP:    self.player.toggle_pause();  self._refresh_display()
+
+    def _display_loop(self):
+        """Update state every second to keep countdown and elapsed live."""
+        while not self._exit_evt.is_set():
+            time.sleep(1)
+            if self.player.is_playing or self._set_start_time:
+                self._refresh_display()
+
+    def _ticker_loop(self):
+        """Advance ticker offsets at ~20fps."""
+        while not self._exit_evt.is_set():
+            time.sleep(0.05)
+            self.display.tick()
 
     def _refresh_display(self):
         t = self.tracks.current()
         if t:
             pos, total = self.tracks.position()
-            self.display.update(t, pos, total, self.player.is_playing, self.player.is_paused)
+            _, remaining = self.player.playback_info()
+            set_elapsed = (time.time() - self._set_start_time) if self._set_start_time else 0.0
+            self.display.update(t, pos, total, self.player.is_playing, self.player.is_paused,
+                                remaining, set_elapsed)
 
     def _systemctl(self, action, svc):
         cmd = ['systemctl', action, svc]

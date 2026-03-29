@@ -1,0 +1,4 @@
+title: Cat Trap 
+bpm: 180
+platform: GB
+timing: 4/4

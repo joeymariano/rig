@@ -353,3 +353,18 @@ delay = 0.030   # increase if MIDI leads audio
 tree ~/rig/ | head -30
 # Each song-XX folder needs title.wav, metronome.wav, midi-for-processing.midi
 ```
+
+**Intermittent boot to terminal instead of GUI**
+Caused by a race between Plymouth (boot splash) and lightdm's VT switch. Plymouth
+runs on VT1 but lightdm requires VT7 — if Plymouth doesn't quit in time, the session
+fails and falls back to a getty. Fix: remove Plymouth entirely.
+```bash
+sudo apt purge plymouth
+```
+To diagnose future boot failures, enable persistent journald logs:
+```bash
+sudo mkdir -p /var/log/journal
+sudo systemd-tmpfiles --create --prefix /var/log/journal
+sudo systemctl restart systemd-journald
+```
+Then after a bad boot: `sudo journalctl -b -1 -u lightdm`
