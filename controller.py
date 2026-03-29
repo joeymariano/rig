@@ -245,11 +245,10 @@ class Player:
 
 class Display:
     """SSD1306 128×64 OLED via I2C with scrolling tickers."""
-    TICKER_SPEEDS = (1, 1)   # px per tick: both at the same rate
-    TICKER_DIRS   = (1, -1)  # +1 = LTR (left ticker), -1 = RTL (right ticker)
-    TICKER_GAP    = 14       # px gap between wrap-around repeats
-    TICKER_Y      = 1        # y position for the ticker row
-    TICKER_HALF   = W // 2   # 64px — each ticker occupies one half
+    TICKER_SPEED = 1    # px per tick
+    TICKER_DIR   = 1    # +1 = LTR scroll
+    TICKER_GAP   = 14   # px gap between wrap-around repeats
+    TICKER_Y     = 1    # y position for the ticker row
 
     def __init__(self):
         i2c = busio.I2C(board.SCL, board.SDA)
@@ -262,14 +261,15 @@ class Display:
             self.fb = ImageFont.truetype(f"{sans}-Bold.ttf", 18)
             self.fm = ImageFont.truetype(f"{sans}-Regular.ttf", 12)
             self.fs = ImageFont.truetype(f"{sans}-Regular.ttf", 10)
+            self.fp = ImageFont.truetype(f"{sans}-Bold.ttf", 20)    # track number prefix (2× ticker)
             self.fe = ImageFont.truetype(f"{narrow}-Bold.ttf", 80)  # elapsed stretch-render
         except:
-            self.fb = self.fm = self.fs = self.fe = ImageFont.load_default()
-        self._lock           = threading.Lock()
-        self._state          = None
-        self._ticker_texts   = ['', '']
-        self._ticker_prefix  = ''   # static song-number prefix for left ticker
-        self._ticker_offsets = [0.0, 0.0]
+            self.fb = self.fm = self.fs = self.fe = self.fp = ImageFont.load_default()
+        self._lock          = threading.Lock()
+        self._state         = None
+        self._ticker_text   = ''
+        self._ticker_prefix = ''   # static track-number prefix
+        self._ticker_offset = 0.0
         self._clear()
         self._text(10, 20, "Performance Rig", self.fm)
         self._text(20, 40, "Initializing...", self.fs)
@@ -286,14 +286,12 @@ class Display:
     def update(self, track, pos, total, playing, paused, remaining_s=0.0, set_elapsed_s=0.0):
         with self._lock:
             sg = int(''.join(filter(str.isdigit, track.song_name)) or 0)
-            self._ticker_prefix = f"{sg}."
-            title_txt = track.title
-            bpm_s = f"{int(track.bpm)}bpm" if track.bpm else "bpm"
-            right_txt = ' '.join(filter(None, [bpm_s, track.platform]))
-            for i, txt in enumerate([title_txt, right_txt]):
-                if txt != self._ticker_texts[i]:
-                    self._ticker_texts[i]   = txt
-                    self._ticker_offsets[i] = 0.0  # reset: text starts at left edge, immediately visible
+            self._ticker_prefix = f"{sg:02d}"
+            bpm_s = f"{int(track.bpm)}bpm" if track.bpm else ""
+            ticker_txt = ' '.join(filter(None, [track.title, bpm_s, track.platform]))
+            if ticker_txt != self._ticker_text:
+                self._ticker_text   = ticker_txt
+                self._ticker_offset = 0.0
             self._state = dict(track=track, playing=playing, paused=paused,
                                remaining_s=remaining_s, set_elapsed_s=set_elapsed_s)
             self._render()
@@ -302,36 +300,31 @@ class Display:
         with self._lock:
             if self._state is None:
                 return
-            for i, txt in enumerate(self._ticker_texts):
-                if txt:
-                    self._ticker_offsets[i] += self.TICKER_SPEEDS[i] * self.TICKER_DIRS[i]
+            if self._ticker_text:
+                self._ticker_offset += self.TICKER_SPEED * self.TICKER_DIR
             self._render()
 
-    def _draw_half_ticker(self, x_start, txt, tx, direction, prefix=''):
-        """Render a scrolling ticker clipped to a TICKER_HALF-wide region.
+    def _draw_ticker(self, txt, tx, prefix=''):
+        """Render a full-width scrolling ticker.
 
-        prefix: drawn statically at x=2; scrolling text fills remaining width.
+        prefix: drawn statically at x=2 in the large font; scrolling text fills the rest.
         Copies are placed via modulo so there is never a blank gap.
         """
-        w   = self.TICKER_HALF
-        tmp = Image.new("1", (w, 24), 0)
+        tmp = Image.new("1", (W, 28 if prefix else 24), 0)
         tdr = ImageDraw.Draw(tmp)
 
-        # Static prefix (e.g. song number)
         scroll_x = 2
         if prefix:
-            tdr.text((2, self.TICKER_Y), prefix, font=self.fs, fill=255)
-            scroll_x = 2 + self._tw(prefix, self.fs) + 3
+            tdr.text((2, self.TICKER_Y), prefix, font=self.fp, fill=255)
+            scroll_x = 2 + self._tw(prefix, self.fp) + 3
 
-        scroll_w = w - scroll_x
+        scroll_w = W - scroll_x
         if scroll_w > 0 and txt:
             tw     = self._tw(txt, self.fs)
             period = max(1, tw + self.TICKER_GAP)
-            # Modulo base: ensures first copy is at or just before x=0 in scroll space
-            base = int(tx) % period
+            base   = int(tx) % period
             if base > 0:
                 base -= period
-            # Draw enough copies to fill scroll_w with no gaps
             n_copies = scroll_w // period + 2
             stmp = Image.new("1", (scroll_w, 24), 0)
             stdr = ImageDraw.Draw(stmp)
@@ -339,40 +332,47 @@ class Display:
                 stdr.text((base + n * period, self.TICKER_Y), txt, font=self.fs, fill=255)
             tmp.paste(stmp, (scroll_x, 0))
 
-        self.img.paste(tmp, (x_start, 0))
+        self.img.paste(tmp, (0, 0))
 
     def _render(self):
         """Redraw full screen. Must be called with _lock held."""
         s = self._state
         self._clear()
 
-        # Left half: song number + title ticker; right half: BPM + platform ticker
-        self._draw_half_ticker(0,               self._ticker_texts[0], self._ticker_offsets[0], self.TICKER_DIRS[0], prefix=self._ticker_prefix)
-        self._draw_half_ticker(self.TICKER_HALF, self._ticker_texts[1], self._ticker_offsets[1], self.TICKER_DIRS[1])
+        self._draw_ticker(self._ticker_text, self._ticker_offset, prefix=self._ticker_prefix)
 
         # Countdown
         track = s['track']
+        cnt = None
         if s['playing']:
             cnt = "PAUSED" if s['paused'] else f"{int(s['remaining_s'])//60}:{int(s['remaining_s'])%60:02d} left"
-        else:
-            cnt = "DOWN to play"
-        self._text((W - self._tw(cnt, self.fs)) // 2, 15, cnt, self.fs)
+            cnt = ' '.join(cnt)
+        if cnt:
+            self._text((W - self._tw(cnt, self.fs)) // 2, 15, cnt, self.fs)
 
-        # Elapsed — rendered at 80pt, cropped tight, stretched to fill full width × remaining height
+        # Elapsed — rendered at 80pt with letter-spacing, scaled to fit, centered
         se          = int(s['set_elapsed_s'])
         elapsed_str = f"{se // 60:02d}:{se % 60:02d}"
         el_y0, el_h = 28, H - 28 - 2
-        tmp = Image.new("L", (512, 128), 0)
+        tmp = Image.new("L", (512, 200), 0)
         tdr = ImageDraw.Draw(tmp)
-        bb  = tdr.textbbox((0, 0), elapsed_str, font=self.fe)
-        tdr.text((-bb[0], -bb[1]), elapsed_str, font=self.fe, fill=255)
-        text_img    = tmp.crop((0, 0, max(1, bb[2] - bb[0]), max(1, bb[3] - bb[1])))
+        char_bbs = [tdr.textbbox((0, 0), c, font=self.fe) for c in elapsed_str]
+        char_ws  = [bb[2] - bb[0] for bb in char_bbs]
+        top      = min(bb[1] for bb in char_bbs)
+        char_h   = max(bb[3] for bb in char_bbs) - top
+        spacing  = max(1, int(sum(char_ws) / len(char_ws) * 0.25))
+        total_w  = sum(char_ws) + spacing * (len(elapsed_str) - 1)
+        x = 0
+        for c, bb, cw in zip(elapsed_str, char_bbs, char_ws):
+            tdr.text((x - bb[0], -top), c, font=self.fe, fill=255)
+            x += cw + spacing
+        text_img    = tmp.crop((0, 0, max(1, total_w), max(1, char_h)))
         tw, th      = text_img.size
         scale       = min(W / tw, el_h / th)
         new_w, new_h = int(tw * scale), int(th * scale)
         scaled      = text_img.resize((new_w, new_h), Image.LANCZOS).point(lambda p: 255 if p > 64 else 0, '1')
-        x_off       = (W - new_w) // 2
-        y_off       = el_y0 + (el_h - new_h) // 2
+        x_off       = max(0, (W - new_w) // 2)
+        y_off       = max(el_y0, el_y0 + (el_h - new_h) // 2)
         self.img.paste(scaled, (x_off, y_off))
 
         self._show()
