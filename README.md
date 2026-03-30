@@ -237,16 +237,15 @@ pgrep -a python | grep controller
 ### 9. Python Virtual Environment
 
 ```bash
-cd ~/rig
-python3 -m venv venv
-source venv/bin/activate
-pip install sounddevice soundfile numpy mido python-rtmidi evdev \
-            adafruit-circuitpython-ssd1306 pillow
+bash ~/rig/install_multichannel.sh
 ```
 
-Or run the installer:
+This creates `~/rig/venv` if needed and installs all dependencies. To install manually:
+
 ```bash
-bash ~/rig/install_multichannel.sh
+cd ~/rig && python3 -m venv venv && source venv/bin/activate
+pip install sounddevice soundfile numpy mido python-rtmidi evdev \
+            adafruit-circuitpython-ssd1306 pillow
 ```
 
 ---

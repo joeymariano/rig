@@ -1,68 +1,39 @@
 #!/bin/bash
-# Install dependencies for multi-channel Zoom L6 audio routing
+# Install all Python dependencies for the performance rig.
+# Run from ~/rig (creates venv if it doesn't exist).
 
-echo "=============================================="
-echo "Installing Multi-Channel Audio Dependencies"
-echo "=============================================="
-echo ""
+set -e
 
-cd ~/rig
+cd "$(dirname "$0")"
+
+if [ ! -d venv ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv venv
+fi
+
 source venv/bin/activate
 
-echo "Installing sounddevice (for multi-channel routing)..."
-pip install sounddevice --break-system-packages
+echo "Installing dependencies..."
+pip install \
+    sounddevice soundfile numpy \
+    mido python-rtmidi \
+    evdev \
+    adafruit-circuitpython-ssd1306 pillow
 
 echo ""
-echo "Installing soundfile (for WAV file reading)..."
-pip install soundfile --break-system-packages
-
-echo ""
-echo "Checking numpy (should already be installed)..."
-pip install numpy --break-system-packages
-
-echo ""
-echo "=============================================="
-echo "Installation Complete"
-echo "=============================================="
-echo ""
-echo "Testing audio device detection..."
-python3 << 'PYEOF'
+echo "Checking for Zoom L6..."
+python3 - <<'PYEOF'
 import sounddevice as sd
-print("\nAvailable audio devices:")
-print(sd.query_devices())
-print("\n")
-print("Looking for Zoom L6...")
 devices = sd.query_devices()
 found = False
-for i, device in enumerate(devices):
-    name = device['name'].lower()
-    if 'zoom' in name or 'l6' in name or 'l-6' in name:
-        print(f"✓ Found Zoom L6: {device['name']}")
-        print(f"  Device ID: {i}")
-        print(f"  Max output channels: {device['max_output_channels']}")
-        print(f"  Default sample rate: {device['default_samplerate']}")
+for i, d in enumerate(devices):
+    if any(x in d['name'].lower() for x in ('zoom', 'l6', 'l-6')) and d['max_output_channels'] >= 4:
+        print(f"  [{i}] {d['name']}  (out={d['max_output_channels']}, {int(d['default_samplerate'])}Hz)")
         found = True
-
 if not found:
-    print("✗ Zoom L6 not detected")
-    print("  Make sure it's plugged in via USB")
+    print("  Zoom L6 not detected — plug it in and check AUDIO_DEVICE in controller.py")
 PYEOF
 
 echo ""
-echo "=============================================="
-echo "Next Steps:"
-echo "=============================================="
-echo ""
-echo "1. If Zoom L6 was detected above, note the device name"
-echo "2. Edit controller.py and set AUDIO_DEVICE:"
-echo "   AUDIO_DEVICE = \"Zoom L-6\"  # Use exact name from above"
-echo "   # or"
-echo "   AUDIO_DEVICE = 1  # Use device ID number"
-echo ""
-echo "3. Test the controller:"
-echo "   python controller.py"
-echo ""
-echo "The controller will now route:"
-echo "  - title.wav → Zoom L6 Outputs 1-2"
-echo "  - metronome.wav → Zoom L6 Outputs 3-4"
-echo ""
+echo "Done. Set AUDIO_DEVICE in controller.py if needed, then run:"
+echo "  sudo python3 ~/rig/controller.py"

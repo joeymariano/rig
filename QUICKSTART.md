@@ -3,12 +3,12 @@
 ## Prerequisites (one-time setup)
 
 ```bash
-bash ~/rig/install_multichannel.sh   # Python deps (sounddevice, mido, evdev, etc.)
+bash ~/rig/install_multichannel.sh   # creates venv + installs all Python deps
 sudo bash ~/rig/patch_midi.sh        # VirMIDI kernel module + Processing MIDI patch
 sudo bash ~/rig/setup_sudoers.sh     # passwordless systemctl for argon OLED daemon
 ```
 
-- Zoom L6 connected via USB and set to **Multi Track** mode (Menu → USB → Mode → Multi Track)
+- Zoom L6 connected via USB, set to **Multi Track** mode (Menu → USB → Mode → Multi Track)
 - I2C enabled: `sudo raspi-config` → Interface Options → I2C → Enable
 
 ## Step 1: Add your tracks

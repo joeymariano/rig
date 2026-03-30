@@ -5,8 +5,10 @@ RULE_FILE=/etc/sudoers.d/rig-argon
 USER=${SUDO_USER:-$(whoami)}
 
 cat > "$RULE_FILE" <<EOF
-# Allow $USER to manage argononed for the performance rig without a password
-$USER ALL=(ALL) NOPASSWD: /bin/systemctl stop argononed, /bin/systemctl start argononed, /bin/systemctl stop argone-oled, /bin/systemctl start argone-oled
+# Allow $USER to manage argon OLED services for the performance rig without a password
+$USER ALL=(ALL) NOPASSWD: /bin/systemctl stop argononed, /bin/systemctl start argononed, \
+    /bin/systemctl stop argone-oled, /bin/systemctl start argone-oled, \
+    /bin/systemctl stop argonone-led, /bin/systemctl start argonone-led
 EOF
 
 chmod 440 "$RULE_FILE"

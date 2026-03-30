@@ -52,7 +52,7 @@ class Track:
             bpm_file = self.path / "bpm.txt"
             bpm_str = bpm_file.read_text().strip() if bpm_file.exists() else None
         try:    self.bpm = float(bpm_str)
-        except: self.bpm = None
+        except (TypeError, ValueError): self.bpm = None
 
     def is_complete(self):
         return self.title_wav.exists() and self.metronome_wav.exists() and self.midi_file.exists()
@@ -79,7 +79,6 @@ class TrackManager:
     def current(self):  return self.tracks[self.index] if self.tracks else None
     def next(self):     self.index = (self.index + 1) % len(self.tracks); return self.current()
     def prev(self):     self.index = (self.index - 1) % len(self.tracks); return self.current()
-    def position(self): return (self.index + 1, len(self.tracks))
 
 
 # ── Player ───────────────────────────────────────────────────────────────────
@@ -284,7 +283,7 @@ class Display:
         bb = self.draw.textbbox((0, 0), s, font=f)
         return bb[2] - bb[0]
 
-    def update(self, track, pos, total, playing, paused, remaining_s=0.0, set_elapsed_s=0.0):
+    def update(self, track, playing, paused, remaining_s=0.0, set_elapsed_s=0.0):
         with self._lock:
             sg = int(''.join(filter(str.isdigit, track.song_name)) or 0)
             self._ticker_prefix = f"{sg:02d}"
@@ -669,10 +668,9 @@ class Rig:
     def _refresh_display(self):
         t = self.tracks.current()
         if t:
-            pos, total = self.tracks.position()
             _, remaining = self.player.playback_info()
             set_elapsed = (time.time() - self._set_start_time) if self._set_start_time else 0.0
-            self.display.update(t, pos, total, self.player.is_playing, self.player.is_paused,
+            self.display.update(t, self.player.is_playing, self.player.is_paused,
                                 remaining, set_elapsed)
 
     def _systemctl(self, action, svc):
