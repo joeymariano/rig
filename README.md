@@ -139,24 +139,21 @@ PipeWire must be alive for the user session before `controller.py` starts — th
 
 ### 3. Zoom L6 Multi-Channel Routing
 
-The Zoom L6 presents as a 6-channel USB audio device. Connect via USB; no extra drivers needed on Pi OS.
+The Zoom L6 presents as a multi-channel USB audio device. Connect via USB; no extra drivers needed on Pi OS.
 
-**Find the device index after connecting:**
+**`AUDIO_DEVICE = None` is the default** — the controller auto-detects the Zoom by searching sounddevice names for `"zoom"`, `"l6"`, or `"l-6"` with at least 4 output channels. No configuration needed in the normal case.
+
+If auto-detect fails or you want to pin a specific device:
 ```bash
 python3 -c "import sounddevice as sd; print(sd.query_devices())"
 ```
 
-Look for `L6: USB Audio` or `Zoom L-6`. Update `AUDIO_DEVICE` in `controller.py`:
+Look for `L6: USB Audio` or `Zoom L-6`, then set the index in `controller.py`:
 ```python
-AUDIO_DEVICE = 2      # use device index from above
-# or
-AUDIO_DEVICE = None   # auto-detect by name (searches for "zoom"/"l6")
+AUDIO_DEVICE = 2      # pin to a specific device index
 ```
 
-**USB enumeration order can change after reboot.** If you see `PaErrorCode -9998`, the index is wrong. Set `AUDIO_DEVICE = None` to always auto-detect, or check:
-```bash
-aplay -l | grep -i zoom
-```
+If the pinned index is missing or has fewer than 4 output channels, the controller warns and falls back to auto-detect. If you see `PaErrorCode -9998` with a pinned index, the enumeration order changed after a reconnect — use `None` instead.
 
 **Zoom L6 must be in 4-ch (multi-track) mode**, not stereo. On the device:
 - Menu → USB → Mode → Multi Track
@@ -165,7 +162,7 @@ aplay -l | grep -i zoom
 ```
 SUBSYSTEM=="sound", ATTRS{idVendor}=="1686", ATTRS{idProduct}=="0045", ATTR{id}="ZoomL6"
 ```
-Then `sudo udevadm control --reload && sudo udevadm trigger`. Now the device always appears as `hw:ZoomL6`.
+Then `sudo udevadm control --reload && sudo udevadm trigger`. Now the device always appears as `hw:ZoomL6` for ALSA-level tools (this does not affect sounddevice auto-detection).
 
 ### 4. VirMIDI Kernel Module (MIDI bridge to Processing)
 
@@ -201,30 +198,29 @@ This is a one-time operation. After running it, the Processing sketch will autom
 
 ### 5. Argon One V5 — Stopping the OLED Daemon
 
-The Argon One daemon controls the case OLED. The rig stops it on startup to take exclusive control, then restarts it on exit. It checks for three possible service names: `argononed`, `argone-oled`, and `argonone-led`.
+The Argon One daemon controls the case OLED. On startup the rig tries to stop all three possible service names (`argononed`, `argone-oled`, `argonone-led`) and records which ones were actually running. On exit it restarts only those services.
 
-**Grant passwordless systemctl access** (so the rig can stop/start the service without a password):
+**Grant passwordless systemctl access** (only needed if running as a non-root user — see section 8):
 ```bash
 sudo bash ~/rig/setup_sudoers.sh
 ```
 
-This writes `/etc/sudoers.d/rig-argon` covering `argononed` and `argone-oled`. If your installation uses `argonone-led` instead, add it to the file manually.
+This writes `/etc/sudoers.d/rig-argon` covering all three service names.
 
 **I2C address:** the Argon One OLED is at `0x3C` on I2C bus 1 (the default).
 
 ### 6. Keyboard and I2C Permissions
 
-`evdev` keyboard access requires the running user to be in the `input` group; I2C requires `i2c` group membership (or root).
+The controller normally runs as root via the autostart (see section 8), so no group changes are needed for production use.
+
+If you want to run as a non-root user, add yourself to the required groups:
 
 ```bash
 sudo usermod -a -G input,i2c nmlstyl
 # log out and back in for group membership to take effect
 ```
 
-For a quick manual test you can still run as root:
-```bash
-sudo python3 ~/rig/controller.py
-```
+`evdev` keyboard access requires the `input` group; I2C requires the `i2c` group. Running without root and without these groups will cause keyboard grab and OLED display to fail.
 
 ### 7. Desktop Taskbar (labwc / wf-panel-pi)
 
@@ -282,7 +278,7 @@ Edit constants at the top of `controller.py`:
 MUSIC_ROOT        = Path("/home/nmlstyl/rig")       # set-*/song-* root
 PROCESSING_SKETCH = Path("/home/nmlstyl/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner")
 VIRTUAL_MIDI_PORT = "RigMIDI"
-AUDIO_DEVICE      = 2      # Zoom L6 index (None = auto-detect by name)
+AUDIO_DEVICE      = None   # auto-detect Zoom L6 by name (or set to a device index)
 KEYBOARD_NAME     = None   # target keyboard substring (None = any arrow-key keyboard)
 W, H              = 128, 64  # OLED dimensions
 ```
@@ -313,11 +309,11 @@ i2cdetect -y 1      # should show 0x3C
 ```
 
 **`Invalid number of channels` / `PaErrorCode -9998`**
-Device index changed after reconnect. Check:
+Only occurs when `AUDIO_DEVICE` is set to a fixed index and the enumeration order changed after a reconnect. Check:
 ```bash
 python3 -c "import sounddevice as sd; print(sd.query_devices())"
 ```
-Update `AUDIO_DEVICE` or set to `None`.
+Set `AUDIO_DEVICE = None` to use auto-detect instead.
 
 **`ModuleNotFoundError: sounddevice` or `soundfile`**
 ```bash
