@@ -17,7 +17,7 @@ from PIL import Image, ImageDraw, ImageFont
 MUSIC_ROOT        = Path("/home/nmlstyl/rig")
 PROCESSING_SKETCH = Path("/home/nmlstyl/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner")
 VIRTUAL_MIDI_PORT = "RigMIDI"
-AUDIO_DEVICE      = 2      # Zoom L6 device index; None = auto-detect by name
+AUDIO_DEVICE      = None   # always auto-detect Zoom L6 by name on any USB port
 KEYBOARD_NAME     = None  # target keyboard name (substring match); None = any arrow-key keyboard
 W, H              = 128, 64
 
@@ -442,7 +442,7 @@ class Keyboard:
     Combo keys (UP+LEFT+RIGHT): individual actions are suppressed while combo
     keys are forming; fired on release if the combo was never completed.
     """
-    EXCLUDE           = ('vc4-hdmi', 'cec', 'consumer control')
+    EXCLUDE           = ('vc4-hdmi', 'cec', 'consumer control', 'zoom', 'l6')
     COMBO_EXIT        = frozenset([KEY_UP, KEY_LEFT, KEY_RIGHT])
     RECONNECT_DELAY   = 0.5   # seconds between reconnect attempts
 
@@ -623,10 +623,10 @@ class Rig:
         self._stop_panel()
         self._stop_argon()
         self.display = Display()
+        self.player   = Player(VIRTUAL_MIDI_PORT, AUDIO_DEVICE)
         self._launch_processing()
         selected_set  = self._select_set()
         self.tracks   = TrackManager(MUSIC_ROOT, selected_set)
-        self.player   = Player(VIRTUAL_MIDI_PORT, AUDIO_DEVICE)
         self.keyboard = Keyboard(self._on_key, on_exit=self._request_exit, name_filter=KEYBOARD_NAME)
 
         if not self.tracks.tracks:
