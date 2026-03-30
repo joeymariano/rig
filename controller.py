@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Live Performance Rig — keyboard, OLED, 4-ch audio, MIDI"""
 
-import os, re, sys, time, threading, subprocess, signal
+import os, re, sys, time, threading, subprocess, signal, queue
 from pathlib import Path
 from evdev import InputDevice, categorize, ecodes, list_devices
 import sounddevice as sd
@@ -64,12 +64,13 @@ class Track:
 
 
 class TrackManager:
-    def __init__(self, root):
+    def __init__(self, root, selected_set=None):
         self.root  = Path(root)
         self.index = 0
+        set_dirs = [Path(selected_set)] if selected_set else sorted(self.root.glob("set-*"))
         self.tracks = [
-            t for set_dir in sorted(self.root.glob("set-*"))
-            for t in (Track(p) for p in sorted(set_dir.glob("song-*")))
+            t for sdir in set_dirs
+            for t in (Track(p) for p in sorted(sdir.glob("song-*")))
             if t.is_complete()
         ]
         print(f"Found {len(self.tracks)} tracks")
@@ -262,8 +263,9 @@ class Display:
             self.fs = ImageFont.truetype(f"{sans}-Regular.ttf", 10)
             self.fp = ImageFont.truetype(f"{sans}-Bold.ttf", 20)    # track number prefix (2× ticker)
             self.fe = ImageFont.truetype(f"{narrow}-Bold.ttf", 80)  # elapsed stretch-render
+            self.fl = ImageFont.truetype(f"{sans}-Bold.ttf", 30)    # set selector large label
         except:
-            self.fb = self.fm = self.fs = self.fe = self.fp = ImageFont.load_default()
+            self.fb = self.fm = self.fs = self.fe = self.fp = self.fl = ImageFont.load_default()
         self._lock          = threading.Lock()
         self._state         = None
         self._ticker_text   = ''
@@ -388,6 +390,39 @@ class Display:
         self.img.paste(scaled, (x_off, y_off))
 
         self._show()
+
+    def _draw_set_name(self, name, y_offset=0):
+        """Draw SET XX centered with a vertical offset (for animation). No lock — caller holds it."""
+        tw = self._tw(name, self.fl)
+        x  = (W - tw) // 2
+        y  = (H // 2 - 18) + y_offset   # 18 ≈ half of 30pt cap height
+        self._text(x, y, name, self.fl)
+
+    def show_set_name(self, name):
+        """Render set name centered and push to OLED."""
+        with self._lock:
+            self._clear()
+            self._draw_set_name(name)
+            self._show()
+
+    def animate_set_transition(self, old_name, new_name, direction_up):
+        """200ms slide: direction_up=True → new slides in from top, old exits bottom."""
+        frames = 8   # 8 × 25 ms ≈ 200 ms
+        travel = H + 36  # slightly more than screen height so text fully exits
+        for i in range(frames + 1):
+            t = i / frames
+            if direction_up:
+                old_y = int(t * travel)         # slides down off screen
+                new_y = int((t - 1) * travel)   # slides in from top
+            else:
+                old_y = int(-t * travel)         # slides up off screen
+                new_y = int((1 - t) * travel)    # slides in from bottom
+            with self._lock:
+                self._clear()
+                self._draw_set_name(old_name, old_y)
+                self._draw_set_name(new_name, new_y)
+                self._show()
+            time.sleep(0.025)
 
     def error(self, msg):
         self._clear(); self._text(2, 20, "ERROR:", self.fm); self._text(2, 35, msg, self.fs); self._show()
@@ -582,24 +617,61 @@ class Keyboard:
 class Rig:
     def __init__(self):
         print("Starting Performance Rig...")
-        self._exit_evt      = threading.Event()
+        self._exit_evt       = threading.Event()
         self._set_start_time = None
+        self._proc           = None
         self._stop_panel()
         self._stop_argon()
-        self.display  = Display()
-        self.tracks   = TrackManager(MUSIC_ROOT)
+        self.display = Display()
+        self._launch_processing()
+        selected_set  = self._select_set()
+        self.tracks   = TrackManager(MUSIC_ROOT, selected_set)
         self.player   = Player(VIRTUAL_MIDI_PORT, AUDIO_DEVICE)
         self.keyboard = Keyboard(self._on_key, on_exit=self._request_exit, name_filter=KEYBOARD_NAME)
-        self._proc    = None
 
         if not self.tracks.tracks:
             self.display.error("No tracks!"); sys.exit(1)
 
-        self._launch_processing()
         self._refresh_display()
         self.keyboard.start()
-        threading.Thread(target=self._display_loop,  daemon=True).start()
+        threading.Thread(target=self._display_loop, daemon=True).start()
         print("Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit")
+
+    def _select_set(self):
+        """Block on OLED set-picker until user confirms with ← or →. Returns chosen set Path."""
+        sets = sorted(MUSIC_ROOT.glob("set-*"))
+        if len(sets) <= 1:
+            return sets[0] if sets else None
+
+        idx   = 0
+        label = lambda i: f"SET {i+1:02d}"
+        self.display.show_set_name(label(idx))
+
+        key_q = queue.Queue()
+        kb    = Keyboard(lambda code: key_q.put(code), name_filter=KEYBOARD_NAME)
+        kb.start()
+
+        selected = None
+        while selected is None:
+            try:
+                code = key_q.get(timeout=0.1)
+            except queue.Empty:
+                continue
+            if code in (KEY_LEFT, KEY_RIGHT):
+                selected = sets[idx]
+            elif code == KEY_UP:
+                new_idx = (idx - 1) % len(sets)
+                self.display.animate_set_transition(label(idx), label(new_idx), direction_up=True)
+                idx = new_idx
+            elif code == KEY_DOWN:
+                new_idx = (idx + 1) % len(sets)
+                self.display.animate_set_transition(label(idx), label(new_idx), direction_up=False)
+                idx = new_idx
+
+        kb.stop()
+        time.sleep(0.1)   # let keyboard thread release device grab before performance KB starts
+        print(f"Selected: {selected.name}")
+        return selected
 
     def _launch_processing(self):
         if not PROCESSING_SKETCH.exists():
