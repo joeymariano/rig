@@ -1,143 +1,87 @@
-# Quick Start Guide
+# Quick Start
 
-## FOR ZOOM L6 USERS - MULTI-CHANNEL ROUTING
+## Prerequisites
 
-Your setup routes audio to separate outputs:
-- title.wav → Outputs 1-2
-- metronome.wav → Outputs 3-4
+- Zoom L6 connected via USB and set to **Multi Track** mode (Menu → USB → Mode → Multi Track)
+- VirMIDI patched (run once: `sudo bash ~/rig/patch_midi.sh`)
+- Python venv set up (run once: `bash ~/rig/install_multichannel.sh`)
+- I2C enabled in raspi-config (for OLED)
 
-### Step 1: Install Multi-Channel Support
-```bash
-cd ~/rig
-source venv/bin/activate
-bash install_multichannel.sh
-```
+## Step 1: Add your tracks
 
-This installs `sounddevice`, `soundfile`, and `numpy` for 4-channel output.
-
-### Step 2: Copy the controller
-```bash
-cp controller.py ~/rig/
-chmod +x ~/rig/controller.py
-```
-
-### Step 3: Configure for Zoom L6
-
-Edit `~/rig/controller.py` and set:
-```python
-AUDIO_DEVICE = "Zoom L-6"  # Use exact device name
-# or
-AUDIO_DEVICE = 1  # Use device ID from install script output
-```
-
-### Step 4: Fix mido if needed
-Your pip list shows `mido 0.0.0` which might be broken:
-```bash
-source ~/rig/venv/bin/activate
-pip uninstall -y mido
-pip install mido --break-system-packages
-```
-
-### Step 5: Test run
-```bash
-cd ~/rig
-source venv/bin/activate
-python controller.py
-```
-
-## What You Should See:
-```
-Using sounddevice for multi-channel audio
-Auto-detected Zoom L6: Zoom L-6 (device 1)
-Created virtual MIDI port: RigMIDI
-Found X tracks
-Processing sketch launched
-Performance Rig ready!
-
-[Press DOWN to play]
-
-Starting 4-channel playback on device 1
-  Channels 1-2: title.wav
-  Channels 3-4: metronome.wav
-  Sample rate: 48000Hz
-```
-
-## Testing:
-1. Press `←` or `→` to browse tracks (OLED updates)
-2. Press `↓` to play
-   - title.wav plays from Zoom L6 Outputs 1-2
-   - metronome.wav plays from Zoom L6 Outputs 3-4
-   - MIDI sends to Processing sketch
-3. Press `↑` to pause/resume
-4. Press `Ctrl+C` to exit
-
-## If It Works:
-Install as a service so it auto-starts on boot:
-```bash
-sudo cp performance-rig.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable performance-rig.service
-sudo systemctl start performance-rig.service
-```
-
-## Troubleshooting:
-
-**Keyboard not detected:**
-```bash
-sudo usermod -a -G input $USER
-# Then log out and back in
-```
-
-**MIDI port creation fails:**
-```bash
-sudo apt install python3-rtmidi
-pip install python-rtmidi --break-system-packages
-```
-
-**No tracks found:**
-Check your directory structure:
-```bash
-tree ~/rig/ | head -20
-```
-
-Should be:
+Each song needs three files in a `set-XX/song-XX/` folder:
 ```
 ~/rig/set-01/song-01/title.wav
 ~/rig/set-01/song-01/metronome.wav
 ~/rig/set-01/song-01/midi-for-processing.midi
 ```
 
-**OLED not working:**
-```bash
-# Enable I2C
-sudo raspi-config  # Interface Options → I2C → Enable
-
-# Check address
-i2cdetect -y 1  # Should show 0x3C
+Optionally add `info.txt` for display metadata:
+```
+title: My Song
+bpm: 120
+platform: Ableton
 ```
 
-**Processing sketch doesn't launch:**
+## Step 2: Check audio device index
+
 ```bash
-chmod +x ~/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner
-# Test manually:
-~/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner
+python3 -c "import sounddevice as sd; print(sd.query_devices())"
 ```
 
-## Files Provided:
-- `controller.py` - Main Python controller
-- `performance-rig.service` - Systemd service for auto-start
-- `setup.sh` - Diagnostic and setup helper
-- `README.md` - Complete documentation
-- `QUICKSTART.md` - This file
+Find the Zoom L6 entry (e.g. `[2] L6: USB Audio`). Set in `controller.py`:
+```python
+AUDIO_DEVICE = 2   # or None to always auto-detect
+```
 
-## Controls Reference:
-- `←` LEFT: Previous track
-- `→` RIGHT: Next track  
-- `↓` DOWN: Play (starts 2 WAVs + MIDI)
-- `↑` UP: Pause/Resume
+## Step 3: Run
 
-The OLED shows:
-- Current track position (e.g., "Track 3/8")
-- Set and song number (e.g., "Set 1 - Song 2")
-- Folder name
-- Status (PLAYING / PAUSED / Press DOWN to play)
+The controller normally launches automatically via `~/.config/labwc/autostart` on boot. To run manually:
+
+```bash
+sudo python3 ~/rig/controller.py
+```
+
+Expected startup output:
+```
+Starting Performance Rig...
+Stopped argononed           ← (or argone-oled / argonone-led)
+Taskbar hidden
+Found 4 tracks
+  1. Set 1 - Song 1
+  2. Set 1 - Song 2
+  ...
+Virtual MIDI port: RigMIDI
+Processing launched (PID 12345)
+MIDI bridged 128:0 → 14:0
+Auto-detected Zoom L6: L6: USB Audio (device 2)
+Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+```
+
+## Controls
+
+| Key | Action |
+|-----|--------|
+| `←` | Previous track |
+| `→` | Next track |
+| `↓` | Play |
+| `↑` | Pause / Resume |
+| `ESC` | Exit |
+| `↑` + `←` + `→` | Exit combo |
+
+## OLED
+
+- **Top ticker**: track number + title, BPM, platform (scrolls if too wide)
+- **Middle**: remaining time (`3:42 left`) or `PAUSED` while playing
+- **Bottom**: elapsed time since the set started (large clock)
+
+## Autostart
+
+The rig is launched from `~/.config/labwc/autostart`, not as a systemd service. Do not enable `performance-rig.service`.
+
+```bash
+# ~/.config/labwc/autostart
+bash -c 'until systemctl --user is-active pipewire > /dev/null 2>&1; do sleep 0.5; done; sudo python /home/nmlstyl/rig/controller.py' &
+```
+
+See README.md for full setup documentation.

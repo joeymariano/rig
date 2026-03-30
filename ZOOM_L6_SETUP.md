@@ -1,73 +1,12 @@
-# Zoom L6 Multi-Channel Audio Routing Setup
+# Zoom L6 Multi-Channel Audio Routing
 
 ## Overview
 
-The controller now supports **TRUE MULTI-CHANNEL ROUTING**:
-- **title.wav** → Zoom L6 Outputs 1-2 (stereo pair)
-- **metronome.wav** → Zoom L6 Outputs 3-4 (stereo pair)
+The controller routes audio to separate Zoom L6 outputs:
+- `title.wav` → Outputs 1-2 (stereo pair)
+- `metronome.wav` → Outputs 3-4 (stereo pair)
 
-This uses the `sounddevice` library for 4-channel audio output.
-
-## Quick Setup
-
-### Step 1: Install Multi-Channel Dependencies
-
-```bash
-cd ~/rig
-source venv/bin/activate
-bash install_multichannel.sh
-```
-
-This installs:
-- `sounddevice` - Multi-channel audio output
-- `soundfile` - WAV file reading
-- `numpy` - Audio data processing
-
-### Step 2: Detect Your Zoom L6
-
-After installation, the script will show available devices. Look for:
-```
-✓ Found Zoom L6: Zoom L-6
-  Device ID: 1
-  Max output channels: 6
-  Default sample rate: 48000.0
-```
-
-### Step 3: Configure controller.py
-
-Edit `controller.py` and update `AUDIO_DEVICE`:
-
-```python
-# Option 1: By device name (recommended)
-AUDIO_DEVICE = "Zoom L-6"
-
-# Option 2: By device ID number
-AUDIO_DEVICE = 1
-
-# Option 3: Auto-detect (searches for "zoom" or "l6" in name)
-AUDIO_DEVICE = None
-```
-
-### Step 4: Test
-
-```bash
-cd ~/rig
-source venv/bin/activate
-python controller.py
-```
-
-You should see:
-```
-Using sounddevice for multi-channel audio
-Auto-detected Zoom L6: Zoom L-6 (device 1)
-Starting 4-channel playback on device 1
-  Channels 1-2: title.wav
-  Channels 3-4: metronome.wav
-```
-
-## How It Works
-
-The controller creates a 4-channel audio stream:
+This uses `sounddevice` for 4-channel interleaved output:
 ```
 Channel 1 (Output 1) ← title.wav LEFT
 Channel 2 (Output 2) ← title.wav RIGHT
@@ -75,112 +14,93 @@ Channel 3 (Output 3) ← metronome.wav LEFT
 Channel 4 (Output 4) ← metronome.wav RIGHT
 ```
 
-## Fallback Mode
+## Setup
 
-If `sounddevice` is not installed, the controller falls back to pygame mixer, which mixes both tracks together (no channel separation). You'll see:
+### Step 1: Install dependencies
 
+```bash
+bash ~/rig/install_multichannel.sh
 ```
-WARNING: sounddevice not installed. Falling back to pygame
-Playback started (pygame - mixed stereo)
+
+Installs `sounddevice`, `soundfile`, and `numpy`, then prints available audio devices.
+
+### Step 2: Set the device
+
+Find the Zoom L6 in the device list:
+```bash
+python3 -c "import sounddevice as sd; print(sd.query_devices())"
 ```
 
-To get multi-channel routing, you must install sounddevice.
+Update `AUDIO_DEVICE` in `controller.py`:
+```python
+AUDIO_DEVICE = 2      # device index from above
+# or
+AUDIO_DEVICE = None   # auto-detect by name (searches for "zoom"/"l6")
+```
+
+### Step 3: Set Zoom L6 to multi-track mode
+
+On the device: Menu → USB → Mode → **Multi Track**
+
+Without this the device only presents 2 channels and playback will fail.
 
 ## Troubleshooting
 
-### "ModuleNotFoundError: No module named 'sounddevice'"
+### `Invalid number of channels` / `PaErrorCode -9998`
+
+USB device enumeration order changed. Check the current index:
+```bash
+python3 -c "import sounddevice as sd; print(sd.query_devices())"
+```
+Update `AUDIO_DEVICE` to match, or set it to `None` to always auto-detect.
+
+### `ModuleNotFoundError: No module named 'sounddevice'`
 ```bash
 source ~/rig/venv/bin/activate
 pip install sounddevice soundfile --break-system-packages
 ```
 
-### "Invalid number of channels" / `PaErrorCode -9998`
+### Zoom L6 only shows 2 output channels
 
-The hardcoded `AUDIO_DEVICE` index (e.g. `2`) pointed to a device that doesn't
-support 4-channel output. This happens when USB device enumeration order changes
-after a reboot or USB reconnect.
+The device is in stereo mode. Switch to Multi Track mode as above.
 
-The controller now validates the device channel count and prints available devices
-if the check fails, then auto-detects by name. Check the output for the correct index:
+### Audio clicks or dropouts
 
-```
-Available output devices:
-  [0] bcm2835 Headphones  (out=8)
-  [1] ...
-  [2] L6: USB Audio       (out=4)   ← use this index
-```
-
-Update `AUDIO_DEVICE` in `controller.py` to match, or set `AUDIO_DEVICE = None`
-to always auto-detect by name.
-
-### "No audio device found" or Wrong Device Selected
-```bash
-# List all devices
-python3 -c "import sounddevice as sd; print(sd.query_devices())"
-
-# Find Zoom L6 in the list, note device ID or name
-# Update AUDIO_DEVICE in controller.py
-```
-
-### "Zoom L6 only has 2 output channels"
-Your Zoom L6 might be configured in stereo mode. Check:
-```bash
-# Check ALSA config
-aplay -l | grep -i zoom
-
-# The device should show as surround40 or multi-channel
-# If not, you may need to configure ALSA
-```
-
-### Audio Clicks or Dropouts
-Increase buffer size in the audio playback thread:
+Increase the blocksize in `_audio_loop` in `controller.py`:
 ```python
-# In controller.py, _play_audio_thread method:
-stream = self.sd.OutputStream(
-    device=device,
-    channels=4,
-    samplerate=samplerate,
-    blocksize=2048,  # Increase from 1024
-    dtype='float32'
-)
+stream = sd.OutputStream(device=device, channels=4, samplerate=sr, blocksize=2048, ...)
 ```
 
-### Sample Rate Mismatch Warning
-Ensure your WAV files are all 48kHz (Zoom L6's native rate):
-```bash
-# Check file sample rate
-soxi your_file.wav | grep "Sample Rate"
+### Sample rate mismatch
 
-# Convert if needed
+The Zoom L6 runs at 48kHz. Convert files if needed:
+```bash
+soxi your_file.wav | grep "Sample Rate"
 sox input.wav -r 48000 output.wav
 ```
 
-### Latency Between Audio and MIDI
-The audio and MIDI start simultaneously in separate threads. If you notice drift:
-- Audio has ~20ms latency (blocksize 1024 at 48kHz)
-- MIDI is real-time
+### Audio and MIDI out of sync
 
-If sync is critical, you can add a small delay to MIDI:
+The MIDI thread is delayed by `blocksize/samplerate` (~21ms) to compensate for the audio buffer. If MIDI still leads audio, increase the delay in `Player.play()`:
 ```python
-# In _play_midi_thread, add after start_time:
-time.sleep(0.020)  # 20ms to match audio latency
+self._midi_t = threading.Thread(target=self._midi_loop, args=(midi, start, 0.030), ...)
 ```
 
-### Channels Reversed or Wrong Mapping
-Verify your Zoom L6 channel mapping:
+### Verify channel mapping
+
 ```bash
-# Test individual channels
 speaker-test -D hw:CARD=L6 -c 4 -t sine
-# Should play: Front-Left, Front-Right, Rear-Left, Rear-Right
+# Plays: Front-Left, Front-Right, Rear-Left, Rear-Right
 ```
 
-If channels are wrong, you may need to remap in the code:
-```python
-# In _play_sounddevice method, adjust channel order:
-output_data = np.column_stack([
-    title_data[:, 0],      # Your desired Output 1
-    title_data[:, 1],      # Your desired Output 2
-    metronome_data[:, 0],  # Your desired Output 3
-    metronome_data[:, 1]   # Your desired Output 4
-])
+### Stable device naming (optional)
+
+Add to `/etc/udev/rules.d/99-zoom.rules`:
 ```
+SUBSYSTEM=="sound", ATTRS{idVendor}=="1686", ATTRS{idProduct}=="0045", ATTR{id}="ZoomL6"
+```
+Then:
+```bash
+sudo udevadm control --reload && sudo udevadm trigger
+```
+The device will always appear as `hw:ZoomL6` regardless of USB enumeration order.

@@ -4,12 +4,12 @@ Python controller for Raspberry Pi (Argon One V5) that synchronizes:
 - 2 audio tracks routed to separate Zoom L6 outputs
 - MIDI file playback driving a Processing visual sketch
 - SSD1306 OLED display (built into Argon case)
-- USB keyboard control (4 arrow keys)
+- USB keyboard control (4 arrow keys + ESC)
 
 ## System Architecture
 
 ```
-USB Keyboard (←→↑↓)
+USB Keyboard (←→↑↓ ESC)
        │
   controller.py
   ├── TrackManager  — scans ~/rig/set-*/song-*/
@@ -31,34 +31,52 @@ USB Keyboard (←→↑↓)
 │   │   ├── title.wav              # main audio → L6 outputs 1-2
 │   │   ├── metronome.wav          # click track → L6 outputs 3-4
 │   │   ├── midi-for-processing.midi
-│   │   └── bpm.txt                # optional, e.g. "120"
+│   │   └── info.txt               # optional metadata (see below)
 │   └── song-02/...
 └── set-02/...
 ```
+
+**`info.txt` format** (all fields optional):
+```
+title: My Song Name
+bpm: 120
+platform: Ableton
+timing: 4/4
+```
+
+- `title` — display name shown on OLED ticker (defaults to folder name)
+- `bpm` — injected as a MIDI tempo event if the MIDI file has none
+- `platform` / `timing` — shown on OLED ticker alongside title and BPM
+- Legacy: a `bpm.txt` file containing just the BPM number is also accepted as a fallback
 
 ## Controls
 
 | Key | Action |
 |-----|--------|
-| `←` | Previous track |
-| `→` | Next track |
+| `←` | Stop and go to previous track |
+| `→` | Stop and go to next track |
 | `↓` | Play (starts audio + MIDI simultaneously) |
 | `↑` | Pause / Resume |
 | `ESC` | Exit (graceful shutdown) |
-| `↑` + `←` + `→` | Exit combo (hold all three) |
+| `↑` + `←` + `→` | Exit combo (hold all three simultaneously) |
 
-Combo keys (`↑ ← →`) are non-destructive: if the combo is never completed, each key fires its normal action on release.
+The exit combo is non-destructive: if the combo is never completed, each key fires its normal action on release.
 
 ## OLED Layout
 
 ```
 ┌────────────────────────┐
-│ Track 1/8              │  position
-│ Set 1 - Song 1         │  set/song number
-│ song-01                │  folder name
-│ > PLAYING              │  status
+│01 Song Title 120bpm ..→│  ← scrolling ticker: track number + title/BPM/platform
+│    3 : 4 2   l e f t   │  ← countdown (or P A U S E D) while playing
+│                        │
+│        03:42           │  ← large set elapsed time (MM:SS), scales to fill
+│                        │
 └────────────────────────┘
 ```
+
+- **Ticker** (top): large bold track number prefix on the left, scrolling small text on the right showing `title bpm platform`
+- **Countdown** (middle): remaining time for the current track (`M:SS left`) or `PAUSED` — characters are spaced out for readability
+- **Set clock** (bottom half): elapsed time since the first track of the set was started, rendered large and scaled to fit
 
 ---
 
@@ -93,12 +111,7 @@ If not running:
 systemctl --user enable --now pipewire pipewire-pulse wireplumber
 ```
 
-To keep PipeWire alive for root (the rig runs as root):
-```bash
-# Add to /etc/systemd/system/performance-rig.service environment:
-Environment=XDG_RUNTIME_DIR=/run/user/1000
-```
-See the service file section below.
+PipeWire must be alive for the user session before `controller.py` starts — the labwc autostart (section 8) handles this.
 
 ### 3. Zoom L6 Multi-Channel Routing
 
@@ -116,8 +129,7 @@ AUDIO_DEVICE = 2      # use device index from above
 AUDIO_DEVICE = None   # auto-detect by name (searches for "zoom"/"l6")
 ```
 
-**USB enumeration order can change after reboot.** If you see `PaErrorCode -9998`, the
-index is wrong. Set `AUDIO_DEVICE = None` to always auto-detect, or check:
+**USB enumeration order can change after reboot.** If you see `PaErrorCode -9998`, the index is wrong. Set `AUDIO_DEVICE = None` to always auto-detect, or check:
 ```bash
 aplay -l | grep -i zoom
 ```
@@ -145,11 +157,6 @@ sudo modprobe snd_virmidi midi_devs=1
 snd_virmidi
 ```
 
-Or add to `/etc/modprobe.d/virmidi.conf`:
-```
-options snd_virmidi midi_devs=1
-```
-
 **Verify it loaded:**
 ```bash
 aconnect -l
@@ -170,19 +177,14 @@ This is a one-time operation. After running it, the Processing sketch will autom
 
 ### 5. Argon One V5 — Stopping the OLED Daemon
 
-The Argon One daemon (`argononed`) controls the case OLED. The rig stops it on startup
-to take exclusive control, then restarts it on exit.
+The Argon One daemon controls the case OLED. The rig stops it on startup to take exclusive control, then restarts it on exit. It checks for three possible service names: `argononed`, `argone-oled`, and `argonone-led`.
 
 **Grant passwordless systemctl access** (so the rig can stop/start the service without a password):
 ```bash
 sudo bash ~/rig/setup_sudoers.sh
 ```
 
-This writes `/etc/sudoers.d/rig-argon` with:
-```
-nmlstyl ALL=(ALL) NOPASSWD: /bin/systemctl stop argononed, /bin/systemctl start argononed, \
-    /bin/systemctl stop argone-oled, /bin/systemctl start argone-oled
-```
+This writes `/etc/sudoers.d/rig-argon` covering `argononed` and `argone-oled`. If your installation uses `argonone-led` instead, add it to the file manually.
 
 **I2C address:** the Argon One OLED is at `0x3C` on I2C bus 1 (the default).
 
@@ -202,37 +204,27 @@ sudo python3 ~/rig/controller.py
 
 ### 7. Desktop Taskbar (labwc / wf-panel-pi)
 
-The rig runs under the labwc Wayland compositor with the `wf-panel-pi` taskbar. The taskbar should be left running — it does not interfere with controller.py.
+The rig runs under the labwc Wayland compositor. On startup, `controller.py` kills `lwrespawn wf-panel-pi` and `wf-panel-pi` to hide the taskbar during the performance. On exit it relaunches `lwrespawn wf-panel-pi` to restore it cleanly under its supervisor.
 
 **Do not kill the panel in autostart.** An earlier hack added these lines to `~/.config/labwc/autostart`:
 ```bash
 # BAD — causes panel to glitch / shell to break after controller exits
 sleep 1 && pkill -f "lwrespawn.*wf-panel-pi" && pkill wf-panel-pi &
 ```
-Killing `lwrespawn` (the panel supervisor) and then trying to restart the panel manually via `wf-panel-pi` causes the panel to oscillate between hide/show and eventually the shell stops responding.
+Killing `lwrespawn` externally and then trying to restart the panel manually causes it to oscillate between hide/show and eventually the shell stops responding.
 
-**Correct autostart** (`~/.config/labwc/autostart`):
-```bash
-bash -c 'until systemctl --user is-active pipewire > /dev/null 2>&1; do sleep 0.5; done; sudo python /home/nmlstyl/rig/controller.py' &
-```
-This polls until PipeWire is ready before launching, avoiding the race condition from a fixed `sleep`. `controller.py` then manages the panel directly:
-- On startup: kills `lwrespawn wf-panel-pi` + `wf-panel-pi` so the taskbar is hidden during the performance
-- On exit: relaunches `lwrespawn wf-panel-pi` to restore it cleanly under its supervisor
-
-This mirrors how the rig already handles the argon OLED daemon.
+The controller handles the panel lifecycle itself — the autostart just needs to launch the controller (see section 8).
 
 ### 8. Autostart (recommended) vs Systemd Service
 
-**Use the labwc autostart** (`~/.config/labwc/autostart`) — this is the correct launch mechanism because controller.py needs the desktop session (Processing sketch needs a display, taskbar management requires labwc to be running).
+**Use the labwc autostart** (`~/.config/labwc/autostart`) — this is the correct launch mechanism because `controller.py` needs the desktop session (Processing sketch needs a display, taskbar management requires labwc to be running).
 
 The autostart waits for PipeWire before launching:
 ```bash
 bash -c 'until systemctl --user is-active pipewire > /dev/null 2>&1; do sleep 0.5; done; sudo python /home/nmlstyl/rig/controller.py' &
 ```
 
-**Do NOT enable `performance-rig.service` at the same time.** Running both causes a double-launch: the service fires at boot before the desktop exists, fails, then retries — colliding with the autostart once the desktop loads.
-
-The service file is kept as a reference but should remain **disabled**:
+**Do NOT enable `performance-rig.service` at the same time.** Running both causes a double-launch: the service fires at boot before the desktop exists, fails, then retries — colliding with the autostart once the desktop loads. Keep the service file disabled:
 ```bash
 sudo systemctl disable performance-rig.service
 ```
@@ -267,7 +259,7 @@ Edit constants at the top of `controller.py`:
 MUSIC_ROOT        = Path("/home/nmlstyl/rig")       # set-*/song-* root
 PROCESSING_SKETCH = Path("/home/nmlstyl/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner")
 VIRTUAL_MIDI_PORT = "RigMIDI"
-AUDIO_DEVICE      = 2      # Zoom L6 index (None = auto-detect)
+AUDIO_DEVICE      = 2      # Zoom L6 index (None = auto-detect by name)
 KEYBOARD_NAME     = None   # target keyboard substring (None = any arrow-key keyboard)
 W, H              = 128, 64  # OLED dimensions
 ```
@@ -287,6 +279,9 @@ Falls back to any keyboard with arrow keys if the named device isn't found.
 sudo usermod -a -G input $USER   # then log out/in
 evtest                            # list and test input devices
 ```
+
+**Keyboard grab fails at startup**
+The display server may be holding an exclusive grab on the keyboard. The rig will automatically attempt a USB unbind/rebind to force re-enumeration and break the grab, then reconnect.
 
 **OLED not working**
 ```bash
@@ -341,11 +336,10 @@ stream = sd.OutputStream(..., blocksize=2048, ...)
 ```
 
 **Audio and MIDI out of sync**
-The MIDI thread is delayed by `blocksize/samplerate` (≈21ms) to compensate for the
-audio stream's internal buffer. If still drifting, adjust:
+The MIDI thread is delayed by `blocksize/samplerate` (≈21ms) to compensate for the audio stream's internal buffer. If still drifting, adjust the delay passed to `_midi_loop` in `Player.play()`:
 ```python
-# In Player.play():
-delay = 0.030   # increase if MIDI leads audio
+self._midi_t = threading.Thread(target=self._midi_loop, args=(midi, start, 0.030), ...)
+# increase the last value if MIDI leads audio
 ```
 
 **Tracks not found**
@@ -355,9 +349,7 @@ tree ~/rig/ | head -30
 ```
 
 **Intermittent boot to terminal instead of GUI**
-Caused by a race between Plymouth (boot splash) and lightdm's VT switch. Plymouth
-runs on VT1 but lightdm requires VT7 — if Plymouth doesn't quit in time, the session
-fails and falls back to a getty. Fix: remove Plymouth entirely.
+Caused by a race between Plymouth (boot splash) and lightdm's VT switch. Fix: remove Plymouth entirely.
 ```bash
 sudo apt purge plymouth
 ```
