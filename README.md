@@ -40,14 +40,38 @@ USB Keyboard (←→↑↓ ESC)
 ```
 title: My Song Name
 bpm: 120
-platform: Ableton
-timing: 4/4
+platform: SMD
+timing: 11/4
 ```
 
 - `title` — display name shown on OLED ticker (defaults to folder name)
 - `bpm` — injected as a MIDI tempo event if the MIDI file has none
 - `platform` / `timing` — shown on OLED ticker alongside title and BPM
 - Legacy: a `bpm.txt` file containing just the BPM number is also accepted as a fallback
+
+## Set Selection Screen
+
+On boot, if more than one `set-*/` folder is found, the OLED shows a set picker before the performance begins:
+
+```
+┌────────────────────────┐
+│                        │
+│        SET 01          │  ← large centered label
+│                        │
+└────────────────────────┘
+```
+
+| Key | Action |
+|-----|--------|
+| `↑` | Previous set (slides in from top) |
+| `↓` | Next set (slides in from bottom) |
+| `←` or `→` | Confirm selection and continue |
+
+Sets wrap around. Once confirmed, the rig loads all tracks from the chosen set and enters the performance screen.
+
+If only one set folder exists, this screen is skipped automatically.
+
+---
 
 ## Controls
 
