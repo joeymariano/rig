@@ -130,7 +130,7 @@ class Player:
             if ('zoom' in n or 'l6' in n or 'l-6' in n) and d['max_output_channels'] >= 4:
                 print(f"Auto-detected Zoom L6: {d['name']} (device {i})")
                 return i
-        print("WARNING: Zoom L6 not found, using default")
+        print("WARNING: Zoom L6 not found, using default output")
         return None
 
     def play(self, track):
@@ -270,6 +270,7 @@ class Display:
         self._ticker_text   = ''
         self._ticker_prefix = ''   # static track-number prefix
         self._ticker_offset = 0.0
+        self._dirty         = False
         self._clear()
         self._text(10, 20, "Performance Rig", self.fm)
         self._text(20, 40, "Initializing...", self.fs)
@@ -294,7 +295,7 @@ class Display:
                 self._ticker_offset = 0.0
             self._state = dict(track=track, playing=playing, paused=paused,
                                remaining_s=remaining_s, set_elapsed_s=set_elapsed_s)
-            self._render()
+            self._dirty = True   # render thread will pick this up
 
     def tick(self):
         with self._lock:
@@ -302,7 +303,21 @@ class Display:
                 return
             if self._ticker_text:
                 self._ticker_offset += self.TICKER_SPEED * self.TICKER_DIR
-            self._render()
+            self._dirty = True
+
+    def render_if_dirty(self):
+        """Snapshot state under lock, then render + I2C *outside* the lock.
+        Only called from the single render thread — never from the keyboard thread."""
+        with self._lock:
+            if not self._dirty or self._state is None:
+                return
+            self._dirty  = False
+            state  = self._state.copy()
+            txt    = self._ticker_text
+            offset = self._ticker_offset
+            prefix = self._ticker_prefix
+        # I2C happens here, outside the lock so keyboard callbacks never block on it
+        self._do_render(state, txt, offset, prefix)
 
     def _draw_ticker(self, txt, tx, prefix=''):
         """Render a full-width scrolling ticker.
@@ -334,24 +349,22 @@ class Display:
 
         self.img.paste(tmp, (0, 0))
 
-    def _render(self):
-        """Redraw full screen. Must be called with _lock held."""
-        s = self._state
+    def _do_render(self, state, ticker_text, ticker_offset, ticker_prefix):
+        """Redraw full screen and push to OLED. Called from render thread only (no lock needed)."""
         self._clear()
 
-        self._draw_ticker(self._ticker_text, self._ticker_offset, prefix=self._ticker_prefix)
+        self._draw_ticker(ticker_text, ticker_offset, prefix=ticker_prefix)
 
         # Countdown
-        track = s['track']
         cnt = None
-        if s['playing']:
-            cnt = "PAUSED" if s['paused'] else f"{int(s['remaining_s'])//60}:{int(s['remaining_s'])%60:02d} left"
+        if state['playing']:
+            cnt = "PAUSED" if state['paused'] else f"{int(state['remaining_s'])//60}:{int(state['remaining_s'])%60:02d} left"
             cnt = ' '.join(cnt)
         if cnt:
             self._text((W - self._tw(cnt, self.fs)) // 2, 15, cnt, self.fs)
 
         # Elapsed — rendered at 80pt with letter-spacing, scaled to fit, centered
-        se          = int(s['set_elapsed_s'])
+        se          = int(state['set_elapsed_s'])
         elapsed_str = f"{se // 60:02d}:{se % 60:02d}"
         el_y0, el_h = 28, H - 28 - 2
         tmp = Image.new("L", (512, 200), 0)
@@ -389,19 +402,25 @@ class Display:
 class Keyboard:
     """evdev arrow-key reader; spawns one thread per device.
 
+    Grabs each device exclusively so the display server cannot consume events.
+    Reconnects automatically if the keyboard is unplugged and replugged.
+
     Combo keys (UP+LEFT+RIGHT): individual actions are suppressed while combo
     keys are forming; fired on release if the combo was never completed.
     """
-    EXCLUDE    = ('vc4-hdmi', 'cec', 'consumer control')
-    COMBO_EXIT = frozenset([KEY_UP, KEY_LEFT, KEY_RIGHT])
+    EXCLUDE           = ('vc4-hdmi', 'cec', 'consumer control')
+    COMBO_EXIT        = frozenset([KEY_UP, KEY_LEFT, KEY_RIGHT])
+    RECONNECT_DELAY   = 0.5   # seconds between reconnect attempts
 
     def __init__(self, callback, on_exit=None, name_filter=None):
-        self.callback = callback
-        self.on_exit  = on_exit
-        self.running  = False
+        self.callback    = callback
+        self.on_exit     = on_exit
+        self.running     = False
+        self.name_filter = name_filter
         self._held             = set()
         self._combo_triggered  = False
         self._lock             = threading.Lock()
+        self._stop_evt         = threading.Event()
         self.devices           = self._find_devices(name_filter)
 
     def _find_devices(self, name_filter):
@@ -412,6 +431,8 @@ class Keyboard:
                     dev  = InputDevice(path)
                     if any(x in dev.name.lower() for x in self.EXCLUDE): continue
                     if filter_fn and not filter_fn(dev.name): continue
+                    # Skip secondary USB HID interfaces (/input1, /input2, …)
+                    if re.search(r'/input[1-9]\d*$', dev.phys or ''): continue
                     keys = dev.capabilities(verbose=False).get(ecodes.EV_KEY, [])
                     if all(k in keys for k in (KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT)):
                         found.append(dev)
@@ -432,13 +453,25 @@ class Keyboard:
 
     def start(self):
         self.running = True
-        for d in self.devices:
-            threading.Thread(target=self._loop, args=(d,), daemon=True).start()
+        if self.devices:
+            for d in self.devices:
+                threading.Thread(target=self._loop, args=(d,), daemon=True).start()
+        else:
+            # No device found at startup — spawn a reconnect watcher
+            threading.Thread(target=self._reconnect_loop, daemon=True).start()
 
-    def _loop(self, dev):
+    def _read_dev(self, dev):
+        """Grab and read one device until disconnect or stop. Returns True if should reconnect."""
+        try:
+            dev.grab()
+            print(f"Keyboard grabbed: {dev.name} ({dev.path})")
+        except OSError as e:
+            print(f"Keyboard grab failed ({dev.name}): {e}")
+            return True   # retry
+
         try:
             for ev in dev.read_loop():
-                if not self.running: break
+                if not self.running: return False
                 if ev.type != ecodes.EV_KEY: continue
                 state = categorize(ev).keystate
                 code  = ev.code
@@ -454,26 +487,62 @@ class Keyboard:
                             self._combo_triggered = True
                         self.on_exit()
                     elif code not in self.COMBO_EXIT:
-                        # Non-combo key: dispatch immediately
                         self.callback(code)
-                    # else: combo key held but combo not yet complete — wait
 
                 elif state == 0:  # key up
                     with self._lock:
-                        was_combo_key     = code in self.COMBO_EXIT and code in self._held
-                        was_triggered     = self._combo_triggered
+                        was_combo_key = code in self.COMBO_EXIT and code in self._held
+                        was_triggered = self._combo_triggered
                         self._held.discard(code)
-                        # Reset combo flag once all combo keys are released
                         if not (self._held & self.COMBO_EXIT):
                             self._combo_triggered = False
-                    # Fire individual action on release if combo never completed
                     if was_combo_key and not was_triggered:
                         self.callback(code)
 
+        except OSError as e:
+            print(f"Keyboard disconnected ({dev.name}): {e}")
+            return True   # reconnect
         except Exception as e:
             print(f"Keyboard error ({dev.name}): {e}")
+            return False
+        finally:
+            try: dev.ungrab()
+            except: pass
 
-    def stop(self): self.running = False
+        return False
+
+    def _loop(self, dev):
+        while self.running:
+            if not self._read_dev(dev):
+                break
+            if not self.running:
+                break
+            print(f"Keyboard: waiting to reconnect...")
+            dev = self._wait_for_device()
+            if dev is None:
+                break   # stop() was called
+
+    def _reconnect_loop(self):
+        """Watcher for when no keyboard is present at startup."""
+        print("Keyboard: waiting for device to appear...")
+        dev = self._wait_for_device()
+        if dev:
+            self._loop(dev)
+
+    def _wait_for_device(self):
+        """Block until a matching keyboard appears or stop() is called. Returns device or None."""
+        while self.running:
+            self._stop_evt.wait(self.RECONNECT_DELAY)
+            if not self.running:
+                return None
+            devs = self._find_devices(self.name_filter)
+            if devs:
+                return devs[0]
+        return None
+
+    def stop(self):
+        self.running = False
+        self._stop_evt.set()
 
 
 # ── Rig ───────────────────────────────────────────────────────────────────────
@@ -498,7 +567,6 @@ class Rig:
         self._refresh_display()
         self.keyboard.start()
         threading.Thread(target=self._display_loop,  daemon=True).start()
-        threading.Thread(target=self._ticker_loop,   daemon=True).start()
         print("Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit")
 
     def _launch_processing(self):
@@ -551,17 +619,18 @@ class Rig:
         elif code == KEY_UP:    self.player.toggle_pause();  self._refresh_display()
 
     def _display_loop(self):
-        """Update state every second to keep countdown and elapsed live."""
-        while not self._exit_evt.is_set():
-            time.sleep(1)
-            if self.player.is_playing or self._set_start_time:
-                self._refresh_display()
-
-    def _ticker_loop(self):
-        """Advance ticker offsets at ~20fps."""
+        """Single render thread at ~20fps: advances ticker, refreshes state every second,
+        then renders to OLED. Keyboard callbacks only set a dirty flag so they never
+        block on I2C."""
+        _last_state = 0.0
         while not self._exit_evt.is_set():
             time.sleep(0.05)
+            now = time.time()
             self.display.tick()
+            if now - _last_state >= 1.0 and (self.player.is_playing or self._set_start_time):
+                self._refresh_display()
+                _last_state = now
+            self.display.render_if_dirty()
 
     def _refresh_display(self):
         t = self.tracks.current()
@@ -595,11 +664,14 @@ class Rig:
         print("Taskbar restored")
 
     def _stop_argon(self):
-        self._argon_svc = None
-        for svc in ('argononed', 'argone-oled'):
-            if self._systemctl('stop', svc).returncode == 0:
-                print(f"Stopped {svc}"); self._argon_svc = svc; return
-        print("Note: argononed not stopped (service not found or missing sudoers rule)")
+        self._argon_svcs = []
+        for svc in ('argononed', 'argone-oled', 'argonone-led'):
+            r = self._systemctl('stop', svc)
+            if r.returncode == 0:
+                print(f"Stopped {svc}")
+                self._argon_svcs.append(svc)
+        if not self._argon_svcs:
+            print("Note: no argon services found to stop")
 
     def run(self):
         try:
@@ -631,9 +703,12 @@ class Rig:
             self.display.clear()
         except Exception as e:
             print(f"Display clear: {e}")
-        if self._argon_svc:
-            self._systemctl('start', self._argon_svc)
-            print(f"Restarted {self._argon_svc}")
+        for svc in self._argon_svcs:
+            r = self._systemctl('start', svc)
+            if r.returncode == 0:
+                print(f"Restarted {svc}")
+            else:
+                print(f"Failed to restart {svc}: {r.stderr.decode().strip()}")
         self._restore_panel()
 
 
