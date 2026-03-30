@@ -460,6 +460,38 @@ class Keyboard:
             # No device found at startup — spawn a reconnect watcher
             threading.Thread(target=self._reconnect_loop, daemon=True).start()
 
+    def _try_usb_rebind(self, dev):
+        """Unbind/rebind the keyboard's USB device to break the display server's exclusive grab.
+        This simulates a hotplug: the device reappears fresh and un-grabbed."""
+        try:
+            r = subprocess.run(
+                ['udevadm', 'info', '-q', 'path', dev.path],
+                capture_output=True, text=True, timeout=2
+            )
+            if r.returncode != 0:
+                return False
+            # Path: /devices/.../usb2/2-1/2-1.4/2-1.4:1.0/.../event3
+            # Extract the USB device component (e.g. "2-1.4")
+            usb_dev = None
+            for part in reversed(r.stdout.strip().split('/')):
+                if re.match(r'^\d+-[\d.]+$', part):
+                    usb_dev = part
+                    break
+            if not usb_dev:
+                print("Keyboard: USB device not found in sysfs path")
+                return False
+            print(f"Keyboard: rebinding {usb_dev} to break display server grab...")
+            with open('/sys/bus/usb/drivers/usb/unbind', 'w') as f:
+                f.write(usb_dev)
+            time.sleep(0.5)
+            with open('/sys/bus/usb/drivers/usb/bind', 'w') as f:
+                f.write(usb_dev)
+            print("Keyboard: USB rebind done — waiting for device to reappear...")
+            return True
+        except Exception as e:
+            print(f"Keyboard: USB rebind error: {e}")
+            return False
+
     def _read_dev(self, dev):
         """Grab and read one device until disconnect or stop. Returns True if should reconnect."""
         try:
@@ -467,7 +499,8 @@ class Keyboard:
             print(f"Keyboard grabbed: {dev.name} ({dev.path})")
         except OSError as e:
             print(f"Keyboard grab failed ({dev.name}): {e}")
-            return True   # retry
+            self._try_usb_rebind(dev)  # force re-enumeration to break compositor grab
+            return True   # reconnect loop will find the re-appeared device
 
         try:
             for ev in dev.read_loop():
@@ -627,7 +660,7 @@ class Rig:
             time.sleep(0.05)
             now = time.time()
             self.display.tick()
-            if now - _last_state >= 1.0 and (self.player.is_playing or self._set_start_time):
+            if now - _last_state >= 0.25 and (self.player.is_playing or self._set_start_time):
                 self._refresh_display()
                 _last_state = now
             self.display.render_if_dirty()
