@@ -610,6 +610,7 @@ class Rig:
             [str(PROCESSING_SKETCH)],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             preexec_fn=os.setsid,   # new process group so killpg reaches the JVM too
+            env={**os.environ, 'DISPLAY': ':0', 'XAUTHORITY': '/home/nmlstyl/.Xauthority'},
         )
         self._bridge_midi()
         print(f"Processing launched (PID {self._proc.pid})")
