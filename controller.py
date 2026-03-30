@@ -91,7 +91,7 @@ class Player:
         self.is_playing     = False
         self.is_paused      = False
         self._stop          = threading.Event()
-        self._audio_t       = self._midi_t = None
+        self._audio_t       = self._midi_t = self._dac_t = None
         self._play_start    = None
         self._pause_start   = None
         self._total_paused  = 0.0
@@ -127,10 +127,26 @@ class Player:
                     print(f"  [{i}] {d['name']}  (out={d['max_output_channels']})")
         for i, d in enumerate(devs):
             n = d['name'].lower()
-            if ('zoom' in n or 'l6' in n or 'l-6' in n) and d['max_output_channels'] >= 4:
+            if 'zoom' in n or 'l6' in n or 'l-6' in n:
                 print(f"Auto-detected Zoom L6: {d['name']} (device {i})")
                 return i
         print("WARNING: Zoom L6 not found, using default output")
+        return None
+
+    def _find_dac_device(self):
+        """Find the Argon One DAC (front 3.5mm jack) — USB Audio Device (hw:X,0)."""
+        devs = sd.query_devices()
+        for i, d in enumerate(devs):
+            n = d['name'].lower()
+            if 'hw:' not in n:
+                continue
+            if 'zoom' in n or 'l6' in n or 'l-6' in n:
+                continue
+            if 'hdmi' in n or 'vc4' in n:
+                continue
+            print(f"Auto-detected DAC: {d['name']} (device {i})")
+            return i
+        print("WARNING: Argon DAC not found; headphone output disabled")
         return None
 
     def play(self, track):
@@ -160,7 +176,8 @@ class Player:
 
         # 4-channel interleave: [title_L, title_R, metro_L, metro_R]
         out = np.column_stack([title_data[:, 0], title_data[:, 1], metro_data[:, 0], metro_data[:, 1]])
-        dev = self._find_device()
+        dev     = self._find_device()
+        dac_dev = self._find_dac_device()
 
         self._stop.clear()
         self.is_playing = self.is_paused = False
@@ -168,7 +185,8 @@ class Player:
 
         self._audio_t = threading.Thread(target=self._audio_loop, args=(out, sr, dev, start), daemon=True)
         self._midi_t  = threading.Thread(target=self._midi_loop,  args=(midi, start, 1024/sr), daemon=True)
-        self._audio_t.start(); self._midi_t.start()
+        self._dac_t   = threading.Thread(target=self._dac_loop,   args=(title_data, sr, dac_dev, start), daemon=True)
+        self._audio_t.start(); self._midi_t.start(); self._dac_t.start()
         time.sleep(0.2); start.set()
         self.is_playing    = True
         self._play_start   = time.time()
@@ -189,6 +207,24 @@ class Player:
             if len(block) < bsize: block = np.pad(block, ((0, bsize - len(block)), (0, 0)))
             stream.write(block); frame += bsize
         stream.stop(); stream.close()
+
+    def _dac_loop(self, data, sr, device, start):
+        """Mirror title stereo to the Argon front DAC (3.5mm jack) at full volume."""
+        if device is None:
+            return
+        try:
+            stream = sd.OutputStream(device=device, channels=2, samplerate=sr, blocksize=1024, dtype='float32')
+            start.wait(); stream.start()
+            frame, bsize = 0, 1024
+            while frame < len(data) and not self._stop.is_set():
+                while self.is_paused and not self._stop.is_set(): time.sleep(0.01)
+                if self._stop.is_set(): break
+                block = data[frame:frame+bsize]
+                if len(block) < bsize: block = np.pad(block, ((0, bsize - len(block)), (0, 0)))
+                stream.write(block); frame += bsize
+            stream.stop(); stream.close()
+        except Exception as e:
+            print(f"DAC output error: {e}")
 
     def _midi_loop(self, midi, start, delay):
         start.wait(); time.sleep(delay)
@@ -233,6 +269,7 @@ class Player:
         self._stop.set(); self._all_notes_off()
         if self._audio_t: self._audio_t.join(timeout=1.0)
         if self._midi_t:  self._midi_t.join(timeout=1.0)
+        if self._dac_t:   self._dac_t.join(timeout=1.0)
         self.is_playing = self.is_paused = False
         self._play_start = self._pause_start = None
         self._total_paused = 0.0
