@@ -4332,3 +4332,487 @@ SESSION START 2026-04-12 00:51:38
 00:57:37 Keyboard: uhubctl cut power hub 2 port 2 — draining capacitors (12s)...
 00:57:49 Keyboard: power restored — waiting for re-enumeration...
 00:57:53 Keyboard: waiting to reconnect...
+05:42:01 
+============================================================
+SESSION START 2026-04-12 05:42:01
+============================================================
+05:42:02 Starting Performance Rig...
+05:42:03 Taskbar hidden
+05:42:03 Stopped argononed
+05:42:04 Virtual MIDI port: RigMIDI
+05:42:04 MIDI bridged 128:0 → 24:0
+05:42:04 Processing launched (PID 1668)
+05:42:07 Warning: no keyboard with arrow keys found
+05:42:07 Keyboard: waiting for device to appear...
+05:42:07 Warning: no keyboard with arrow keys found
+05:42:08 Warning: no keyboard with arrow keys found
+05:42:09 Warning: no keyboard with arrow keys found
+05:42:09 Warning: no keyboard with arrow keys found
+05:42:10 Warning: no keyboard with arrow keys found
+05:42:11 Warning: no keyboard with arrow keys found
+05:42:11 Warning: no keyboard with arrow keys found
+05:42:12 Warning: no keyboard with arrow keys found
+05:42:13 Warning: no keyboard with arrow keys found
+05:45:24 
+============================================================
+SESSION START 2026-04-12 05:45:24
+============================================================
+05:45:25 Starting Performance Rig...
+05:45:25 Taskbar hidden
+05:45:25 Stopped argononed
+05:45:26 Virtual MIDI port: RigMIDI
+05:45:26 MIDI bridged 128:0 → 24:0
+05:45:26 Processing launched (PID 1675)
+05:45:29 Warning: no keyboard with arrow keys found
+05:45:29 Keyboard: waiting for device to appear...
+05:45:30 Warning: no keyboard with arrow keys found
+05:45:31 Warning: no keyboard with arrow keys found
+05:45:31 Warning: no keyboard with arrow keys found
+05:45:32 Warning: no keyboard with arrow keys found
+05:45:33 Warning: no keyboard with arrow keys found
+05:45:33 Warning: no keyboard with arrow keys found
+05:45:34 Warning: no keyboard with arrow keys found
+05:45:35 Warning: no keyboard with arrow keys found
+05:45:35 Warning: no keyboard with arrow keys found
+05:45:36 Warning: no keyboard with arrow keys found
+05:45:37 Warning: no keyboard with arrow keys found
+05:45:37 Warning: no keyboard with arrow keys found
+05:45:38 Warning: no keyboard with arrow keys found
+05:45:39 Warning: no keyboard with arrow keys found
+05:45:39 Warning: no keyboard with arrow keys found
+05:45:40 Warning: no keyboard with arrow keys found
+05:45:41 Warning: no keyboard with arrow keys found
+05:45:41 Warning: no keyboard with arrow keys found
+05:45:42 Warning: no keyboard with arrow keys found
+05:45:43 Warning: no keyboard with arrow keys found
+05:45:43 Warning: no keyboard with arrow keys found
+05:45:44 Warning: no keyboard with arrow keys found
+05:45:45 Warning: no keyboard with arrow keys found
+05:45:45 Warning: no keyboard with arrow keys found
+05:45:46 Warning: no keyboard with arrow keys found
+05:45:47 Warning: no keyboard with arrow keys found
+05:45:47 Warning: no keyboard with arrow keys found
+05:45:48 Warning: no keyboard with arrow keys found
+05:45:49 Warning: no keyboard with arrow keys found
+05:45:49 Warning: no keyboard with arrow keys found
+05:45:50 Warning: no keyboard with arrow keys found
+05:45:51 Warning: no keyboard with arrow keys found
+05:45:52 Warning: no keyboard with arrow keys found
+05:45:52 Warning: no keyboard with arrow keys found
+05:45:53 Warning: no keyboard with arrow keys found
+05:45:54 Warning: no keyboard with arrow keys found
+05:45:54 Warning: no keyboard with arrow keys found
+05:45:55 Warning: no keyboard with arrow keys found
+05:45:56 Warning: no keyboard with arrow keys found
+05:45:56 Warning: no keyboard with arrow keys found
+05:45:57 Warning: no keyboard with arrow keys found
+05:45:58 Warning: no keyboard with arrow keys found
+05:45:58 Warning: no keyboard with arrow keys found
+05:45:59 Warning: no keyboard with arrow keys found
+05:46:00 Warning: no keyboard with arrow keys found
+05:46:00 Warning: no keyboard with arrow keys found
+05:46:01 Warning: no keyboard with arrow keys found
+05:46:02 Warning: no keyboard with arrow keys found
+05:46:03 Warning: no keyboard with arrow keys found
+05:46:03 Warning: no keyboard with arrow keys found
+05:46:04 Warning: no keyboard with arrow keys found
+05:46:05 Warning: no keyboard with arrow keys found
+05:46:05 Warning: no keyboard with arrow keys found
+05:46:06 Keyboard: Keychron K8 Keychron K8 (/dev/input/event6)
+05:46:06 Exception in thread Thread-2 (_reconnect_loop):
+05:46:06 Traceback (most recent call last):
+05:46:06   File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+05:46:06   File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+05:46:06   File "/home/nmlstyl/rig/controller.py", line 712, in _reconnect_loop
+    self._loop(dev, startup=True)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+05:46:06 TypeError: Keyboard._loop() got an unexpected keyword argument 'startup'
+05:46:59 
+============================================================
+SESSION START 2026-04-12 05:46:59
+============================================================
+05:47:00 Starting Performance Rig...
+05:47:00 Taskbar hidden
+05:47:00 Stopped argononed
+05:47:01 Virtual MIDI port: RigMIDI
+05:47:01 MIDI bridged 128:0 → 24:0
+05:47:01 Processing launched (PID 1699)
+05:47:04 Warning: no keyboard with arrow keys found
+05:47:04 Keyboard: waiting for device to appear...
+05:47:05 Warning: no keyboard with arrow keys found
+05:47:06 Warning: no keyboard with arrow keys found
+05:47:06 Warning: no keyboard with arrow keys found
+05:47:07 Warning: no keyboard with arrow keys found
+05:47:08 Warning: no keyboard with arrow keys found
+05:47:08 Warning: no keyboard with arrow keys found
+05:47:09 Warning: no keyboard with arrow keys found
+05:47:10 Warning: no keyboard with arrow keys found
+05:47:11 Warning: no keyboard with arrow keys found
+05:47:11 Warning: no keyboard with arrow keys found
+05:47:12 Warning: no keyboard with arrow keys found
+05:47:13 Warning: no keyboard with arrow keys found
+05:47:14 Warning: no keyboard with arrow keys found
+05:47:14 Warning: no keyboard with arrow keys found
+05:47:15 Warning: no keyboard with arrow keys found
+05:47:16 Warning: no keyboard with arrow keys found
+05:47:16 Warning: no keyboard with arrow keys found
+05:47:17 Warning: no keyboard with arrow keys found
+05:47:18 Keyboard: Keychron K8 Keychron K8 (/dev/input/event5)
+05:47:18 Exception in thread Thread-2 (_reconnect_loop):
+05:47:18 Traceback (most recent call last):
+05:47:18   File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+05:47:18   File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+05:47:18   File "/home/nmlstyl/rig/controller.py", line 712, in _reconnect_loop
+    self._loop(dev, startup=True)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+05:47:18 TypeError: Keyboard._loop() got an unexpected keyword argument 'startup'
+05:48:03 
+============================================================
+SESSION START 2026-04-12 05:48:03
+============================================================
+05:48:04 Starting Performance Rig...
+05:48:04 Taskbar hidden
+05:48:04 Stopped argononed
+05:48:05 Virtual MIDI port: RigMIDI
+05:48:05 MIDI bridged 128:0 → 24:0
+05:48:05 Processing launched (PID 1688)
+05:48:09 Keyboard: Keychron K8 Keychron K8 (/dev/input/event5)
+05:48:09 Keyboard grabbed: Keychron K8 Keychron K8 (/dev/input/event5)
+05:48:24 Keyboard: DOWN code=108 held={108}
+05:48:24 Keyboard: UP   code=108 combo_key=False triggered=False
+05:48:25 Keyboard: DOWN code=103 held={103}
+05:48:25 Keyboard: UP   code=103 combo_key=True triggered=False
+05:48:28 Keyboard: DOWN code=108 held={108}
+05:48:28 Keyboard: UP   code=108 combo_key=False triggered=False
+05:48:32 Keyboard: DOWN code=106 held={106}
+05:48:32 Keyboard: UP   code=106 combo_key=True triggered=False
+05:48:32 Selected: set-02
+05:48:32 Found 2 tracks
+05:48:32   1. Set 02 - Song 01
+05:48:32   2. Set 02 - Song 02
+05:48:33 Keyboard: Keychron K8 Keychron K8 (/dev/input/event5)
+05:48:33 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+05:48:33 Keyboard grabbed: Keychron K8 Keychron K8 (/dev/input/event5)
+05:48:35 Keyboard: DOWN code=106 held={106}
+05:48:35 Keyboard: UP   code=106 combo_key=True triggered=False
+05:48:36 Keyboard: DOWN code=106 held={106}
+05:48:36 Keyboard: UP   code=106 combo_key=True triggered=False
+05:48:36 Keyboard: DOWN code=105 held={105}
+05:48:36 Keyboard: UP   code=105 combo_key=True triggered=False
+05:48:37 Keyboard: DOWN code=106 held={106}
+05:48:38 Keyboard: UP   code=106 combo_key=True triggered=False
+05:48:38 Keyboard: DOWN code=108 held={108}
+05:48:38 Keyboard: UP   code=108 combo_key=False triggered=False
+05:48:39 Injected tempo: 180.0 BPM
+05:48:39 WARNING: Zoom L6 not found, using default output
+05:48:39 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+05:48:39 Playing: Set 02 - Song 01  (138.7s, device None)
+05:48:42 Keyboard: DOWN code=103 held={103}
+05:48:42 Keyboard: UP   code=103 combo_key=True triggered=False
+05:48:42 Paused
+05:48:43 Keyboard: DOWN code=103 held={103}
+05:48:43 Keyboard: UP   code=103 combo_key=True triggered=False
+05:48:43 Resumed
+05:48:46 Keyboard: DOWN code=106 held={106}
+05:48:46 Keyboard: DOWN code=105 held={105, 106}
+05:48:46 Keyboard: DOWN code=103 held={105, 106, 103}
+05:48:46 
+Shutdown (key)
+05:48:46 Restarted argononed
+05:48:46 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+06:09:10 
+============================================================
+SESSION START 2026-04-12 06:09:10
+============================================================
+06:09:11 Starting Performance Rig...
+06:09:12 Taskbar hidden
+06:09:12 Stopped argononed
+06:09:12 Virtual MIDI port: RigMIDI
+06:09:12 MIDI bridged 128:0 → 24:0
+06:09:12 Processing launched (PID 1678)
+06:09:16 Keyboard: Keychron K8 Keychron K8 (/dev/input/event5)
+06:09:16 Keyboard grabbed: Keychron K8 Keychron K8 (/dev/input/event5)
+06:09:17 Keyboard: DOWN code=108 held={108}
+06:09:18 Keyboard: UP   code=108 combo_key=False triggered=False
+06:09:20 Keyboard: DOWN code=108 held={108}
+06:09:21 Keyboard: UP   code=108 combo_key=False triggered=False
+06:09:22 Keyboard: DOWN code=108 held={108}
+06:09:22 Keyboard: UP   code=108 combo_key=False triggered=False
+06:09:24 Keyboard: DOWN code=106 held={106}
+06:09:24 Keyboard: UP   code=106 combo_key=True triggered=False
+06:09:24 Selected: set-01
+06:09:24 Found 2 tracks
+06:09:24   1. Set 01 - Song 01
+06:09:24   2. Set 01 - Song 02
+06:09:24 Keyboard: Keychron K8 Keychron K8 (/dev/input/event5)
+06:09:24 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+06:09:25 Keyboard grabbed: Keychron K8 Keychron K8 (/dev/input/event5)
+06:09:27 Keyboard: DOWN code=106 held={106}
+06:09:27 Keyboard: UP   code=106 combo_key=True triggered=False
+06:09:29 Keyboard: DOWN code=105 held={105}
+06:09:29 Keyboard: UP   code=105 combo_key=True triggered=False
+06:09:30 Keyboard: DOWN code=108 held={108}
+06:09:30 Keyboard: UP   code=108 combo_key=False triggered=False
+06:09:30 Injected tempo: 180.0 BPM
+06:09:30 WARNING: Zoom L6 not found, using default output
+06:09:30 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+06:09:30 Playing: Set 01 - Song 01  (138.7s, device None)
+06:09:36 Keyboard: DOWN code=103 held={103}
+06:09:36 Keyboard: DOWN code=106 held={106, 103}
+06:09:36 Keyboard: DOWN code=105 held={105, 106, 103}
+06:09:36 
+Shutdown (key)
+06:09:37 Restarted argononed
+06:09:37 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+06:18:00 
+============================================================
+SESSION START 2026-04-12 06:18:00
+============================================================
+06:18:01 Starting Performance Rig...
+06:18:02 Taskbar hidden
+06:18:02 Stopped argononed
+06:18:03 Virtual MIDI port: RigMIDI
+06:18:03 MIDI bridged 128:0 → 24:0
+06:18:03 Processing launched (PID 1678)
+06:18:06 Keyboard: Keychron K8 Keychron K8 (/dev/input/event5)
+06:18:06 Keyboard grabbed: Keychron K8 Keychron K8 (/dev/input/event5)
+06:18:08 Keyboard: DOWN code=108 held={108}
+06:18:08 Keyboard: UP   code=108 combo_key=False triggered=False
+06:18:09 Keyboard: DOWN code=103 held={103}
+06:18:09 Keyboard: UP   code=103 combo_key=True triggered=False
+06:18:11 Keyboard: DOWN code=106 held={106}
+06:18:11 Keyboard: UP   code=106 combo_key=True triggered=False
+06:18:11 Selected: set-01
+06:18:11 Found 2 tracks
+06:18:11   1. Set 01 - Song 01
+06:18:11   2. Set 01 - Song 02
+06:18:11 Keyboard: Keychron K8 Keychron K8 (/dev/input/event5)
+06:18:11 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+06:18:12 Keyboard grabbed: Keychron K8 Keychron K8 (/dev/input/event5)
+06:18:22 Keyboard: DOWN code=108 held={108}
+06:18:22 Keyboard: UP   code=108 combo_key=False triggered=False
+06:18:23 Injected tempo: 180.0 BPM
+06:18:23 WARNING: Zoom L6 not found, using default output
+06:18:23 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+06:18:23 Playing: Set 01 - Song 01  (138.7s, device None)
+06:18:40 Keyboard: DOWN code=103 held={103}
+06:18:40 Keyboard: UP   code=103 combo_key=True triggered=False
+06:18:40 Paused
+06:18:46 Keyboard: DOWN code=103 held={103}
+06:18:46 Keyboard: UP   code=103 combo_key=True triggered=False
+06:18:46 Resumed
+06:19:34 Keyboard: DOWN code=29 held={29}
+06:19:34 Keyboard: DOWN code=46 held={29, 46}
+06:19:34 Keyboard: UP   code=46 combo_key=False triggered=False
+06:19:35 Keyboard: UP   code=29 combo_key=False triggered=False
+06:19:38 Keyboard: DOWN code=1 held={1}
+06:19:38 
+Shutdown (key)
+06:19:38 Restarted argononed
+06:19:38 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+11:42:56 
+============================================================
+SESSION START 2026-04-12 11:42:56
+============================================================
+11:42:57 Starting Performance Rig...
+11:42:58 Taskbar hidden
+11:42:58 Stopped argononed
+11:42:59 Virtual MIDI port: RigMIDI
+11:42:59 MIDI bridged 128:0 → 24:0
+11:42:59 Processing launched (PID 1672)
+11:43:02 Warning: no keyboard with arrow keys found
+11:43:02 Keyboard: waiting for device to appear...
+11:43:03 Warning: no keyboard with arrow keys found
+11:43:03 Warning: no keyboard with arrow keys found
+11:43:04 Warning: no keyboard with arrow keys found
+11:43:05 Warning: no keyboard with arrow keys found
+11:43:05 Warning: no keyboard with arrow keys found
+11:43:06 Warning: no keyboard with arrow keys found
+11:43:07 Warning: no keyboard with arrow keys found
+11:43:07 Warning: no keyboard with arrow keys found
+11:43:08 Warning: no keyboard with arrow keys found
+11:43:09 Warning: no keyboard with arrow keys found
+11:43:09 Warning: no keyboard with arrow keys found
+11:43:10 Warning: no keyboard with arrow keys found
+11:43:11 Warning: no keyboard with arrow keys found
+11:43:11 Warning: no keyboard with arrow keys found
+11:43:12 Warning: no keyboard with arrow keys found
+11:43:13 Warning: no keyboard with arrow keys found
+11:43:13 Warning: no keyboard with arrow keys found
+11:43:14 Warning: no keyboard with arrow keys found
+11:43:15 Warning: no keyboard with arrow keys found
+11:43:15 Warning: no keyboard with arrow keys found
+11:43:16 Warning: no keyboard with arrow keys found
+11:43:17 Warning: no keyboard with arrow keys found
+11:43:17 Warning: no keyboard with arrow keys found
+11:43:18 Warning: no keyboard with arrow keys found
+11:43:19 Warning: no keyboard with arrow keys found
+11:43:19 Warning: no keyboard with arrow keys found
+11:43:20 Warning: no keyboard with arrow keys found
+11:43:21 Warning: no keyboard with arrow keys found
+11:43:21 Warning: no keyboard with arrow keys found
+11:43:22 Warning: no keyboard with arrow keys found
+11:43:23 Warning: no keyboard with arrow keys found
+11:43:23 Warning: no keyboard with arrow keys found
+11:43:24 Warning: no keyboard with arrow keys found
+11:43:25 Warning: no keyboard with arrow keys found
+11:43:25 Warning: no keyboard with arrow keys found
+11:43:26 Warning: no keyboard with arrow keys found
+11:43:27 Warning: no keyboard with arrow keys found
+11:43:27 Warning: no keyboard with arrow keys found
+11:43:28 Warning: no keyboard with arrow keys found
+11:43:29 Warning: no keyboard with arrow keys found
+11:43:29 Warning: no keyboard with arrow keys found
+11:43:30 Warning: no keyboard with arrow keys found
+11:43:31 Warning: no keyboard with arrow keys found
+11:43:31 Warning: no keyboard with arrow keys found
+11:43:32 Warning: no keyboard with arrow keys found
+11:43:33 Warning: no keyboard with arrow keys found
+11:43:33 Warning: no keyboard with arrow keys found
+11:43:34 Warning: no keyboard with arrow keys found
+11:43:35 Warning: no keyboard with arrow keys found
+11:43:35 Warning: no keyboard with arrow keys found
+11:43:36 Warning: no keyboard with arrow keys found
+11:43:37 Warning: no keyboard with arrow keys found
+11:43:38 Warning: no keyboard with arrow keys found
+11:43:38 Warning: no keyboard with arrow keys found
+11:43:39 Warning: no keyboard with arrow keys found
+11:43:40 Warning: no keyboard with arrow keys found
+11:43:40 Warning: no keyboard with arrow keys found
+11:43:41 Warning: no keyboard with arrow keys found
+11:43:42 Warning: no keyboard with arrow keys found
+11:43:42 Warning: no keyboard with arrow keys found
+11:43:43 Warning: no keyboard with arrow keys found
+11:43:44 Warning: no keyboard with arrow keys found
+11:43:44 Warning: no keyboard with arrow keys found
+11:43:45 Warning: no keyboard with arrow keys found
+11:43:46 Warning: no keyboard with arrow keys found
+11:43:46 Warning: no keyboard with arrow keys found
+11:43:47 Warning: no keyboard with arrow keys found
+11:43:48 Warning: no keyboard with arrow keys found
+11:43:48 Warning: no keyboard with arrow keys found
+11:43:49 Warning: no keyboard with arrow keys found
+11:43:50 Warning: no keyboard with arrow keys found
+11:43:51 Warning: no keyboard with arrow keys found
+11:43:51 Warning: no keyboard with arrow keys found
+11:43:52 Warning: no keyboard with arrow keys found
+11:43:53 Warning: no keyboard with arrow keys found
+11:43:53 Warning: no keyboard with arrow keys found
+11:43:54 Keyboard: HID 4132:2107 (/dev/input/event6)
+11:43:54 Keyboard grabbed: HID 4132:2107 (/dev/input/event6)
+11:43:56 Keyboard: DOWN code=108 held={108}
+11:43:56 Keyboard: UP   code=108 combo_key=False triggered=False
+11:43:57 Keyboard: DOWN code=103 held={103}
+11:43:57 Keyboard: UP   code=103 combo_key=True triggered=False
+11:43:59 Keyboard: DOWN code=108 held={108}
+11:43:59 Keyboard: UP   code=108 combo_key=False triggered=False
+11:44:00 Keyboard: DOWN code=108 held={108}
+11:44:00 Keyboard: UP   code=108 combo_key=False triggered=False
+11:44:01 Keyboard: DOWN code=108 held={108}
+11:44:02 Keyboard: UP   code=108 combo_key=False triggered=False
+11:44:03 Keyboard: DOWN code=106 held={106}
+11:44:03 Keyboard: UP   code=106 combo_key=True triggered=False
+11:44:03 Selected: set-01
+11:44:03 Found 2 tracks
+11:44:03   1. Set 01 - Song 01
+11:44:03   2. Set 01 - Song 02
+11:44:04 Keyboard: HID 4132:2107 (/dev/input/event6)
+11:44:04 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+11:44:04 Keyboard grabbed: HID 4132:2107 (/dev/input/event6)
+11:44:07 Keyboard: DOWN code=108 held={108}
+11:44:07 Keyboard: UP   code=108 combo_key=False triggered=False
+11:44:08 Injected tempo: 180.0 BPM
+11:44:08 WARNING: Zoom L6 not found, using default output
+11:44:08 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+11:44:08 Playing: Set 01 - Song 01  (138.7s, device None)
+11:44:30 Keyboard: DOWN code=105 held={105}
+11:44:30 Keyboard: DOWN code=106 held={105, 106}
+11:44:30 Keyboard: DOWN code=103 held={105, 106, 103}
+11:44:30 
+Shutdown (key)
+11:44:30 Restarted argononed
+11:44:31 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+11:47:13 
+============================================================
+SESSION START 2026-04-12 11:47:13
+============================================================
+11:47:14 Starting Performance Rig...
+11:47:15 Taskbar hidden
+11:47:15 Stopped argononed
+11:47:15 Virtual MIDI port: RigMIDI
+11:47:16 MIDI bridged 128:0 → 24:0
+11:47:16 Processing launched (PID 1669)
+11:47:19 Warning: no keyboard with arrow keys found
+11:47:19 Keyboard: waiting for device to appear...
+11:47:19 Warning: no keyboard with arrow keys found
+11:47:20 Warning: no keyboard with arrow keys found
+11:47:21 Warning: no keyboard with arrow keys found
+11:47:22 Warning: no keyboard with arrow keys found
+11:47:22 Warning: no keyboard with arrow keys found
+11:47:23 Warning: no keyboard with arrow keys found
+11:47:24 Warning: no keyboard with arrow keys found
+11:47:24 Warning: no keyboard with arrow keys found
+11:47:25 Warning: no keyboard with arrow keys found
+11:47:26 Warning: no keyboard with arrow keys found
+11:47:26 Warning: no keyboard with arrow keys found
+11:47:27 Warning: no keyboard with arrow keys found
+11:47:28 Warning: no keyboard with arrow keys found
+11:47:28 Warning: no keyboard with arrow keys found
+11:47:29 Warning: no keyboard with arrow keys found
+11:47:30 Warning: no keyboard with arrow keys found
+11:47:30 Warning: no keyboard with arrow keys found
+11:47:31 Warning: no keyboard with arrow keys found
+11:47:32 Warning: no keyboard with arrow keys found
+11:47:32 Warning: no keyboard with arrow keys found
+11:47:33 Warning: no keyboard with arrow keys found
+11:47:34 Warning: no keyboard with arrow keys found
+11:47:34 Warning: no keyboard with arrow keys found
+11:47:35 Warning: no keyboard with arrow keys found
+11:47:36 Warning: no keyboard with arrow keys found
+11:47:36 Warning: no keyboard with arrow keys found
+11:47:37 Warning: no keyboard with arrow keys found
+11:47:38 Warning: no keyboard with arrow keys found
+11:47:38 Warning: no keyboard with arrow keys found
+11:47:39 Warning: no keyboard with arrow keys found
+11:47:40 Warning: no keyboard with arrow keys found
+11:47:40 Warning: no keyboard with arrow keys found
+11:47:41 Warning: no keyboard with arrow keys found
+11:47:42 Warning: no keyboard with arrow keys found
+11:47:42 Warning: no keyboard with arrow keys found
+11:47:43 Warning: no keyboard with arrow keys found
+11:47:44 Warning: no keyboard with arrow keys found
+11:47:44 Warning: no keyboard with arrow keys found
+11:47:45 Warning: no keyboard with arrow keys found
+11:47:46 Warning: no keyboard with arrow keys found
+11:47:46 Warning: no keyboard with arrow keys found
+11:47:47 Warning: no keyboard with arrow keys found
+11:47:48 Warning: no keyboard with arrow keys found
+11:47:48 Keyboard: HID 4132:2107 (/dev/input/event6)
+11:47:48 Keyboard grabbed: HID 4132:2107 (/dev/input/event6)
+11:47:49 Keyboard: DOWN code=108 held={108}
+11:47:49 Keyboard: UP   code=108 combo_key=False triggered=False
+11:47:50 Keyboard: DOWN code=103 held={103}
+11:47:50 Keyboard: UP   code=103 combo_key=True triggered=False
+11:47:53 Keyboard: DOWN code=106 held={106}
+11:47:53 Keyboard: UP   code=106 combo_key=True triggered=False
+11:47:54 Selected: set-01
+11:47:54 Found 2 tracks
+11:47:54   1. Set 01 - Song 01
+11:47:54   2. Set 01 - Song 02
+11:47:54 Keyboard: HID 4132:2107 (/dev/input/event6)
+11:47:54 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+11:47:55 Keyboard grabbed: HID 4132:2107 (/dev/input/event6)
+11:47:57 Keyboard: DOWN code=108 held={108}
+11:47:57 Keyboard: UP   code=108 combo_key=False triggered=False
+11:47:57 Injected tempo: 180.0 BPM
+11:47:58 WARNING: Zoom L6 not found, using default output
+11:47:58 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+11:47:58 Playing: Set 01 - Song 01  (138.7s, device None)

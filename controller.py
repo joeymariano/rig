@@ -1,5 +1,34 @@
 #!/usr/bin/env python3
-"""Live Performance Rig — keyboard, OLED, 4-ch audio, MIDI"""
+"""
+Live Performance Rig — Raspberry Pi (Argon One V5)
+====================================================
+Synchronizes four systems for live stage performance:
+
+  - USB Keyboard   evdev arrow keys + ESC/combo detection  (Keyboard)
+  - OLED Display   SSD1306 128×64 via I2C                  (Display)
+  - 4-ch Audio     sounddevice → Zoom L6:
+                     ch 1-2: title.wav  (FOH)
+                     ch 3-4: metronome.wav (in-ear click)  (Player)
+  - Argon DAC      title audio mirrored to front 3.5mm     (Player)
+  - MIDI Playback  mido virtual port → VirMIDI → Processing sketch  (Player)
+
+Thread model:
+  main             Rig.run() — monitors Processing exit, drives shutdown
+  keyboard(s)      one thread per evdev device — read loop, enqueues key codes
+  key_dispatch     Rig._key_dispatch_loop() — drains key queue, calls _on_key
+  audio            Player._audio_loop() — streams 4-ch interleaved blocks to Zoom L6
+  dac              Player._dac_loop() — streams 2-ch title blocks to Argon DAC
+  midi             Player._midi_loop() — sends timed MIDI messages
+  render           Rig._display_loop() — ticks ticker, refreshes state, calls render_if_dirty
+
+Design notes:
+  - Keyboard callbacks only enqueue a key code.  All slow work (file I/O, thread
+    joins) happens in the key-dispatch thread so the evdev read loop never blocks.
+  - Display renders *outside* the lock (I2C ≈10 ms) so keyboard events are never
+    stalled waiting for the bus.
+  - Elapsed-clock image (80 pt font, LANCZOS rescale) is cached per integer second
+    and reused across all 20 fps render calls within that second.
+"""
 
 import os, re, sys, time, threading, subprocess, signal, queue, select as _select
 
@@ -224,44 +253,39 @@ class Player:
         time.sleep(0.2); start.set()
         return True
 
-    def _audio_loop(self, data, sr, device, start):
+    def _stream_loop(self, data, sr, device, channels, start, label):
+        """Write *data* to an output stream one 1024-frame block at a time.
+        Honors self._stop and self.is_paused; device=None is allowed (uses
+        sounddevice default).  Called by _audio_loop and _dac_loop."""
         stream = None
         try:
-            stream = sd.OutputStream(device=device, channels=4, samplerate=sr, blocksize=1024, dtype='float32')
+            stream = sd.OutputStream(device=device, channels=channels,
+                                     samplerate=sr, blocksize=1024, dtype='float32')
             start.wait(); stream.start()
             frame, bsize = 0, 1024
             while frame < len(data) and not self._stop.is_set():
                 while self.is_paused and not self._stop.is_set(): time.sleep(0.01)
                 if self._stop.is_set(): break
                 block = data[frame:frame+bsize]
-                if len(block) < bsize: block = np.pad(block, ((0, bsize - len(block)), (0, 0)))
-                stream.write(block); frame += bsize
+                if len(block) < bsize:
+                    block = np.pad(block, ((0, bsize - len(block)), (0, 0)))
+                stream.write(block)
+                frame += bsize
         except Exception as e:
-            print(f"Audio output error: {e}")
+            print(f"{label} error: {e}")
         finally:
             if stream is not None:
                 stream.stop(); stream.close()
 
+    def _audio_loop(self, data, sr, device, start):
+        """4-channel output to Zoom L6: ch1-2 title, ch3-4 metronome."""
+        self._stream_loop(data, sr, device, 4, start, "Main audio")
+
     def _dac_loop(self, data, sr, device, start):
-        """Mirror title stereo to the Argon front DAC (3.5mm jack) at full volume."""
+        """Mirror title stereo to the Argon One front DAC (3.5mm jack)."""
         if device is None:
-            return
-        stream = None
-        try:
-            stream = sd.OutputStream(device=device, channels=2, samplerate=sr, blocksize=1024, dtype='float32')
-            start.wait(); stream.start()
-            frame, bsize = 0, 1024
-            while frame < len(data) and not self._stop.is_set():
-                while self.is_paused and not self._stop.is_set(): time.sleep(0.01)
-                if self._stop.is_set(): break
-                block = data[frame:frame+bsize]
-                if len(block) < bsize: block = np.pad(block, ((0, bsize - len(block)), (0, 0)))
-                stream.write(block); frame += bsize
-        except Exception as e:
-            print(f"DAC output error: {e}")
-        finally:
-            if stream is not None:
-                stream.stop(); stream.close()
+            return   # no DAC detected — skip silently
+        self._stream_loop(data, sr, device, 2, start, "DAC output")
 
     def _midi_loop(self, midi, start, delay):
         start.wait(); time.sleep(delay)
@@ -366,6 +390,10 @@ class Display:
         self._ticker_prefix  = ''   # static track-number prefix
         self._ticker_offset  = 0.0
         self._dirty          = False
+        # Cache the rendered elapsed-clock image keyed by integer second.
+        # PIL+LANCZOS is ~5 ms; re-running it 20× per second wastes CPU since
+        # the value only changes once per second.  Tuple: (se_int, img, x, y).
+        self._elapsed_cache  = None
         self._clear()
         self._text(10, 20, "Performance Rig", self.fm)
         self._text(20, 40, "Initializing...", self.fs)
@@ -457,29 +485,39 @@ class Display:
         if cnt:
             self._text((W - self._tw(cnt, self.fs)) // 2, 15, cnt, self.fs)
 
-        # Elapsed — rendered at 80pt with letter-spacing, scaled to fit, centered
-        se          = int(state['set_elapsed_s'])
-        elapsed_str = f"{se // 60:02d}:{se % 60:02d}"
-        el_y0, el_h = 28, H - 28 - 2
-        tmp = Image.new("L", (512, 200), 0)
-        tdr = ImageDraw.Draw(tmp)
-        char_bbs = [tdr.textbbox((0, 0), c, font=self.fe) for c in elapsed_str]
-        char_ws  = [bb[2] - bb[0] for bb in char_bbs]
-        top      = min(bb[1] for bb in char_bbs)
-        char_h   = max(bb[3] for bb in char_bbs) - top
-        spacing  = max(1, int(sum(char_ws) / len(char_ws) * 0.25))
-        total_w  = sum(char_ws) + spacing * (len(elapsed_str) - 1)
-        x = 0
-        for c, bb, cw in zip(elapsed_str, char_bbs, char_ws):
-            tdr.text((x - bb[0], -top), c, font=self.fe, fill=255)
-            x += cw + spacing
-        text_img    = tmp.crop((0, 0, max(1, total_w), max(1, char_h)))
-        tw, th      = text_img.size
-        scale       = min(W / tw, el_h / th)
-        new_w, new_h = int(tw * scale), int(th * scale)
-        scaled      = text_img.resize((new_w, new_h), Image.LANCZOS).point(lambda p: 255 if p > 64 else 0, '1')
-        x_off       = max(0, (W - new_w) // 2)
-        y_off       = max(el_y0, el_y0 + (el_h - new_h) // 2)
+        # Elapsed clock — 80pt narrow bold, letter-spaced, scaled to fill the
+        # lower half of the OLED.  Rendering costs ~5 ms (PIL + LANCZOS), so
+        # cache the result by integer second and reuse it across all 20 fps frames.
+        se      = int(state['set_elapsed_s'])
+        el_y0   = 28
+        el_h    = H - el_y0 - 2
+
+        if self._elapsed_cache is None or self._elapsed_cache[0] != se:
+            elapsed_str = f"{se // 60:02d}:{se % 60:02d}"
+            # Render characters individually so we can control inter-character spacing.
+            tmp = Image.new("L", (512, 200), 0)
+            tdr = ImageDraw.Draw(tmp)
+            char_bbs = [tdr.textbbox((0, 0), c, font=self.fe) for c in elapsed_str]
+            char_ws  = [bb[2] - bb[0] for bb in char_bbs]
+            top      = min(bb[1] for bb in char_bbs)
+            char_h   = max(bb[3] for bb in char_bbs) - top
+            spacing  = max(1, int(sum(char_ws) / len(char_ws) * 0.25))
+            total_w  = sum(char_ws) + spacing * (len(elapsed_str) - 1)
+            x = 0
+            for c, bb, cw in zip(elapsed_str, char_bbs, char_ws):
+                tdr.text((x - bb[0], -top), c, font=self.fe, fill=255)
+                x += cw + spacing
+            text_img     = tmp.crop((0, 0, max(1, total_w), max(1, char_h)))
+            tw, th       = text_img.size
+            scale        = min(W / tw, el_h / th)
+            new_w, new_h = int(tw * scale), int(th * scale)
+            scaled       = text_img.resize((new_w, new_h), Image.LANCZOS).point(
+                               lambda p: 255 if p > 64 else 0, '1')
+            x_off = max(0, (W - new_w) // 2)
+            y_off = max(el_y0, el_y0 + (el_h - new_h) // 2)
+            self._elapsed_cache = (se, scaled, x_off, y_off)
+
+        _, scaled, x_off, y_off = self._elapsed_cache
         self.img.paste(scaled, (x_off, y_off))
 
         self._show()
@@ -709,7 +747,7 @@ class Keyboard:
         print("Keyboard: waiting for device to appear...")
         dev = self._wait_for_device()
         if dev:
-            self._loop(dev, startup=True)
+            self._loop(dev)  # startup=True was a leftover bug — _loop takes only dev
 
     def _wait_for_device(self):
         """Block until a matching keyboard appears or stop() is called. Returns device or None."""
