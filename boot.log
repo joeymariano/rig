@@ -4816,3 +4816,666 @@ SESSION START 2026-04-12 11:47:13
 11:47:58 WARNING: Zoom L6 not found, using default output
 11:47:58 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
 11:47:58 Playing: Set 01 - Song 01  (138.7s, device None)
+12:33:46 Keyboard: DOWN code=103 held={103}
+12:33:46 Keyboard: DOWN code=105 held={105, 103}
+12:33:46 Keyboard: DOWN code=106 held={105, 106, 103}
+12:33:46 
+Shutdown (key)
+12:33:47 Restarted argononed
+12:33:47 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+12:34:07 
+============================================================
+SESSION START 2026-04-12 12:34:07
+============================================================
+12:34:08 Starting Performance Rig...
+12:34:09 Taskbar hidden
+12:34:09 Stopped argononed
+12:34:10 Virtual MIDI port: RigMIDI
+12:34:10 MIDI bridged 128:0 → 24:0
+12:34:10 Processing launched (PID 1673)
+12:34:13 Warning: no keyboard with arrow keys found
+12:34:13 Keyboard: waiting for device to appear...
+12:34:14 Warning: no keyboard with arrow keys found
+12:34:14 Warning: no keyboard with arrow keys found
+12:34:15 Warning: no keyboard with arrow keys found
+12:34:16 Warning: no keyboard with arrow keys found
+12:34:16 Warning: no keyboard with arrow keys found
+12:34:17 Warning: no keyboard with arrow keys found
+12:34:18 Warning: no keyboard with arrow keys found
+12:34:18 Warning: no keyboard with arrow keys found
+12:34:19 Warning: no keyboard with arrow keys found
+12:34:20 Warning: no keyboard with arrow keys found
+12:34:20 Warning: no keyboard with arrow keys found
+12:34:21 Warning: no keyboard with arrow keys found
+12:34:22 Warning: no keyboard with arrow keys found
+12:34:22 Warning: no keyboard with arrow keys found
+12:34:23 Warning: no keyboard with arrow keys found
+12:34:24 Warning: no keyboard with arrow keys found
+12:34:24 Warning: no keyboard with arrow keys found
+12:34:25 Warning: no keyboard with arrow keys found
+12:34:26 Warning: no keyboard with arrow keys found
+12:34:26 Warning: no keyboard with arrow keys found
+12:34:27 Warning: no keyboard with arrow keys found
+12:34:28 Keyboard: HID 4132:2107 (/dev/input/event6)
+12:34:28 Keyboard grabbed: HID 4132:2107 (/dev/input/event6)
+12:34:28 Keyboard: DOWN code=108 held={108}
+12:34:28 Keyboard: UP   code=108 combo_key=False triggered=False
+12:34:32 Keyboard: DOWN code=106 held={106}
+12:34:32 Keyboard: UP   code=106 combo_key=True triggered=False
+12:34:32 Selected: set-02  mode=drums
+12:34:32 Found 2 tracks
+12:34:32   1. Set 02 - Song 01
+12:34:32   2. Set 02 - Song 02
+12:34:32 Keyboard: HID 4132:2107 (/dev/input/event6)
+12:34:32 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+12:34:33 Keyboard grabbed: HID 4132:2107 (/dev/input/event6)
+12:34:35 Keyboard: DOWN code=105 held={105}
+12:34:35 Keyboard: DOWN code=106 held={105, 106}
+12:34:35 Keyboard: DOWN code=103 held={105, 106, 103}
+12:34:35 
+Shutdown (key)
+12:34:36 Restarted argononed
+12:34:36 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+12:34:08 
+============================================================
+SESSION START 2026-04-12 12:34:08
+============================================================
+12:34:09 Starting Performance Rig...
+12:34:10 Taskbar hidden
+12:34:10 Stopped argononed
+12:34:11 Virtual MIDI port: RigMIDI
+12:34:11 MIDI bridged 128:0 → 24:0
+12:34:11 Processing launched (PID 1682)
+12:34:14 Warning: no keyboard with arrow keys found
+12:34:14 Keyboard: waiting for device to appear...
+12:34:15 Warning: no keyboard with arrow keys found
+12:34:15 Warning: no keyboard with arrow keys found
+12:34:16 Warning: no keyboard with arrow keys found
+12:34:17 Warning: no keyboard with arrow keys found
+12:34:17 Warning: no keyboard with arrow keys found
+12:34:18 Warning: no keyboard with arrow keys found
+12:34:19 Warning: no keyboard with arrow keys found
+12:34:19 Warning: no keyboard with arrow keys found
+12:34:20 Warning: no keyboard with arrow keys found
+12:34:21 Warning: no keyboard with arrow keys found
+12:34:21 Warning: no keyboard with arrow keys found
+12:34:22 Warning: no keyboard with arrow keys found
+12:34:23 Warning: no keyboard with arrow keys found
+12:34:23 Warning: no keyboard with arrow keys found
+12:34:24 Warning: no keyboard with arrow keys found
+12:34:25 Warning: no keyboard with arrow keys found
+12:34:26 Warning: no keyboard with arrow keys found
+12:34:26 Warning: no keyboard with arrow keys found
+12:34:27 Warning: no keyboard with arrow keys found
+12:34:27 Warning: no keyboard with arrow keys found
+12:34:28 Warning: no keyboard with arrow keys found
+12:34:29 Warning: no keyboard with arrow keys found
+12:34:29 Warning: no keyboard with arrow keys found
+12:34:30 Warning: no keyboard with arrow keys found
+12:34:31 Warning: no keyboard with arrow keys found
+12:34:31 Warning: no keyboard with arrow keys found
+12:34:32 Warning: no keyboard with arrow keys found
+12:36:01 Warning: no keyboard with arrow keys found
+12:36:02 Warning: no keyboard with arrow keys found
+12:36:02 Warning: no keyboard with arrow keys found
+12:36:03 Warning: no keyboard with arrow keys found
+12:36:04 Warning: no keyboard with arrow keys found
+12:36:04 Warning: no keyboard with arrow keys found
+12:36:05 Warning: no keyboard with arrow keys found
+12:36:06 Warning: no keyboard with arrow keys found
+12:36:06 Warning: no keyboard with arrow keys found
+12:36:07 Warning: no keyboard with arrow keys found
+12:36:08 Warning: no keyboard with arrow keys found
+12:36:08 Warning: no keyboard with arrow keys found
+12:36:09 Warning: no keyboard with arrow keys found
+12:36:10 Warning: no keyboard with arrow keys found
+12:36:11 Warning: no keyboard with arrow keys found
+12:36:11 Warning: no keyboard with arrow keys found
+12:36:12 Warning: no keyboard with arrow keys found
+12:36:13 Warning: no keyboard with arrow keys found
+12:36:13 Warning: no keyboard with arrow keys found
+12:36:14 Warning: no keyboard with arrow keys found
+12:36:15 Warning: no keyboard with arrow keys found
+12:36:15 Warning: no keyboard with arrow keys found
+12:36:16 Warning: no keyboard with arrow keys found
+12:36:17 Warning: no keyboard with arrow keys found
+12:36:17 Warning: no keyboard with arrow keys found
+12:36:18 Warning: no keyboard with arrow keys found
+12:36:19 Warning: no keyboard with arrow keys found
+12:36:19 Warning: no keyboard with arrow keys found
+12:36:20 Warning: no keyboard with arrow keys found
+12:36:21 Warning: no keyboard with arrow keys found
+12:36:22 Warning: no keyboard with arrow keys found
+12:36:22 Warning: no keyboard with arrow keys found
+12:36:23 Warning: no keyboard with arrow keys found
+12:36:24 Warning: no keyboard with arrow keys found
+12:36:24 Warning: no keyboard with arrow keys found
+12:36:25 Warning: no keyboard with arrow keys found
+12:36:26 Warning: no keyboard with arrow keys found
+12:36:26 Warning: no keyboard with arrow keys found
+12:36:27 Warning: no keyboard with arrow keys found
+12:36:28 Warning: no keyboard with arrow keys found
+12:36:28 Warning: no keyboard with arrow keys found
+12:36:29 Warning: no keyboard with arrow keys found
+12:36:30 Warning: no keyboard with arrow keys found
+12:36:30 Warning: no keyboard with arrow keys found
+12:36:31 Warning: no keyboard with arrow keys found
+12:36:32 Warning: no keyboard with arrow keys found
+12:36:32 Warning: no keyboard with arrow keys found
+12:36:33 Warning: no keyboard with arrow keys found
+12:36:34 Warning: no keyboard with arrow keys found
+12:36:34 Warning: no keyboard with arrow keys found
+12:36:35 Warning: no keyboard with arrow keys found
+12:36:36 Warning: no keyboard with arrow keys found
+12:36:36 Warning: no keyboard with arrow keys found
+12:36:37 Warning: no keyboard with arrow keys found
+12:36:38 Warning: no keyboard with arrow keys found
+12:36:38 Warning: no keyboard with arrow keys found
+12:36:39 Warning: no keyboard with arrow keys found
+12:36:40 Warning: no keyboard with arrow keys found
+12:36:41 Warning: no keyboard with arrow keys found
+12:36:41 Warning: no keyboard with arrow keys found
+12:36:42 Warning: no keyboard with arrow keys found
+12:36:43 Warning: no keyboard with arrow keys found
+12:36:43 Warning: no keyboard with arrow keys found
+12:36:44 Warning: no keyboard with arrow keys found
+12:36:45 Warning: no keyboard with arrow keys found
+12:36:45 Warning: no keyboard with arrow keys found
+12:36:46 Warning: no keyboard with arrow keys found
+12:36:47 Warning: no keyboard with arrow keys found
+12:36:47 Warning: no keyboard with arrow keys found
+12:36:48 Warning: no keyboard with arrow keys found
+12:36:49 Warning: no keyboard with arrow keys found
+12:36:49 Warning: no keyboard with arrow keys found
+12:36:50 Warning: no keyboard with arrow keys found
+12:36:51 Warning: no keyboard with arrow keys found
+12:36:51 Warning: no keyboard with arrow keys found
+12:36:52 Warning: no keyboard with arrow keys found
+12:36:53 Warning: no keyboard with arrow keys found
+12:36:53 Warning: no keyboard with arrow keys found
+12:36:54 Warning: no keyboard with arrow keys found
+12:36:55 Warning: no keyboard with arrow keys found
+12:36:55 Warning: no keyboard with arrow keys found
+12:36:56 Warning: no keyboard with arrow keys found
+12:36:57 Warning: no keyboard with arrow keys found
+12:36:57 Warning: no keyboard with arrow keys found
+12:36:58 Warning: no keyboard with arrow keys found
+12:36:59 Warning: no keyboard with arrow keys found
+12:37:00 Warning: no keyboard with arrow keys found
+12:37:00 Warning: no keyboard with arrow keys found
+12:37:01 Warning: no keyboard with arrow keys found
+12:37:02 Warning: no keyboard with arrow keys found
+12:37:02 Warning: no keyboard with arrow keys found
+12:37:03 Warning: no keyboard with arrow keys found
+12:37:04 Warning: no keyboard with arrow keys found
+12:37:04 Warning: no keyboard with arrow keys found
+12:37:05 Warning: no keyboard with arrow keys found
+12:37:06 Warning: no keyboard with arrow keys found
+12:37:06 Warning: no keyboard with arrow keys found
+12:37:07 Warning: no keyboard with arrow keys found
+12:37:08 Warning: no keyboard with arrow keys found
+12:37:08 Warning: no keyboard with arrow keys found
+12:37:09 Warning: no keyboard with arrow keys found
+12:37:10 Warning: no keyboard with arrow keys found
+12:37:10 Warning: no keyboard with arrow keys found
+12:37:11 Warning: no keyboard with arrow keys found
+12:37:12 Warning: no keyboard with arrow keys found
+12:37:12 Warning: no keyboard with arrow keys found
+12:37:13 Warning: no keyboard with arrow keys found
+12:37:14 Warning: no keyboard with arrow keys found
+12:37:14 Warning: no keyboard with arrow keys found
+12:37:15 Warning: no keyboard with arrow keys found
+12:37:16 Warning: no keyboard with arrow keys found
+12:37:16 Warning: no keyboard with arrow keys found
+12:37:17 Warning: no keyboard with arrow keys found
+12:37:18 Warning: no keyboard with arrow keys found
+12:37:19 Warning: no keyboard with arrow keys found
+12:37:19 Warning: no keyboard with arrow keys found
+12:37:20 Warning: no keyboard with arrow keys found
+12:37:21 Warning: no keyboard with arrow keys found
+12:37:21 Warning: no keyboard with arrow keys found
+12:37:22 Warning: no keyboard with arrow keys found
+12:37:23 Warning: no keyboard with arrow keys found
+12:37:23 Warning: no keyboard with arrow keys found
+12:37:24 Warning: no keyboard with arrow keys found
+12:37:25 Warning: no keyboard with arrow keys found
+12:37:26 Warning: no keyboard with arrow keys found
+12:37:26 Warning: no keyboard with arrow keys found
+12:37:27 Warning: no keyboard with arrow keys found
+12:37:28 Warning: no keyboard with arrow keys found
+12:37:29 Warning: no keyboard with arrow keys found
+12:37:29 Warning: no keyboard with arrow keys found
+12:37:30 Warning: no keyboard with arrow keys found
+12:37:31 Warning: no keyboard with arrow keys found
+12:37:31 Warning: no keyboard with arrow keys found
+12:37:32 Warning: no keyboard with arrow keys found
+12:37:33 Warning: no keyboard with arrow keys found
+12:37:34 Warning: no keyboard with arrow keys found
+12:37:34 Warning: no keyboard with arrow keys found
+12:37:35 Warning: no keyboard with arrow keys found
+12:37:36 Warning: no keyboard with arrow keys found
+12:37:36 Warning: no keyboard with arrow keys found
+12:37:37 Warning: no keyboard with arrow keys found
+12:37:38 Warning: no keyboard with arrow keys found
+12:37:38 Warning: no keyboard with arrow keys found
+12:37:39 Warning: no keyboard with arrow keys found
+12:37:40 Warning: no keyboard with arrow keys found
+12:37:40 Warning: no keyboard with arrow keys found
+12:37:41 Warning: no keyboard with arrow keys found
+12:37:42 Warning: no keyboard with arrow keys found
+12:37:42 Warning: no keyboard with arrow keys found
+12:37:43 Warning: no keyboard with arrow keys found
+12:37:44 Warning: no keyboard with arrow keys found
+12:37:45 Warning: no keyboard with arrow keys found
+12:37:45 Warning: no keyboard with arrow keys found
+12:37:46 Warning: no keyboard with arrow keys found
+12:37:47 Warning: no keyboard with arrow keys found
+12:37:47 Warning: no keyboard with arrow keys found
+12:37:48 Warning: no keyboard with arrow keys found
+12:37:49 Warning: no keyboard with arrow keys found
+12:37:49 Warning: no keyboard with arrow keys found
+12:37:50 Warning: no keyboard with arrow keys found
+12:37:51 Warning: no keyboard with arrow keys found
+12:37:51 Warning: no keyboard with arrow keys found
+12:37:52 Warning: no keyboard with arrow keys found
+12:37:53 Warning: no keyboard with arrow keys found
+12:37:53 Warning: no keyboard with arrow keys found
+12:37:54 Warning: no keyboard with arrow keys found
+12:37:55 Warning: no keyboard with arrow keys found
+12:37:55 Warning: no keyboard with arrow keys found
+12:37:56 Warning: no keyboard with arrow keys found
+12:37:57 Warning: no keyboard with arrow keys found
+12:37:58 Warning: no keyboard with arrow keys found
+12:37:58 Warning: no keyboard with arrow keys found
+12:37:59 Warning: no keyboard with arrow keys found
+12:38:00 Warning: no keyboard with arrow keys found
+12:38:00 Warning: no keyboard with arrow keys found
+12:38:01 Warning: no keyboard with arrow keys found
+12:38:02 Warning: no keyboard with arrow keys found
+12:38:02 Warning: no keyboard with arrow keys found
+12:38:03 Warning: no keyboard with arrow keys found
+12:38:04 Warning: no keyboard with arrow keys found
+12:38:04 Warning: no keyboard with arrow keys found
+12:38:05 Warning: no keyboard with arrow keys found
+12:38:06 Warning: no keyboard with arrow keys found
+12:38:06 Warning: no keyboard with arrow keys found
+12:38:07 Warning: no keyboard with arrow keys found
+12:38:08 Warning: no keyboard with arrow keys found
+12:38:08 Warning: no keyboard with arrow keys found
+12:38:09 Warning: no keyboard with arrow keys found
+12:38:10 Warning: no keyboard with arrow keys found
+12:38:10 Warning: no keyboard with arrow keys found
+12:38:11 Warning: no keyboard with arrow keys found
+12:38:12 Warning: no keyboard with arrow keys found
+12:38:12 Warning: no keyboard with arrow keys found
+12:38:13 Warning: no keyboard with arrow keys found
+12:38:14 Warning: no keyboard with arrow keys found
+12:38:15 Warning: no keyboard with arrow keys found
+12:38:15 Warning: no keyboard with arrow keys found
+12:38:16 Warning: no keyboard with arrow keys found
+12:38:17 Warning: no keyboard with arrow keys found
+12:38:17 Warning: no keyboard with arrow keys found
+12:38:18 Warning: no keyboard with arrow keys found
+12:38:19 Warning: no keyboard with arrow keys found
+12:38:19 Warning: no keyboard with arrow keys found
+12:38:20 Warning: no keyboard with arrow keys found
+12:38:21 Warning: no keyboard with arrow keys found
+12:38:22 Warning: no keyboard with arrow keys found
+12:38:22 Warning: no keyboard with arrow keys found
+12:38:23 Warning: no keyboard with arrow keys found
+12:38:24 Warning: no keyboard with arrow keys found
+12:38:24 Warning: no keyboard with arrow keys found
+12:38:25 Warning: no keyboard with arrow keys found
+12:38:26 Warning: no keyboard with arrow keys found
+12:38:26 Warning: no keyboard with arrow keys found
+12:38:27 Warning: no keyboard with arrow keys found
+12:38:28 Warning: no keyboard with arrow keys found
+12:38:28 Warning: no keyboard with arrow keys found
+12:38:29 Warning: no keyboard with arrow keys found
+12:38:30 Warning: no keyboard with arrow keys found
+12:38:30 Warning: no keyboard with arrow keys found
+12:38:31 Warning: no keyboard with arrow keys found
+12:38:32 Warning: no keyboard with arrow keys found
+12:38:32 Warning: no keyboard with arrow keys found
+12:38:33 Warning: no keyboard with arrow keys found
+12:38:34 Warning: no keyboard with arrow keys found
+12:38:34 Warning: no keyboard with arrow keys found
+12:38:35 Warning: no keyboard with arrow keys found
+12:38:36 Warning: no keyboard with arrow keys found
+12:38:36 Warning: no keyboard with arrow keys found
+12:38:37 Warning: no keyboard with arrow keys found
+12:38:38 Warning: no keyboard with arrow keys found
+12:38:38 Warning: no keyboard with arrow keys found
+12:38:39 Warning: no keyboard with arrow keys found
+12:38:40 Warning: no keyboard with arrow keys found
+12:38:41 Warning: no keyboard with arrow keys found
+12:38:41 Warning: no keyboard with arrow keys found
+12:38:42 Warning: no keyboard with arrow keys found
+12:38:43 Warning: no keyboard with arrow keys found
+12:38:43 Warning: no keyboard with arrow keys found
+12:38:44 Warning: no keyboard with arrow keys found
+12:38:45 Warning: no keyboard with arrow keys found
+12:38:45 Warning: no keyboard with arrow keys found
+12:38:46 Warning: no keyboard with arrow keys found
+12:38:47 Warning: no keyboard with arrow keys found
+12:38:47 Warning: no keyboard with arrow keys found
+12:38:48 Warning: no keyboard with arrow keys found
+12:38:49 Warning: no keyboard with arrow keys found
+12:38:49 Warning: no keyboard with arrow keys found
+12:38:50 Warning: no keyboard with arrow keys found
+12:38:51 Warning: no keyboard with arrow keys found
+12:38:52 Warning: no keyboard with arrow keys found
+12:38:52 Warning: no keyboard with arrow keys found
+12:38:53 Warning: no keyboard with arrow keys found
+12:38:54 Warning: no keyboard with arrow keys found
+12:38:54 Warning: no keyboard with arrow keys found
+12:38:55 Warning: no keyboard with arrow keys found
+12:38:56 Warning: no keyboard with arrow keys found
+12:38:56 Warning: no keyboard with arrow keys found
+12:38:57 Warning: no keyboard with arrow keys found
+12:38:58 Warning: no keyboard with arrow keys found
+12:38:58 Warning: no keyboard with arrow keys found
+12:38:59 Warning: no keyboard with arrow keys found
+12:39:00 Warning: no keyboard with arrow keys found
+12:39:00 Warning: no keyboard with arrow keys found
+12:39:01 Warning: no keyboard with arrow keys found
+12:39:02 Warning: no keyboard with arrow keys found
+12:39:03 Warning: no keyboard with arrow keys found
+12:39:03 Warning: no keyboard with arrow keys found
+12:39:04 Warning: no keyboard with arrow keys found
+12:39:05 Warning: no keyboard with arrow keys found
+12:39:05 Warning: no keyboard with arrow keys found
+12:39:06 Warning: no keyboard with arrow keys found
+12:39:07 Warning: no keyboard with arrow keys found
+12:39:07 Warning: no keyboard with arrow keys found
+12:39:08 Warning: no keyboard with arrow keys found
+12:39:09 Warning: no keyboard with arrow keys found
+12:39:09 Warning: no keyboard with arrow keys found
+12:39:10 Warning: no keyboard with arrow keys found
+12:39:11 Warning: no keyboard with arrow keys found
+12:39:11 Warning: no keyboard with arrow keys found
+12:39:12 Warning: no keyboard with arrow keys found
+12:39:13 Warning: no keyboard with arrow keys found
+12:39:13 Warning: no keyboard with arrow keys found
+12:39:14 Warning: no keyboard with arrow keys found
+12:39:15 Warning: no keyboard with arrow keys found
+12:39:16 Warning: no keyboard with arrow keys found
+12:39:16 Warning: no keyboard with arrow keys found
+12:39:17 Warning: no keyboard with arrow keys found
+12:39:17 Warning: no keyboard with arrow keys found
+12:39:18 Warning: no keyboard with arrow keys found
+12:39:19 Warning: no keyboard with arrow keys found
+12:39:20 Warning: no keyboard with arrow keys found
+12:39:20 Warning: no keyboard with arrow keys found
+12:39:21 Warning: no keyboard with arrow keys found
+12:39:22 Warning: no keyboard with arrow keys found
+12:39:22 Warning: no keyboard with arrow keys found
+12:39:23 Warning: no keyboard with arrow keys found
+12:39:24 Warning: no keyboard with arrow keys found
+12:39:24 Warning: no keyboard with arrow keys found
+12:39:25 Warning: no keyboard with arrow keys found
+12:39:26 Warning: no keyboard with arrow keys found
+12:39:26 Warning: no keyboard with arrow keys found
+12:39:27 Warning: no keyboard with arrow keys found
+12:39:28 Warning: no keyboard with arrow keys found
+12:39:28 Warning: no keyboard with arrow keys found
+12:39:29 Warning: no keyboard with arrow keys found
+12:39:30 Warning: no keyboard with arrow keys found
+12:39:30 Warning: no keyboard with arrow keys found
+12:39:31 Warning: no keyboard with arrow keys found
+12:39:32 Warning: no keyboard with arrow keys found
+12:39:32 Warning: no keyboard with arrow keys found
+12:39:33 Warning: no keyboard with arrow keys found
+12:39:34 Warning: no keyboard with arrow keys found
+12:39:35 Warning: no keyboard with arrow keys found
+12:39:35 Warning: no keyboard with arrow keys found
+12:39:36 Warning: no keyboard with arrow keys found
+12:39:37 Warning: no keyboard with arrow keys found
+12:39:37 Warning: no keyboard with arrow keys found
+12:39:38 Warning: no keyboard with arrow keys found
+12:39:39 Warning: no keyboard with arrow keys found
+12:39:39 Warning: no keyboard with arrow keys found
+12:39:40 Warning: no keyboard with arrow keys found
+12:39:41 Warning: no keyboard with arrow keys found
+12:39:42 Warning: no keyboard with arrow keys found
+12:39:42 Warning: no keyboard with arrow keys found
+12:39:43 Warning: no keyboard with arrow keys found
+12:39:43 Warning: no keyboard with arrow keys found
+12:39:44 Warning: no keyboard with arrow keys found
+12:39:45 Warning: no keyboard with arrow keys found
+12:39:45 Warning: no keyboard with arrow keys found
+12:39:46 Warning: no keyboard with arrow keys found
+12:39:47 Warning: no keyboard with arrow keys found
+12:39:48 Warning: no keyboard with arrow keys found
+12:39:48 Warning: no keyboard with arrow keys found
+12:39:49 Warning: no keyboard with arrow keys found
+12:39:50 Warning: no keyboard with arrow keys found
+12:39:50 Warning: no keyboard with arrow keys found
+12:39:51 Warning: no keyboard with arrow keys found
+12:39:52 Warning: no keyboard with arrow keys found
+12:39:52 Warning: no keyboard with arrow keys found
+12:39:53 Warning: no keyboard with arrow keys found
+12:39:54 Warning: no keyboard with arrow keys found
+12:39:54 Warning: no keyboard with arrow keys found
+12:39:55 Warning: no keyboard with arrow keys found
+12:39:56 Warning: no keyboard with arrow keys found
+12:39:56 Warning: no keyboard with arrow keys found
+12:39:57 Warning: no keyboard with arrow keys found
+12:39:58 Warning: no keyboard with arrow keys found
+12:39:58 Warning: no keyboard with arrow keys found
+12:39:59 Warning: no keyboard with arrow keys found
+12:40:00 Warning: no keyboard with arrow keys found
+12:40:00 Warning: no keyboard with arrow keys found
+12:40:01 Warning: no keyboard with arrow keys found
+12:40:02 Warning: no keyboard with arrow keys found
+12:40:02 Warning: no keyboard with arrow keys found
+12:40:03 Warning: no keyboard with arrow keys found
+12:40:04 Warning: no keyboard with arrow keys found
+12:40:04 Warning: no keyboard with arrow keys found
+12:40:05 Warning: no keyboard with arrow keys found
+12:40:06 Warning: no keyboard with arrow keys found
+12:40:07 Warning: no keyboard with arrow keys found
+12:40:07 Warning: no keyboard with arrow keys found
+12:40:08 Warning: no keyboard with arrow keys found
+12:40:09 Warning: no keyboard with arrow keys found
+12:40:09 Warning: no keyboard with arrow keys found
+12:40:10 Warning: no keyboard with arrow keys found
+12:40:11 Warning: no keyboard with arrow keys found
+12:40:11 Warning: no keyboard with arrow keys found
+12:40:12 Warning: no keyboard with arrow keys found
+12:40:13 Warning: no keyboard with arrow keys found
+12:40:13 Warning: no keyboard with arrow keys found
+12:40:14 Warning: no keyboard with arrow keys found
+12:40:15 Warning: no keyboard with arrow keys found
+12:40:15 Warning: no keyboard with arrow keys found
+12:40:16 Warning: no keyboard with arrow keys found
+12:40:17 Warning: no keyboard with arrow keys found
+12:40:17 Warning: no keyboard with arrow keys found
+12:40:18 Warning: no keyboard with arrow keys found
+12:40:19 Warning: no keyboard with arrow keys found
+12:40:19 Warning: no keyboard with arrow keys found
+12:40:20 Warning: no keyboard with arrow keys found
+12:40:21 Warning: no keyboard with arrow keys found
+12:40:22 Warning: no keyboard with arrow keys found
+12:40:22 Warning: no keyboard with arrow keys found
+12:40:23 Warning: no keyboard with arrow keys found
+12:40:24 Warning: no keyboard with arrow keys found
+12:40:24 Warning: no keyboard with arrow keys found
+12:40:25 Warning: no keyboard with arrow keys found
+12:40:26 Warning: no keyboard with arrow keys found
+12:40:27 Warning: no keyboard with arrow keys found
+12:40:27 Warning: no keyboard with arrow keys found
+12:40:28 Warning: no keyboard with arrow keys found
+12:40:29 Warning: no keyboard with arrow keys found
+12:40:29 Warning: no keyboard with arrow keys found
+12:40:30 Warning: no keyboard with arrow keys found
+12:40:31 Warning: no keyboard with arrow keys found
+12:40:31 Warning: no keyboard with arrow keys found
+12:40:32 Warning: no keyboard with arrow keys found
+12:40:33 Warning: no keyboard with arrow keys found
+12:40:34 Warning: no keyboard with arrow keys found
+12:40:34 Warning: no keyboard with arrow keys found
+12:40:35 Warning: no keyboard with arrow keys found
+12:40:36 Warning: no keyboard with arrow keys found
+12:40:36 Warning: no keyboard with arrow keys found
+12:40:37 Warning: no keyboard with arrow keys found
+12:40:38 Warning: no keyboard with arrow keys found
+12:40:38 Warning: no keyboard with arrow keys found
+12:40:39 Warning: no keyboard with arrow keys found
+12:40:40 Warning: no keyboard with arrow keys found
+12:40:40 Warning: no keyboard with arrow keys found
+12:40:41 Warning: no keyboard with arrow keys found
+12:40:42 Warning: no keyboard with arrow keys found
+12:40:42 Warning: no keyboard with arrow keys found
+12:40:43 Warning: no keyboard with arrow keys found
+12:40:44 Warning: no keyboard with arrow keys found
+12:40:44 Warning: no keyboard with arrow keys found
+12:40:45 Warning: no keyboard with arrow keys found
+12:40:46 Warning: no keyboard with arrow keys found
+12:40:47 Warning: no keyboard with arrow keys found
+12:40:47 Warning: no keyboard with arrow keys found
+12:40:48 Warning: no keyboard with arrow keys found
+12:40:49 Warning: no keyboard with arrow keys found
+12:40:49 Warning: no keyboard with arrow keys found
+12:40:50 Warning: no keyboard with arrow keys found
+12:40:51 Warning: no keyboard with arrow keys found
+12:40:51 Warning: no keyboard with arrow keys found
+12:40:52 Warning: no keyboard with arrow keys found
+12:40:53 Warning: no keyboard with arrow keys found
+12:40:53 Warning: no keyboard with arrow keys found
+12:40:54 Warning: no keyboard with arrow keys found
+12:40:55 Warning: no keyboard with arrow keys found
+12:40:56 Warning: no keyboard with arrow keys found
+12:40:56 Warning: no keyboard with arrow keys found
+12:40:57 Warning: no keyboard with arrow keys found
+12:40:58 Warning: no keyboard with arrow keys found
+12:40:58 Warning: no keyboard with arrow keys found
+12:40:59 Warning: no keyboard with arrow keys found
+12:41:00 Warning: no keyboard with arrow keys found
+12:41:00 Warning: no keyboard with arrow keys found
+12:41:01 Warning: no keyboard with arrow keys found
+12:41:02 Warning: no keyboard with arrow keys found
+12:41:03 Warning: no keyboard with arrow keys found
+12:41:03 Warning: no keyboard with arrow keys found
+12:41:04 Warning: no keyboard with arrow keys found
+12:41:05 Warning: no keyboard with arrow keys found
+12:41:05 Warning: no keyboard with arrow keys found
+12:41:06 Warning: no keyboard with arrow keys found
+12:41:07 Warning: no keyboard with arrow keys found
+12:41:07 Warning: no keyboard with arrow keys found
+12:41:08 Warning: no keyboard with arrow keys found
+12:41:09 Warning: no keyboard with arrow keys found
+12:41:09 Warning: no keyboard with arrow keys found
+12:41:10 Warning: no keyboard with arrow keys found
+12:41:11 Warning: no keyboard with arrow keys found
+12:41:12 Warning: no keyboard with arrow keys found
+12:41:12 Warning: no keyboard with arrow keys found
+12:41:13 Warning: no keyboard with arrow keys found
+12:41:14 Warning: no keyboard with arrow keys found
+12:41:14 Warning: no keyboard with arrow keys found
+12:41:15 Warning: no keyboard with arrow keys found
+12:41:16 Warning: no keyboard with arrow keys found
+12:41:17 Warning: no keyboard with arrow keys found
+12:41:17 Warning: no keyboard with arrow keys found
+12:41:18 Warning: no keyboard with arrow keys found
+12:41:19 Warning: no keyboard with arrow keys found
+12:41:19 Warning: no keyboard with arrow keys found
+12:41:20 Warning: no keyboard with arrow keys found
+12:41:21 Warning: no keyboard with arrow keys found
+12:41:21 Warning: no keyboard with arrow keys found
+12:41:22 Warning: no keyboard with arrow keys found
+12:41:23 Warning: no keyboard with arrow keys found
+12:41:23 Warning: no keyboard with arrow keys found
+12:41:24 Warning: no keyboard with arrow keys found
+12:41:25 Warning: no keyboard with arrow keys found
+12:41:25 Warning: no keyboard with arrow keys found
+12:41:26 Warning: no keyboard with arrow keys found
+12:41:27 Warning: no keyboard with arrow keys found
+12:41:27 Warning: no keyboard with arrow keys found
+12:41:28 Warning: no keyboard with arrow keys found
+12:41:29 Warning: no keyboard with arrow keys found
+12:41:29 Warning: no keyboard with arrow keys found
+12:41:30 Warning: no keyboard with arrow keys found
+12:41:31 Warning: no keyboard with arrow keys found
+12:41:31 Warning: no keyboard with arrow keys found
+12:41:32 Warning: no keyboard with arrow keys found
+12:41:33 Warning: no keyboard with arrow keys found
+12:41:34 Warning: no keyboard with arrow keys found
+12:41:34 Warning: no keyboard with arrow keys found
+12:41:35 Warning: no keyboard with arrow keys found
+12:41:36 Warning: no keyboard with arrow keys found
+12:41:36 Warning: no keyboard with arrow keys found
+12:41:37 Warning: no keyboard with arrow keys found
+12:41:38 Warning: no keyboard with arrow keys found
+12:41:38 Warning: no keyboard with arrow keys found
+12:41:39 Warning: no keyboard with arrow keys found
+12:41:40 Warning: no keyboard with arrow keys found
+12:41:40 Warning: no keyboard with arrow keys found
+12:41:41 Warning: no keyboard with arrow keys found
+12:41:42 Warning: no keyboard with arrow keys found
+12:41:42 Warning: no keyboard with arrow keys found
+12:41:43 Warning: no keyboard with arrow keys found
+12:41:44 Warning: no keyboard with arrow keys found
+12:41:44 Warning: no keyboard with arrow keys found
+12:41:45 Warning: no keyboard with arrow keys found
+12:41:46 Warning: no keyboard with arrow keys found
+12:41:46 Warning: no keyboard with arrow keys found
+12:41:47 Warning: no keyboard with arrow keys found
+12:41:48 Warning: no keyboard with arrow keys found
+12:42:14 
+============================================================
+SESSION START 2026-04-12 12:42:14
+============================================================
+12:42:15 Starting Performance Rig...
+12:42:16 Taskbar hidden
+12:42:16 Stopped argononed
+12:42:16 Virtual MIDI port: RigMIDI
+12:42:16 MIDI bridged 128:0 → 24:0
+12:42:16 Processing launched (PID 1676)
+12:42:20 Warning: no keyboard with arrow keys found
+12:42:20 Keyboard: waiting for device to appear...
+12:42:20 Warning: no keyboard with arrow keys found
+12:42:21 Warning: no keyboard with arrow keys found
+12:42:22 Warning: no keyboard with arrow keys found
+12:42:22 Warning: no keyboard with arrow keys found
+12:42:23 Warning: no keyboard with arrow keys found
+12:42:24 Warning: no keyboard with arrow keys found
+12:42:25 Warning: no keyboard with arrow keys found
+12:42:25 Warning: no keyboard with arrow keys found
+12:42:26 Warning: no keyboard with arrow keys found
+12:42:26 Warning: no keyboard with arrow keys found
+12:42:27 Warning: no keyboard with arrow keys found
+12:42:28 Warning: no keyboard with arrow keys found
+12:42:28 Warning: no keyboard with arrow keys found
+12:42:29 Warning: no keyboard with arrow keys found
+12:42:30 Warning: no keyboard with arrow keys found
+12:42:31 Warning: no keyboard with arrow keys found
+12:42:31 Warning: no keyboard with arrow keys found
+12:42:32 Warning: no keyboard with arrow keys found
+12:42:33 Warning: no keyboard with arrow keys found
+12:42:33 Warning: no keyboard with arrow keys found
+12:42:34 Warning: no keyboard with arrow keys found
+12:42:35 Warning: no keyboard with arrow keys found
+12:42:35 Warning: no keyboard with arrow keys found
+12:42:36 Warning: no keyboard with arrow keys found
+12:42:37 Warning: no keyboard with arrow keys found
+12:42:37 Warning: no keyboard with arrow keys found
+12:42:38 Warning: no keyboard with arrow keys found
+12:42:39 Warning: no keyboard with arrow keys found
+12:42:40 Warning: no keyboard with arrow keys found
+12:42:41 Warning: no keyboard with arrow keys found
+12:42:41 Warning: no keyboard with arrow keys found
+12:42:42 Warning: no keyboard with arrow keys found
+12:42:43 Keyboard: HID 4132:2107 (/dev/input/event6)
+12:42:43 Keyboard grabbed: HID 4132:2107 (/dev/input/event6)
+12:42:43 Keyboard: UP   code=108 combo_key=False triggered=False
+12:42:44 Keyboard: DOWN code=103 held={103}
+12:42:44 Keyboard: UP   code=103 combo_key=True triggered=False
+12:42:44 Keyboard: DOWN code=108 held={108}
+12:42:44 Keyboard: UP   code=108 combo_key=False triggered=False
+12:42:47 Keyboard: DOWN code=108 held={108}
+12:42:47 Keyboard: UP   code=108 combo_key=False triggered=False
+12:42:49 Keyboard: DOWN code=103 held={103}
+12:42:49 Keyboard: UP   code=103 combo_key=True triggered=False
+12:42:50 Keyboard: DOWN code=108 held={108}
+12:42:50 Keyboard: UP   code=108 combo_key=False triggered=False

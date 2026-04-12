@@ -560,10 +560,10 @@ class Display:
             d.line([x+18, y+1,  x+1,  y+19], fill=255, width=2)
 
     def _draw_set_name(self, name, y_offset=0):
-        """Draw SET XX centered with a vertical offset (for animation). No lock — caller holds it."""
+        """Draw SET XX near the top with a vertical offset (for animation). No lock — caller holds it."""
         tw = self._tw(name, self.fl)
         x  = (W - tw) // 2
-        y  = (H // 2 - 18) + y_offset   # 18 ≈ half of 30pt cap height
+        y  = 2 + y_offset
         self._text(x, y, name, self.fl)
 
     def show_set_name(self, name, hint=''):
@@ -571,8 +571,8 @@ class Display:
         with self._lock:
             self._clear()
             self._draw_set_name(name)
-            self._draw_drum_icon(4,       40, drumless=True)   # left  = drumless
-            self._draw_drum_icon(W - 23,  40, drumless=False)  # right = drums
+            self._draw_drum_icon(4,       44, drumless=True)   # left  = drumless
+            self._draw_drum_icon(W - 23,  44, drumless=False)  # right = drums
             if hint:
                 hw = self._tw(hint, self.fs)
                 self._text((W - hw) // 2, H - 11, hint, self.fs)
@@ -606,8 +606,11 @@ class Display:
                 self._clear()
                 self._draw_set_name(old_name, old_y)
                 self._draw_set_name(new_name, new_y)
-                self._draw_drum_icon(4,      40, drumless=True)
-                self._draw_drum_icon(W - 23, 40, drumless=False)
+                # Black backdrop behind each icon so scrolling text passes underneath
+                self.draw.rectangle([2,     42, 24,    H - 1], fill=0)
+                self.draw.rectangle([W - 25, 42, W - 3, H - 1], fill=0)
+                self._draw_drum_icon(4,      44, drumless=True)
+                self._draw_drum_icon(W - 23, 44, drumless=False)
                 self._show()
             time.sleep(0.025)
 
