@@ -291,6 +291,35 @@ Falls back to any keyboard with arrow keys if the named device isn't found.
 
 ---
 
+## Keyboard Hardware
+
+The rig requires a USB keypad with **standard HID arrow keys** and **no host-side driver**. Not all 4-key arrow pads meet this requirement.
+
+### Confirmed working
+
+**BTXETUEL Mini 4-Key (SayoDevice platform)**
+- Plug and play — Up/Left/Down/Right stored in firmware, zero configuration required
+- Recognized by Linux as a standard HID keyboard (`hid-generic`/`usbhid`), USB VID `0x8089`
+- Web configurator at sayodevice.com works on Linux via Chrome (WebHID API); config is saved on-device
+- Documented working on Raspberry Pi with Python evdev
+
+### Known incompatible
+
+**LINKEET KEY4T / KEY9T (driver-dependent model)**
+- Requires a Windows-only `keyboard_driver.exe` to function — no Linux or Mac driver
+- Ships with **no default keymap in firmware**: keys produce zero HID reports without the driver running
+- Will enumerate on USB and create `/dev/input/eventX` nodes but send no events — the rig's silent-rebind loop will fire every 8 seconds indefinitely
+- Diagnosable: `sudo python3 -c "from evdev import InputDevice; import select,time; d=InputDevice('/dev/input/event6'); [print(e) for _ in [select.select([d.fd],[],[],8)] for e in d.read()]"` — if nothing prints after pressing keys, the firmware has no keymap
+
+### What to look for when buying
+
+- "Plug and play, no software needed" — must be in the listing
+- "Linux" listed in compatibility — not just Windows/Mac
+- Web-based configurator (not a `.exe` download) — means config lives on-device
+- Avoid keypads where the product page links to a `.exe` driver download with no Linux alternative
+
+---
+
 ## Troubleshooting
 
 **No keyboard detected**
@@ -298,6 +327,9 @@ Falls back to any keyboard with arrow keys if the named device isn't found.
 sudo usermod -a -G input $USER   # then log out/in
 evtest                            # list and test input devices
 ```
+
+**Keyboard grabbed but no events — silent-rebind loops forever**
+The keyboard enumerates on USB and gets grabbed, but sends zero HID reports. This means the device has no keymap in firmware and requires a host-side driver (common with driver-dependent keypads like the LINKEET KEY4T). The rig will power-cycle the USB port every ~20 seconds indefinitely. Solution: replace the keyboard with a plug-and-play HID device (see Keyboard Hardware section above).
 
 **Keyboard grab fails at startup**
 The display server may be holding an exclusive grab on the keyboard. The rig will automatically attempt a USB unbind/rebind to force re-enumeration and break the grab, then reconnect.

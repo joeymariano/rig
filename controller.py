@@ -1,7 +1,33 @@
 #!/usr/bin/env python3
 """Live Performance Rig — keyboard, OLED, 4-ch audio, MIDI"""
 
-import os, re, sys, time, threading, subprocess, signal, queue
+import os, re, sys, time, threading, subprocess, signal, queue, fcntl, select as _select
+
+# Mirror all stdout/stderr to a log file so boot issues can be reviewed after the fact.
+# Appends across reboots; each session is separated by a timestamped header.
+class _Tee:
+    def __init__(self, stream, path):
+        self._s   = stream
+        self._f   = open(path, 'a', buffering=1)
+        self._bol = True   # at beginning of line — prepend timestamp on next write
+    def write(self, d):
+        if not d:
+            return
+        # Prepend HH:MM:SS at the start of each line
+        if self._bol:
+            ts = time.strftime('%H:%M:%S') + ' '
+            self._s.write(ts); self._f.write(ts)
+        self._s.write(d); self._f.write(d)
+        self._bol = d.endswith('\n')
+    def flush(self):
+        self._s.flush()
+        self._f.flush()
+    def fileno(self):
+        return self._s.fileno()
+_log_path = '/home/nmlstyl/rig/boot.log'
+sys.stdout = _Tee(sys.stdout, _log_path)
+sys.stderr = _Tee(sys.stderr, _log_path)
+print(f"\n{'='*60}\nSESSION START {time.strftime('%Y-%m-%d %H:%M:%S')}\n{'='*60}")
 from pathlib import Path
 from evdev import InputDevice, categorize, ecodes, list_devices
 import sounddevice as sd
@@ -187,31 +213,40 @@ class Player:
         self._midi_t  = threading.Thread(target=self._midi_loop,  args=(midi, start, 1024/sr), daemon=True)
         self._dac_t   = threading.Thread(target=self._dac_loop,   args=(title_data, sr, dac_dev, start), daemon=True)
         self._audio_t.start(); self._midi_t.start(); self._dac_t.start()
-        time.sleep(0.2); start.set()
+        # Set is_playing immediately so stop() can find the threads even during
+        # the 200ms startup delay before start.set() fires.
         self.is_playing    = True
         self._play_start   = time.time()
         self._pause_start  = None
         self._total_paused = 0.0
         self.track_duration = n / sr
         print(f"Playing: {track.display_title()}  ({n/sr:.1f}s, device {dev})")
+        time.sleep(0.2); start.set()
         return True
 
     def _audio_loop(self, data, sr, device, start):
-        stream = sd.OutputStream(device=device, channels=4, samplerate=sr, blocksize=1024, dtype='float32')
-        start.wait(); stream.start()
-        frame, bsize = 0, 1024
-        while frame < len(data) and not self._stop.is_set():
-            while self.is_paused and not self._stop.is_set(): time.sleep(0.01)
-            if self._stop.is_set(): break
-            block = data[frame:frame+bsize]
-            if len(block) < bsize: block = np.pad(block, ((0, bsize - len(block)), (0, 0)))
-            stream.write(block); frame += bsize
-        stream.stop(); stream.close()
+        stream = None
+        try:
+            stream = sd.OutputStream(device=device, channels=4, samplerate=sr, blocksize=1024, dtype='float32')
+            start.wait(); stream.start()
+            frame, bsize = 0, 1024
+            while frame < len(data) and not self._stop.is_set():
+                while self.is_paused and not self._stop.is_set(): time.sleep(0.01)
+                if self._stop.is_set(): break
+                block = data[frame:frame+bsize]
+                if len(block) < bsize: block = np.pad(block, ((0, bsize - len(block)), (0, 0)))
+                stream.write(block); frame += bsize
+        except Exception as e:
+            print(f"Audio output error: {e}")
+        finally:
+            if stream is not None:
+                stream.stop(); stream.close()
 
     def _dac_loop(self, data, sr, device, start):
         """Mirror title stereo to the Argon front DAC (3.5mm jack) at full volume."""
         if device is None:
             return
+        stream = None
         try:
             stream = sd.OutputStream(device=device, channels=2, samplerate=sr, blocksize=1024, dtype='float32')
             start.wait(); stream.start()
@@ -222,17 +257,39 @@ class Player:
                 block = data[frame:frame+bsize]
                 if len(block) < bsize: block = np.pad(block, ((0, bsize - len(block)), (0, 0)))
                 stream.write(block); frame += bsize
-            stream.stop(); stream.close()
         except Exception as e:
             print(f"DAC output error: {e}")
+        finally:
+            if stream is not None:
+                stream.stop(); stream.close()
 
     def _midi_loop(self, midi, start, delay):
         start.wait(); time.sleep(delay)
         try:
-            for msg in midi.play():
-                while self.is_paused and not self._stop.is_set(): time.sleep(0.01)
-                if self._stop.is_set(): break
-                if not msg.is_meta: self.midi_out.send(msg)
+            tempo = 500000  # default 120 BPM
+            ticks_per_beat = midi.ticks_per_beat
+            now = time.time()
+            for msg in mido.merge_tracks(midi.tracks):
+                delta_s = mido.tick2second(msg.time, ticks_per_beat, tempo)
+                target = now + delta_s
+                while True:
+                    if self._stop.is_set(): return
+                    remaining = target - time.time()
+                    if remaining <= 0:
+                        break
+                    if self.is_paused:
+                        pause_at = time.time()
+                        while self.is_paused and not self._stop.is_set():
+                            time.sleep(0.01)
+                        if self._stop.is_set(): return
+                        target += time.time() - pause_at  # shift deadline by pause duration
+                    else:
+                        time.sleep(min(0.005, remaining))
+                now = time.time()
+                if msg.type == 'set_tempo':
+                    tempo = msg.tempo
+                if not msg.is_meta:
+                    self.midi_out.send(msg)
         except Exception as e:
             print(f"MIDI error: {e}")
         finally:
@@ -303,12 +360,17 @@ class Display:
             self.fl = ImageFont.truetype(f"{sans}-Bold.ttf", 30)    # set selector large label
         except:
             self.fb = self.fm = self.fs = self.fe = self.fp = self.fl = ImageFont.load_default()
-        self._lock          = threading.Lock()
-        self._state         = None
-        self._ticker_text   = ''
-        self._ticker_prefix = ''   # static track-number prefix
-        self._ticker_offset = 0.0
-        self._dirty         = False
+        self._lock           = threading.Lock()
+        self._state          = None
+        self._ticker_text    = ''
+        self._ticker_prefix  = ''   # static track-number prefix
+        self._ticker_offset  = 0.0
+        self._dirty          = False
+        self._kb_prog_active = False
+        self._kb_prog_name   = ''
+        self._kb_prog_start  = 0.0
+        self._kb_prog_dur    = 0.0
+        self._kb_prog_thread = None
         self._clear()
         self._text(10, 20, "Performance Rig", self.fm)
         self._text(20, 40, "Initializing...", self.fs)
@@ -397,7 +459,6 @@ class Display:
         cnt = None
         if state['playing']:
             cnt = "PAUSED" if state['paused'] else f"{int(state['remaining_s'])//60}:{int(state['remaining_s'])%60:02d} left"
-            cnt = ' '.join(cnt)
         if cnt:
             self._text((W - self._tw(cnt, self.fs)) // 2, 15, cnt, self.fs)
 
@@ -435,11 +496,76 @@ class Display:
         y  = (H // 2 - 18) + y_offset   # 18 ≈ half of 30pt cap height
         self._text(x, y, name, self.fl)
 
-    def show_set_name(self, name):
-        """Render set name centered and push to OLED."""
+    def show_set_name(self, name, hint=''):
+        """Render set name centered and push to OLED. hint= small text at bottom."""
         with self._lock:
             self._clear()
             self._draw_set_name(name)
+            if hint:
+                hw = self._tw(hint, self.fs)
+                self._text((W - hw) // 2, H - 11, hint, self.fs)
+            self._show()
+
+    def start_kb_progress(self, set_name, duration):
+        """Begin a determinate progress bar on the set screen timed to `duration` seconds.
+        After the bar fills, shows '_wait_for_device' until stop_kb_progress() is called."""
+        with self._lock:
+            self._kb_prog_active = True
+            self._kb_prog_name   = set_name
+            self._kb_prog_start  = time.monotonic()
+            self._kb_prog_dur    = duration
+        if self._kb_prog_thread is None or not self._kb_prog_thread.is_alive():
+            self._kb_prog_thread = threading.Thread(target=self._kb_progress_loop, daemon=True)
+            self._kb_prog_thread.start()
+
+    def stop_kb_progress(self):
+        """Stop the progress bar and redraw a clean set name."""
+        with self._lock:
+            if not self._kb_prog_active:
+                return
+            self._kb_prog_active = False
+            name = self._kb_prog_name
+            self._clear()
+            self._draw_set_name(name)
+            self._show()
+
+    def update_kb_progress_name(self, name):
+        """Update the set name shown while the progress bar is active."""
+        with self._lock:
+            self._kb_prog_name = name
+
+    def _kb_progress_loop(self):
+        # Determinate bar: outline rect at bottom, inner fill grows left→right over duration.
+        # After duration elapses, replaces bar with '_wait_for_device' text until stopped.
+        BX, BY, BW, BH = 4, H - 6, W - 8, 4   # outer bounds (inclusive)
+        while True:
+            with self._lock:
+                if not self._kb_prog_active:
+                    break
+                name    = self._kb_prog_name
+                elapsed = time.monotonic() - self._kb_prog_start
+                dur     = self._kb_prog_dur
+                done    = elapsed >= dur
+
+                self._clear()
+                self._draw_set_name(name)
+                frac   = min(1.0, elapsed / dur)
+                fill_w = max(1, int((BW - 2) * frac))
+                self.draw.rectangle((BX, BY, BX + BW, BY + BH), outline=1, fill=0)
+                self.draw.rectangle((BX + 1, BY + 1, BX + fill_w, BY + BH - 1), fill=1)
+                self._show()
+            time.sleep(0.05)   # ~20 fps
+
+    def show_hint(self, line1, line2=''):
+        """Two-line centered message (e.g. keyboard replug prompt)."""
+        with self._lock:
+            self._clear()
+            y1 = 16 if line2 else (H // 2 - 6)
+            x1 = (W - self._tw(line1, self.fm)) // 2
+            self._text(x1, y1, line1, self.fm)
+            if line2:
+                x2 = (W - self._tw(line2, self.fm)) // 2
+                self._text(x2, y1 + 22, line2, self.fm)
             self._show()
 
     def animate_set_transition(self, old_name, new_name, direction_up):
@@ -479,20 +605,109 @@ class Keyboard:
     Combo keys (UP+LEFT+RIGHT): individual actions are suppressed while combo
     keys are forming; fired on release if the combo was never completed.
     """
-    EXCLUDE           = ('vc4-hdmi', 'cec', 'consumer control', 'zoom', 'l6')
-    COMBO_EXIT        = frozenset([KEY_UP, KEY_LEFT, KEY_RIGHT])
-    RECONNECT_DELAY   = 0.5   # seconds between reconnect attempts
+    EXCLUDE               = ('vc4-hdmi', 'cec', 'consumer control', 'zoom', 'l6')
+    COMBO_EXIT            = frozenset([KEY_UP, KEY_LEFT, KEY_RIGHT])
+    RECONNECT_DELAY       = 0.5   # seconds between reconnect attempts
+    SILENT_REBIND_TIMEOUT = 8.0   # auto power-cycle if grabbed device sends no events within this many seconds
 
-    def __init__(self, callback, on_exit=None, name_filter=None):
-        self.callback    = callback
-        self.on_exit     = on_exit
-        self.running     = False
-        self.name_filter = name_filter
+    def __init__(self, callback, on_exit=None, name_filter=None, startup_rebind=True, on_auto_rebind=None, on_timed_wait=None):
+        self.callback        = callback
+        self.on_exit         = on_exit
+        self.running         = False
+        self.name_filter     = name_filter
+        self._startup_rebind = startup_rebind
+        self.on_auto_rebind  = on_auto_rebind
+        self._on_timed_wait  = on_timed_wait
         self._held             = set()
         self._combo_triggered  = False
         self._lock             = threading.Lock()
         self._stop_evt         = threading.Event()
+        # True once _probe_unresponsive_ports has already done a 12s VBUS cut.
+        # In that case _loop skips the startup rebind — probe and rebind both cut
+        # power for the same reason; doing it twice wastes ~30s and doesn't help.
+        self._probe_did_power_cycle  = False
+        # True once any real key event has been received from this keyboard instance.
+        # The silent-rebind timeout and on_timed_wait are boot-time recovery tools;
+        # once we know the keyboard is working they must not fire again (e.g. when
+        # the user manually turns the keyboard off with its onboard switch).
+        self._ever_received_event    = False
+        if startup_rebind:
+            # If any USB port is connected but not enumerated (stuck firmware), cycle it
+            # before scanning for devices.  This handles the common KeySilk boot failure
+            # where the device shows "connect []" in uhubctl but never appears in evdev.
+            self._probe_unresponsive_ports()
         self.devices           = self._find_devices(name_filter)
+
+    @staticmethod
+    def _uhubctl_stuck_ports():
+        """Return list of (hub_location, port_str) that show 'connect []' (no device descriptor)."""
+        r = subprocess.run(['uhubctl'], capture_output=True, text=True, timeout=15)
+        if r.returncode != 0:
+            print(f"Keyboard: uhubctl failed (rc={r.returncode}): {r.stderr.strip()}")
+            return []
+        # Log full uhubctl output so port state is visible in boot.log
+        for line in r.stdout.splitlines():
+            print(f"Keyboard: uhubctl: {line}")
+        stuck = []
+        current_hub = None
+        for line in r.stdout.splitlines():
+            m = re.match(r'Current status for hub (\S+)', line)
+            if m:
+                current_hub = m.group(1)
+                continue
+            m = re.match(r'\s+Port (\d+):.*\bconnect\b.*\[\]\s*$', line)
+            if m and current_hub:
+                stuck.append((current_hub, m.group(1)))
+        return stuck
+
+    # Seconds to hold a stuck port powered-off before restoring power.
+    # The KeySilk (4132:2107) draws parasitic power from the D+/D- lines
+    # and maintains bad firmware state through short cycles; 12s is enough
+    # to drain its internal capacitors fully.
+    STUCK_PORT_OFF_SECS = 12.0
+
+    def _probe_unresponsive_ports(self):
+        """Scan for USB ports connected but not enumerated ('connect []') and fix them.
+
+        Strategy: cut port power, hold off for STUCK_PORT_OFF_SECS (long enough for
+        the device's internal capacitors to drain), then restore power and wait for
+        enumeration.  Short uhubctl -a cycle durations don't work because the device
+        draws parasitic power from D+/D- and stays in a bad state.
+
+        Returns True if any stuck port was found and acted on."""
+        try:
+            stuck = self._uhubctl_stuck_ports()
+            if not stuck:
+                return False
+
+            # Cut power to all stuck ports first (do all off-transitions together
+            # so they drain in parallel).
+            for hub, port in stuck:
+                print(f"Keyboard: hub {hub} port {port} connected but not enumerated — cutting power...")
+                subprocess.run(
+                    ['uhubctl', '-l', hub, '-p', port, '-a', 'off'],
+                    capture_output=True, text=True, timeout=20
+                )
+
+            print(f"Keyboard: waiting {self.STUCK_PORT_OFF_SECS:.0f}s for device capacitors to drain...")
+            self._probe_did_power_cycle = True   # skip startup rebind — already did a 12s VBUS cut
+            if self._on_timed_wait and not self._ever_received_event:
+                self._on_timed_wait(self.STUCK_PORT_OFF_SECS + 4.0)
+            time.sleep(self.STUCK_PORT_OFF_SECS)
+
+            # Restore power to all stuck ports.
+            for hub, port in stuck:
+                print(f"Keyboard: restoring power to hub {hub} port {port}...")
+                subprocess.run(
+                    ['uhubctl', '-l', hub, '-p', port, '-a', 'on'],
+                    capture_output=True, text=True, timeout=10
+                )
+
+            time.sleep(4.0)  # allow re-enumeration time
+            return True
+        except Exception as e:
+            print(f"Keyboard: probe_unresponsive_ports error: {e}")
+            return False
 
     def _find_devices(self, name_filter):
         def _scan(filter_fn=None):
@@ -502,14 +717,25 @@ class Keyboard:
                     dev  = InputDevice(path)
                     if any(x in dev.name.lower() for x in self.EXCLUDE): continue
                     if filter_fn and not filter_fn(dev.name): continue
-                    # Skip secondary USB HID interfaces (/input1, /input2, …)
-                    if re.search(r'/input[1-9]\d*$', dev.phys or ''): continue
                     keys = dev.capabilities(verbose=False).get(ecodes.EV_KEY, [])
                     if all(k in keys for k in (KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT)):
                         found.append(dev)
-                        print(f"Keyboard: {dev.name}")
                 except Exception: pass
-            return found
+            # For multi-interface HID devices (same USB path, multiple /inputN),
+            # keep only the lowest-numbered interface — input0 is the standard
+            # keyboard interface (has EV_LED/EV_REP) and is the one that fires
+            # actual key events; higher interfaces are system-control/consumer pages.
+            usb_base = lambda d: re.sub(r'/input\d+$', '', d.phys or d.path)
+            by_base = {}
+            for dev in found:
+                base = usb_base(dev)
+                iface = int(m.group(1)) if (m := re.search(r'/input(\d+)$', dev.phys or '')) else 0
+                if base not in by_base or iface < by_base[base][0]:
+                    by_base[base] = (iface, dev)
+            deduped = [v for _, v in by_base.values()]
+            for dev in deduped:
+                print(f"Keyboard: {dev.name} ({dev.path})")
+            return deduped
 
         if name_filter:
             devs = _scan(lambda n: name_filter.lower() in n.lower())
@@ -526,14 +752,14 @@ class Keyboard:
         self.running = True
         if self.devices:
             for d in self.devices:
-                threading.Thread(target=self._loop, args=(d,), daemon=True).start()
+                threading.Thread(target=self._loop, args=(d,), kwargs={'startup': True}, daemon=True).start()
         else:
             # No device found at startup — spawn a reconnect watcher
             threading.Thread(target=self._reconnect_loop, daemon=True).start()
 
     def _try_usb_rebind(self, dev):
-        """Unbind/rebind the keyboard's USB device to break the display server's exclusive grab.
-        This simulates a hotplug: the device reappears fresh and un-grabbed."""
+        """Power-cycle the keyboard's USB port to reset device firmware.
+        Tries uhubctl (real hardware power cut) → sysfs authorized → sysfs unbind/rebind."""
         try:
             r = subprocess.run(
                 ['udevadm', 'info', '-q', 'path', dev.path],
@@ -541,8 +767,8 @@ class Keyboard:
             )
             if r.returncode != 0:
                 return False
-            # Path: /devices/.../usb2/2-1/2-1.4/2-1.4:1.0/.../event3
-            # Extract the USB device component (e.g. "2-1.4")
+            # Path: /devices/.../usb2/2-2/2-2:1.0/.../event3
+            # Extract the USB device component (e.g. "2-2")
             usb_dev = None
             for part in reversed(r.stdout.strip().split('/')):
                 if re.match(r'^\d+-[\d.]+$', part):
@@ -551,57 +777,151 @@ class Keyboard:
             if not usb_dev:
                 print("Keyboard: USB device not found in sysfs path")
                 return False
-            print(f"Keyboard: rebinding {usb_dev} to break display server grab...")
+
+            # uhubctl: actual hardware power cut to the USB port — resets firmware
+            # like a physical unplug.
+            # usb_dev is e.g. "2-2" (root hub) or "2-1.4" (downstream hub).
+            # Hub location = everything before the last separator; port = last number.
+            if '.' in usb_dev:
+                hub, port = usb_dev.rsplit('.', 1)   # "2-1" / "4"
+            else:
+                hub, port = usb_dev.rsplit('-', 1)   # "2"   / "2"
+            if hub and port.isdigit():
+                r2 = subprocess.run(
+                    ['uhubctl', '-l', hub, '-p', port, '-a', 'off'],
+                    capture_output=True, text=True, timeout=20
+                )
+                if r2.returncode == 0:
+                    print(f"Keyboard: uhubctl cut power hub {hub} port {port} — draining capacitors ({self.STUCK_PORT_OFF_SECS:.0f}s)...")
+                    if self._on_timed_wait and not self._ever_received_event:
+                        self._on_timed_wait(self.STUCK_PORT_OFF_SECS + 4.0)
+                    time.sleep(self.STUCK_PORT_OFF_SECS)
+                    subprocess.run(
+                        ['uhubctl', '-l', hub, '-p', port, '-a', 'on'],
+                        capture_output=True, text=True, timeout=10
+                    )
+                    print(f"Keyboard: power restored — waiting for re-enumeration...")
+                    time.sleep(4.0)
+                    return True
+                print(f"Keyboard: uhubctl failed ({r2.stderr.strip()}), trying authorized...")
+
+            # Fallback: sysfs authorized toggle (logical disconnect, no real power cut)
+            sysfs = f'/sys/bus/usb/devices/{usb_dev}'
+            try:
+                print(f"Keyboard: power-cycling {usb_dev} via authorized...")
+                with open(f'{sysfs}/authorized', 'w') as f:
+                    f.write('0')
+                time.sleep(0.5)
+                with open(f'{sysfs}/authorized', 'w') as f:
+                    f.write('1')
+                time.sleep(2.0)
+                print("Keyboard: authorized cycle done — waiting for device to reappear...")
+                return True
+            except Exception as e:
+                print(f"Keyboard: authorized cycle failed ({e}), falling back to sysfs rebind...")
+
+            # Last resort: sysfs unbind/rebind (restarts driver only)
+            print(f"Keyboard: rebinding {usb_dev}...")
             with open('/sys/bus/usb/drivers/usb/unbind', 'w') as f:
                 f.write(usb_dev)
             time.sleep(0.5)
             with open('/sys/bus/usb/drivers/usb/bind', 'w') as f:
                 f.write(usb_dev)
-            print("Keyboard: USB rebind done — waiting for device to reappear...")
+            print("Keyboard: sysfs rebind done — waiting for device to reappear...")
             return True
         except Exception as e:
             print(f"Keyboard: USB rebind error: {e}")
             return False
 
     def _read_dev(self, dev):
-        """Grab and read one device until disconnect or stop. Returns True if should reconnect."""
-        try:
-            dev.grab()
-            print(f"Keyboard grabbed: {dev.name} ({dev.path})")
-        except OSError as e:
-            print(f"Keyboard grab failed ({dev.name}): {e}")
+        """Grab and read one device until disconnect or stop. Returns True if should reconnect.
+
+        Uses select() rather than read_loop() so we can detect a grabbed-but-silent
+        device (common with the KeySilk after a Pi reboot) and automatically
+        power-cycle it again without any user intervention.
+        """
+        # Retry grab for up to 2s — compositor may briefly hold device after
+        # a previous KB releases it (e.g. the set-selection keyboard handing off).
+        grabbed = False
+        for attempt in range(20):
+            try:
+                dev.grab()
+                print(f"Keyboard grabbed: {dev.name} ({dev.path})")
+                grabbed = True
+                break
+            except OSError:
+                time.sleep(0.1)
+        if not grabbed:
+            print(f"Keyboard grab failed ({dev.name}) after retries — resetting USB")
             self._try_usb_rebind(dev)  # force re-enumeration to break compositor grab
             return True   # reconnect loop will find the re-appeared device
 
+        # Clear any keys that were "held" before disconnect — they'll never get a
+        # key-up event and would cause phantom callbacks on the next session.
+        with self._lock:
+            if self._held:
+                print(f"Keyboard: clearing {len(self._held)} stuck key(s) from held set: {self._held}")
+            self._held.clear()
+            self._combo_triggered = False
+
+        first_input  = False
+        silent_since = time.monotonic()
+
         try:
-            for ev in dev.read_loop():
-                if not self.running: return False
-                if ev.type != ecodes.EV_KEY: continue
-                state = categorize(ev).keystate
-                code  = ev.code
+            while self.running:
+                ready, _, _ = _select.select([dev.fd], [], [], 1.0)
+                if not self.running:
+                    return False
 
-                if state == 1:   # key down
-                    with self._lock:
-                        self._held.add(code)
-                        held = frozenset(self._held)
-                    if code == KEY_ESC and self.on_exit:
-                        self.on_exit()
-                    elif held >= self.COMBO_EXIT and self.on_exit:
+                if not ready:
+                    # No event arrived — check silent-rebind threshold (only before first keypress,
+                    # and only if no event has ever been received on this keyboard instance).
+                    if not self._ever_received_event and (time.monotonic() - silent_since) >= self.SILENT_REBIND_TIMEOUT:
+                        print(f"Keyboard: no events for {self.SILENT_REBIND_TIMEOUT:.0f}s after grab — auto power-cycling...")
+                        if self.on_auto_rebind:
+                            self.on_auto_rebind()
+                        self._try_usb_rebind(dev)
+                        return True   # _loop will call _wait_for_device and retry
+                    continue
+
+                for ev in dev.read():
+                    if not self.running:
+                        return False
+                    if ev.type != ecodes.EV_KEY:
+                        continue
+                    state = categorize(ev).keystate
+                    code  = ev.code
+                    if state not in (0, 1):   # ignore key-repeat (state==2)
+                        continue
+                    if not first_input:
+                        print(f"Keyboard: first event — state={state} code={code}")
+                    first_input = True
+                    self._ever_received_event = True   # disable silent-rebind and boot-bar permanently
+
+                    if state == 1:   # key down
                         with self._lock:
-                            self._combo_triggered = True
-                        self.on_exit()
-                    elif code not in self.COMBO_EXIT:
-                        self.callback(code)
+                            self._held.add(code)
+                            held = frozenset(self._held)
+                        print(f"Keyboard: DOWN code={code} held={set(held)}")
+                        if code == KEY_ESC and self.on_exit:
+                            self.on_exit()
+                        elif held >= self.COMBO_EXIT and self.on_exit:
+                            with self._lock:
+                                self._combo_triggered = True
+                            self.on_exit()
+                        elif code not in self.COMBO_EXIT:
+                            self.callback(code)
 
-                elif state == 0:  # key up
-                    with self._lock:
-                        was_combo_key = code in self.COMBO_EXIT and code in self._held
-                        was_triggered = self._combo_triggered
-                        self._held.discard(code)
-                        if not (self._held & self.COMBO_EXIT):
-                            self._combo_triggered = False
-                    if was_combo_key and not was_triggered:
-                        self.callback(code)
+                    elif state == 0:  # key up
+                        with self._lock:
+                            was_combo_key = code in self.COMBO_EXIT and code in self._held
+                            was_triggered = self._combo_triggered
+                            self._held.discard(code)
+                            if not (self._held & self.COMBO_EXIT):
+                                self._combo_triggered = False
+                        print(f"Keyboard: UP   code={code} combo_key={was_combo_key} triggered={was_triggered}")
+                        if was_combo_key and not was_triggered:
+                            self.callback(code)
 
         except OSError as e:
             print(f"Keyboard disconnected ({dev.name}): {e}")
@@ -615,7 +935,22 @@ class Keyboard:
 
         return False
 
-    def _loop(self, dev):
+    def _loop(self, dev, startup=False):
+        if startup and self._startup_rebind:
+            if self._probe_did_power_cycle:
+                print("Keyboard: skipping startup rebind — probe already cut VBUS")
+        if startup and self._startup_rebind and not self._probe_did_power_cycle:
+            # Proactively rebind at boot to reset the device — avoids the case where
+            # the keyboard is found and grabbed successfully but never fires events
+            # until power-cycled (common with the KeySilk after a Pi reboot).
+            # Skipped if _probe_unresponsive_ports already did a 12s VBUS cut so we
+            # don't triple-cycle the device (probe + startup rebind + silent rebind).
+            print("Keyboard: startup rebind (no prior probe)")
+            if self._try_usb_rebind(dev):
+                print("Keyboard: startup rebind done — waiting for device to reappear...")
+                dev = self._wait_for_device()
+                if dev is None:
+                    return
         while self.running:
             if not self._read_dev(dev):
                 break
@@ -631,10 +966,12 @@ class Keyboard:
         print("Keyboard: waiting for device to appear...")
         dev = self._wait_for_device()
         if dev:
-            self._loop(dev)
+            self._loop(dev, startup=True)
 
     def _wait_for_device(self):
         """Block until a matching keyboard appears or stop() is called. Returns device or None."""
+        probe_interval = 10.0   # if device still missing after this many seconds, probe again
+        last_probe     = time.monotonic()
         while self.running:
             self._stop_evt.wait(self.RECONNECT_DELAY)
             if not self.running:
@@ -642,6 +979,11 @@ class Keyboard:
             devs = self._find_devices(self.name_filter)
             if devs:
                 return devs[0]
+            # Device not found — if a port is stuck (connect []) cycle it periodically
+            now = time.monotonic()
+            if now - last_probe >= probe_interval:
+                self._probe_unresponsive_ports()
+                last_probe = now
         return None
 
     def stop(self):
@@ -654,9 +996,10 @@ class Keyboard:
 class Rig:
     def __init__(self):
         print("Starting Performance Rig...")
-        self._exit_evt       = threading.Event()
-        self._set_start_time = None
-        self._proc           = None
+        self._exit_evt              = threading.Event()
+        self._set_start_time        = None
+        self._proc                  = None
+        self._set_selection_rebound = False   # set to True if set-selection kb already rebound
         self._stop_panel()
         self._stop_argon()
         self.display = Display()
@@ -664,18 +1007,23 @@ class Rig:
         self._launch_processing()
         selected_set  = self._select_set()
         self.tracks   = TrackManager(MUSIC_ROOT, selected_set)
-        self.keyboard = Keyboard(self._on_key, on_exit=self._request_exit, name_filter=KEYBOARD_NAME)
+        self._key_q   = queue.Queue()
+        # Skip startup rebind if set selection already reset the device
+        self.keyboard = Keyboard(lambda code: self._key_q.put_nowait(code),
+                                 on_exit=self._request_exit,
+                                 name_filter=KEYBOARD_NAME,
+                                 startup_rebind=not self._set_selection_rebound)
 
         if not self.tracks.tracks:
             self.display.error("No tracks!"); sys.exit(1)
-
         self._refresh_display()
         self.keyboard.start()
         threading.Thread(target=self._display_loop, daemon=True).start()
+        threading.Thread(target=self._key_dispatch_loop, daemon=True).start()
         print("Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit")
 
     def _select_set(self):
-        """Block on OLED set-picker until user confirms with ← or →. Returns chosen set Path."""
+        """Block on OLED set-picker until user confirms with ↓/↑. Returns chosen set Path."""
         sets = sorted(MUSIC_ROOT.glob("set-*"))
         if len(sets) <= 1:
             return sets[0] if sets else None
@@ -685,25 +1033,46 @@ class Rig:
         self.display.show_set_name(label(idx))
 
         key_q = queue.Queue()
-        kb    = Keyboard(lambda code: key_q.put(code), name_filter=KEYBOARD_NAME)
+
+        def _on_timed_wait(duration):
+            # Called from Keyboard thread when a VBUS cut begins — show progress bar.
+            self.display.start_kb_progress(label(idx), duration)
+
+        # startup_rebind=True resets the KeySilk on boot; the performance keyboard
+        # skips its own rebind since the device is already fresh after set selection.
+        # on_auto_rebind is not needed here — _on_timed_wait handles the display, and
+        # stop_kb_progress() is called on every real key so the bar always clears correctly.
+        kb = Keyboard(lambda code: key_q.put(code), name_filter=KEYBOARD_NAME,
+                      startup_rebind=True,
+                      on_timed_wait=_on_timed_wait)
+        self._set_selection_rebound = True
         kb.start()
 
         selected = None
+
         while selected is None:
             try:
-                code = key_q.get(timeout=0.1)
+                code = key_q.get(timeout=0.5)
             except queue.Empty:
                 continue
+
+            # Real key arrived — keyboard is live. stop_kb_progress is idempotent
+            # (returns immediately if not active) so call it unconditionally; this
+            # also handles the case where the bar restarted due to a second power cycle.
+            self.display.stop_kb_progress()
+
             if code in (KEY_LEFT, KEY_RIGHT):
                 selected = sets[idx]
             elif code == KEY_UP:
                 new_idx = (idx - 1) % len(sets)
                 self.display.animate_set_transition(label(idx), label(new_idx), direction_up=True)
                 idx = new_idx
+                self.display.update_kb_progress_name(label(idx))
             elif code == KEY_DOWN:
                 new_idx = (idx + 1) % len(sets)
                 self.display.animate_set_transition(label(idx), label(new_idx), direction_up=False)
                 idx = new_idx
+                self.display.update_kb_progress_name(label(idx))
 
         kb.stop()
         time.sleep(0.1)   # let keyboard thread release device grab before performance KB starts
@@ -746,8 +1115,18 @@ class Rig:
             print("aconnect not found — sudo apt install alsa-utils")
 
     def _request_exit(self):
-        print("\nShutting down (key)")
+        print("\nShutdown (key)")
         self._exit_evt.set()
+
+    def _key_dispatch_loop(self):
+        """Drain the key queue in a dedicated thread so the keyboard read loop is never
+        blocked by slow operations (file reads, thread joins) in _on_key."""
+        while not self._exit_evt.is_set():
+            try:
+                code = self._key_q.get(timeout=0.1)
+            except queue.Empty:
+                continue
+            self._on_key(code)
 
     def _on_key(self, code):
         if   code == KEY_LEFT:  self.player.stop();          self.tracks.prev(); self._refresh_display()
@@ -796,13 +1175,31 @@ class Rig:
 
     def _restore_panel(self):
         """Bring the taskbar back under its supervisor so it stays stable."""
-        env = {**os.environ, 'DISPLAY': ':0'}
-        xauth = '/home/nmlstyl/.Xauthority'
-        if os.path.exists(xauth):
-            env['XAUTHORITY'] = xauth
-        subprocess.Popen(['lwrespawn', 'wf-panel-pi'], env=env,
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print("Taskbar restored")
+        # Kill any ghost lwrespawn left over from a previous (failed) restore attempt
+        subprocess.run(['pkill', '-f', 'lwrespawn.*wf-panel-pi'], capture_output=True)
+        time.sleep(0.2)
+        uid_r = subprocess.run(['id', '-u', 'nmlstyl'], capture_output=True, text=True)
+        uid   = uid_r.stdout.strip() or '1000'
+        xdg   = f'/run/user/{uid}'
+        # Detect the active Wayland socket from XDG_RUNTIME_DIR
+        wayland = 'wayland-0'
+        try:
+            socks = [p for p in Path(xdg).iterdir()
+                     if p.name.startswith('wayland-') and p.suffix != '.lock']
+            if socks:
+                wayland = socks[0].name
+        except Exception:
+            pass
+        subprocess.Popen(
+            ['sudo', '-u', 'nmlstyl', 'env',
+             f'XDG_RUNTIME_DIR={xdg}',
+             f'WAYLAND_DISPLAY={wayland}',
+             'DISPLAY=:0',
+             'XAUTHORITY=/home/nmlstyl/.Xauthority',
+             'lwrespawn', 'wf-panel-pi'],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
+        print(f"Taskbar restored (WAYLAND_DISPLAY={wayland})")
 
     def _stop_argon(self):
         self._argon_svcs = []
