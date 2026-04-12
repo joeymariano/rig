@@ -7,17 +7,30 @@ Synchronizes four systems for live stage performance:
   - USB Keyboard   evdev arrow keys + ESC/combo detection  (Keyboard)
   - OLED Display   SSD1306 128×64 via I2C                  (Display)
   - 4-ch Audio     sounddevice → Zoom L6:
-                     ch 1-2: <song>.wav  (FOH — any name without 'metronome')
-                     ch 3-4: <song>_metronome.wav (in-ear click)  (Player)
-  - Argon DAC      title audio mirrored to front 3.5mm     (Player)
+                     ch 1-2: FOH track (see file naming below)
+                     ch 3-4: in-ear click track              (Player)
+  - Argon DAC      FOH audio mirrored to front 3.5mm jack   (Player)
   - MIDI Playback  mido virtual port → VirMIDI → Processing sketch  (Player)
+
+Song folder file naming (names are flexible — matched by keyword):
+  <anything>.wav               FOH / full mix (no 'metronome' or 'drumless' in name)
+  <anything>_drumless.wav      Drumless FOH mix (contains 'drumless', not 'metronome')
+  <anything>_metronome.wav     Click track (contains 'metronome')
+  <anything>.mid or .midi      MIDI for Processing (only one per folder)
+
+  Example: "My Song.wav", "My Song_drumless.wav", "My Song_metronome.wav", "My Song.mid"
+  Ableton project names work fine as-is.
+
+Keyboard controls:
+  Set screen   ↑/↓  navigate sets   ◄ launch drumless mode   ► launch with drums
+  Song screen  ◄/►  prev/next song   ↓ play   ↑ pause/resume   ↑+◄+► quit
 
 Thread model:
   main             Rig.run() — monitors Processing exit, drives shutdown
   keyboard(s)      one thread per evdev device — read loop, enqueues key codes
   key_dispatch     Rig._key_dispatch_loop() — drains key queue, calls _on_key
   audio            Player._audio_loop() — streams 4-ch interleaved blocks to Zoom L6
-  dac              Player._dac_loop() — streams 2-ch title blocks to Argon DAC
+  dac              Player._dac_loop() — streams 2-ch FOH blocks to Argon DAC
   midi             Player._midi_loop() — sends timed MIDI messages
   render           Rig._display_loop() — ticks ticker, refreshes state, calls render_if_dirty
 
@@ -28,6 +41,8 @@ Design notes:
     stalled waiting for the bus.
   - Elapsed-clock image (80 pt font, LANCZOS rescale) is cached per integer second
     and reused across all 20 fps render calls within that second.
+  - Drumless mode is selected once at the set screen and applies to the whole set.
+    If a song has no drumless file, the full mix plays regardless of mode.
 """
 
 import os, re, sys, time, threading, subprocess, signal, queue, select as _select
@@ -87,10 +102,12 @@ class Track:
     def __init__(self, path):
         self.path          = Path(path)
         wavs = sorted(self.path.glob("*.wav"))
-        metro = [w for w in wavs if 'metronome' in w.name.lower()]
-        other = [w for w in wavs if 'metronome' not in w.name.lower()]
-        self.metronome_wav = metro[0] if metro else None
-        self.title_wav     = other[0] if other else None
+        metro    = [w for w in wavs if 'metronome' in w.name.lower()]
+        drumless = [w for w in wavs if 'drumless'  in w.name.lower() and 'metronome' not in w.name.lower()]
+        other    = [w for w in wavs if 'metronome' not in w.name.lower() and 'drumless' not in w.name.lower()]
+        self.metronome_wav = metro[0]    if metro    else None
+        self.drumless_wav  = drumless[0] if drumless else None
+        self.title_wav     = other[0]    if other    else None
         midi_files = sorted(self.path.glob("*.mid")) + sorted(self.path.glob("*.midi"))
         self.midi_file = midi_files[0] if midi_files else None
         self.song_name     = self.path.parts[-1]
@@ -210,11 +227,12 @@ class Player:
         print("WARNING: Argon DAC not found; headphone output disabled")
         return None
 
-    def play(self, track):
+    def play(self, track, drumless=False):
         if self.is_playing:
             self.stop()
+        title_wav = track.drumless_wav if drumless and track.drumless_wav else track.title_wav
         try:
-            title_data, sr  = sf.read(str(track.title_wav),     dtype='float32')
+            title_data, sr  = sf.read(str(title_wav),           dtype='float32')
             metro_data, msr = sf.read(str(track.metronome_wav), dtype='float32')
             midi            = MidiFile(str(track.midi_file))
         except Exception as e:
@@ -528,6 +546,19 @@ class Display:
 
         self._show()
 
+    def _draw_drum_icon(self, x, y, drumless=False):
+        """Draw a ~20×20 drum icon at pixel (x, y). drumless=True adds an X overlay."""
+        d = self.draw
+        # Shell (rectangle) and head (ellipse on top)
+        d.rectangle([x+1, y+8, x+18, y+19], outline=255)
+        d.ellipse(  [x+1, y+5, x+18, y+11], outline=255)
+        # Two crossed drumsticks above the head
+        d.line([x+5,  y,   x+9,  y+6], fill=255, width=1)
+        d.line([x+14, y,   x+10, y+6], fill=255, width=1)
+        if drumless:
+            d.line([x+1,  y+1,  x+18, y+19], fill=255, width=2)
+            d.line([x+18, y+1,  x+1,  y+19], fill=255, width=2)
+
     def _draw_set_name(self, name, y_offset=0):
         """Draw SET XX centered with a vertical offset (for animation). No lock — caller holds it."""
         tw = self._tw(name, self.fl)
@@ -536,10 +567,12 @@ class Display:
         self._text(x, y, name, self.fl)
 
     def show_set_name(self, name, hint=''):
-        """Render set name centered and push to OLED. hint= small text at bottom."""
+        """Render set name centered with drum mode icons and push to OLED."""
         with self._lock:
             self._clear()
             self._draw_set_name(name)
+            self._draw_drum_icon(4,       40, drumless=True)   # left  = drumless
+            self._draw_drum_icon(W - 23,  40, drumless=False)  # right = drums
             if hint:
                 hw = self._tw(hint, self.fs)
                 self._text((W - hw) // 2, H - 11, hint, self.fs)
@@ -573,6 +606,8 @@ class Display:
                 self._clear()
                 self._draw_set_name(old_name, old_y)
                 self._draw_set_name(new_name, new_y)
+                self._draw_drum_icon(4,      40, drumless=True)
+                self._draw_drum_icon(W - 23, 40, drumless=False)
                 self._show()
             time.sleep(0.025)
 
@@ -784,7 +819,7 @@ class Rig:
         self.display = Display()
         self.player   = Player(VIRTUAL_MIDI_PORT, AUDIO_DEVICE)
         self._launch_processing()
-        selected_set  = self._select_set()
+        selected_set, self._drumless = self._select_set()
         self.tracks   = TrackManager(MUSIC_ROOT, selected_set)
         self._key_q   = queue.Queue()
         self.keyboard = Keyboard(lambda code: self._key_q.put_nowait(code),
@@ -800,10 +835,11 @@ class Rig:
         print("Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit")
 
     def _select_set(self):
-        """Block on OLED set-picker until user confirms with ↓/↑. Returns chosen set Path."""
+        """Block on OLED set-picker. Up/Down selects set; Left=drumless, Right=drums confirms.
+        Returns (set_path, drumless_bool)."""
         sets = sorted(MUSIC_ROOT.glob("set-*"))
-        if len(sets) <= 1:
-            return sets[0] if sets else None
+        if not sets:
+            return None, False
 
         idx   = 0
         label = lambda i: f"SET {i+1:02d}"
@@ -813,16 +849,18 @@ class Rig:
         kb = Keyboard(lambda code: key_q.put(code), name_filter=KEYBOARD_NAME)
         kb.start()
 
-        selected = None
+        result = None
 
-        while selected is None:
+        while result is None:
             try:
                 code = key_q.get(timeout=0.5)
             except queue.Empty:
                 continue
 
-            if code in (KEY_LEFT, KEY_RIGHT):
-                selected = sets[idx]
+            if code == KEY_LEFT:
+                result = (sets[idx], True)   # drumless
+            elif code == KEY_RIGHT:
+                result = (sets[idx], False)  # full mix with drums
             elif code == KEY_UP:
                 new_idx = (idx - 1) % len(sets)
                 self.display.animate_set_transition(label(idx), label(new_idx), direction_up=True)
@@ -834,8 +872,9 @@ class Rig:
 
         kb.stop()
         time.sleep(0.1)   # let keyboard thread release device grab before performance KB starts
-        print(f"Selected: {selected.name}")
-        return selected
+        selected, drumless = result
+        print(f"Selected: {selected.name}  mode={'drumless' if drumless else 'drums'}")
+        return selected, drumless
 
     def _launch_processing(self):
         if not PROCESSING_SKETCH.exists():
@@ -891,7 +930,7 @@ class Rig:
         elif code == KEY_RIGHT: self.player.stop();          self.tracks.next(); self._refresh_display()
         elif code == KEY_DOWN:
             t = self.tracks.current()
-            if t and self.player.play(t):
+            if t and self.player.play(t, drumless=self._drumless):
                 if self._set_start_time is None:
                     self._set_start_time = time.time()
                 self._refresh_display()
