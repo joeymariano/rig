@@ -27,15 +27,17 @@ bpm: 120
 platform: Ableton
 ```
 
-## Step 2: Check audio device index
+## Step 2: Audio device (usually skip this)
+
+`AUDIO_DEVICE = None` auto-detects the Zoom L6 by name. If auto-detect fails, pin it manually:
 
 ```bash
 python3 -c "import sounddevice as sd; print(sd.query_devices())"
 ```
 
-Find the Zoom L6 entry (e.g. `[2] L6: USB Audio`). Set in `controller.py`:
+Find the Zoom L6 entry (e.g. `[2] L6: USB Audio`) and set in `controller.py`:
 ```python
-AUDIO_DEVICE = 2   # or None to always auto-detect
+AUDIO_DEVICE = 2   # pin to specific index; None = always auto-detect
 ```
 
 ## Step 3: Run
@@ -72,6 +74,14 @@ Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
 | `↑` | Pause / Resume |
 | `ESC` | Exit |
 | `↑` + `←` + `→` | Exit combo |
+
+## Set Picker (boot screen)
+
+![Set picker screen](docs/screen_set_picker.png)
+
+Use `↑`/`↓` to navigate sets, then:
+- `←` — confirm in **drumless** mode
+- `→` — confirm in **full mix** mode (with drums)
 
 ## OLED
 

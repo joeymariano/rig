@@ -83,7 +83,7 @@ import board, busio
 from adafruit_ssd1306 import SSD1306_I2C
 from PIL import Image, ImageDraw, ImageFont
 
-# ── Config ───────────────────────────────────────────────────────────────────
+# ── Config ─────────────────────────────────────────────────────────────────── # README.md § "Configuration"
 MUSIC_ROOT        = Path("/home/nmlstyl/rig")
 PROCESSING_SKETCH = Path("/home/nmlstyl/sketchbook/sticker_spinner/linux-aarch64/sticker_spinner")
 VIRTUAL_MIDI_PORT = "RigMIDI"
@@ -99,6 +99,10 @@ KEY_ESC             = ecodes.KEY_ESC
 # ── Track / TrackManager ─────────────────────────────────────────────────────
 
 class Track:
+    """Song folder scan — reads WAVs, MIDI, and info.txt.
+
+    See README.md §§ "File Structure", "Configuration" for naming conventions.
+    """
     def __init__(self, path):
         self.path          = Path(path)
         wavs = sorted(self.path.glob("*.wav"))
@@ -163,7 +167,12 @@ class TrackManager:
 # ── Player ───────────────────────────────────────────────────────────────────
 
 class Player:
-    """Synchronized 4-channel audio + MIDI playback."""
+    """Synchronized 4-channel audio + MIDI playback.
+
+    Audio routing: ZOOM_L6_SETUP.md § "Channel Mapping".
+    Device detection: README.md §3 "Zoom L6 Multi-Channel Routing".
+    MIDI bridge: README.md §4 "VirMIDI Kernel Module".
+    """
     def __init__(self, midi_port, audio_device=None):
         self.audio_device   = audio_device
         self.is_playing     = False
@@ -190,6 +199,8 @@ class Player:
             print(f"MIDI cleanup: {e}")
 
     def _find_device(self):
+        # See README.md §3 — auto-detect searches for "zoom"/"l6"/"l-6" with ≥4 output ch.
+        # Troubleshooting: README.md § "Invalid number of channels / PaErrorCode -9998".
         devs = sd.query_devices()
         if self.audio_device is not None:
             try:
@@ -302,7 +313,11 @@ class Player:
                 stream.stop(); stream.close()
 
     def _audio_loop(self, data, sr, device, start):
-        """4-channel output to Zoom L6: ch1-2 title, ch3-4 metronome."""
+        """4-channel output to Zoom L6: ch1-2 title, ch3-4 metronome.
+
+        Channel layout: ZOOM_L6_SETUP.md § "Channel Mapping".
+        Click/dropout fix: README.md § "Audio clicks or dropouts".
+        """
         self._stream_loop(data, sr, device, 4, start, "Main audio")
 
     def _dac_loop(self, data, sr, device, start):
@@ -386,7 +401,11 @@ class Player:
 # ── Display ──────────────────────────────────────────────────────────────────
 
 class Display:
-    """SSD1306 128×64 OLED via I2C with scrolling tickers."""
+    """SSD1306 128×64 OLED via I2C with scrolling tickers.
+
+    Screen layout: README.md § "OLED Layout".
+    I2C setup: README.md §1 "Enable I2C".
+    """
     TICKER_SPEED = 1    # px per tick
     TICKER_DIR   = 1    # +1 = LTR scroll
     TICKER_GAP   = 14   # px gap between wrap-around repeats
@@ -505,7 +524,8 @@ class Display:
         # Countdown
         cnt = None
         if state['playing']:
-            cnt = "PAUSED" if state['paused'] else f"{int(state['remaining_s'])//60}:{int(state['remaining_s'])%60:02d} left"
+            rem = int(state['remaining_s'])
+            cnt = "PAUSED" if state['paused'] else f"{rem//60}:{rem%60:02d} left"
         if cnt:
             self._text((W - self._tw(cnt, self.fs)) // 2, 15, cnt, self.fs)
 
@@ -631,6 +651,9 @@ class Keyboard:
 
     Combo keys (UP+LEFT+RIGHT): individual actions are suppressed while combo
     keys are forming; fired on release if the combo was never completed.
+
+    Hardware requirements: README.md § "Keyboard Hardware".
+    Permissions: README.md §6 "Keyboard and I2C Permissions".
     """
     EXCLUDE         = ('vc4-hdmi', 'cec', 'consumer control', 'zoom', 'l6')
     COMBO_EXIT      = frozenset([KEY_UP, KEY_LEFT, KEY_RIGHT])
@@ -835,11 +858,16 @@ class Rig:
         self.keyboard.start()
         threading.Thread(target=self._display_loop, daemon=True).start()
         threading.Thread(target=self._key_dispatch_loop, daemon=True).start()
+        # Full controls: README.md § "Controls"; autostart: README.md §8.
         print("Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit")
 
     def _select_set(self):
-        """Block on OLED set-picker. Up/Down selects set; Left=drumless, Right=drums confirms.
-        Returns (set_path, drumless_bool)."""
+        """OLED set picker shown at every boot for set + mode selection.
+
+        Up/Down navigates sets. Left=drumless, Right=drums (with drums) confirms.
+        See README.md § "Set Selection Screen".
+        Returns (set_path, drumless_bool).
+        """
         sets = sorted(MUSIC_ROOT.glob("set-*"))
         if not sets:
             return None, False
@@ -894,7 +922,11 @@ class Rig:
         time.sleep(3)
 
     def _bridge_midi(self):
-        """Wire RigMIDI → VirMIDI via aconnect (must run before Processing opens the port)."""
+        """Wire RigMIDI → VirMIDI via aconnect.
+
+        Must run before Processing opens the port.
+        See README.md §4 "VirMIDI Kernel Module" — run patch_midi.sh if VirMIDI is missing.
+        """
         try:
             ins  = subprocess.run(['aconnect', '-i'], capture_output=True, text=True)
             outs = subprocess.run(['aconnect', '-o'], capture_output=True, text=True)
@@ -967,14 +999,21 @@ class Rig:
         return subprocess.run(cmd, capture_output=True)
 
     def _stop_panel(self):
-        """Hide the desktop taskbar while the rig is running."""
+        """Hide the desktop taskbar while the rig is running.
+
+        See README.md §7 "Desktop Taskbar" — do NOT kill the panel in autostart.
+        """
         subprocess.run(['pkill', '-f', 'lwrespawn.*wf-panel-pi'], capture_output=True)
         subprocess.run(['pkill', 'wf-panel-pi'], capture_output=True)
         time.sleep(0.5)
         print("Taskbar hidden")
 
     def _restore_panel(self):
-        """Bring the taskbar back under its supervisor so it stays stable."""
+        """Bring the taskbar back under lwrespawn so it stays stable.
+
+        Must run as nmlstyl (not root) with the correct Wayland env.
+        See README.md §7 "Desktop Taskbar".
+        """
         # Kill any ghost lwrespawn left over from a previous (failed) restore attempt
         subprocess.run(['pkill', '-f', 'lwrespawn.*wf-panel-pi'], capture_output=True)
         time.sleep(0.2)
@@ -1002,6 +1041,7 @@ class Rig:
         print(f"Taskbar restored (WAYLAND_DISPLAY={wayland})")
 
     def _stop_argon(self):
+        """Stop Argon OLED daemon on startup; restart on exit. See README.md §5."""
         self._argon_svcs = []
         for svc in ('argononed', 'argone-oled', 'argonone-led'):
             r = self._systemctl('stop', svc)

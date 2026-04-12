@@ -51,25 +51,17 @@ timing: 11/4
 
 ## Set Selection Screen
 
-On boot, if more than one `set-*/` folder is found, the OLED shows a set picker before the performance begins:
+Shown at every boot for set and mode selection:
 
-```
-┌────────────────────────┐
-│                        │
-│        SET 01          │  ← large centered label
-│                        │
-└────────────────────────┘
-```
+![Set picker screen](docs/screen_set_picker.png)
 
 | Key | Action |
 |-----|--------|
-| `↑` | Previous set (slides in from top) |
-| `↓` | Next set (slides in from bottom) |
-| `←` or `→` | Confirm selection and continue |
+| `↑` / `↓` | Navigate sets (slides in from top/bottom, wraps) |
+| `←` | Confirm — **drumless** mode (drum icon with ✕, left) |
+| `→` | Confirm — **full mix** mode (drum icon, right) |
 
-Sets wrap around. Once confirmed, the rig loads all tracks from the chosen set and enters the performance screen.
-
-If only one set folder exists, this screen is skipped automatically.
+Once confirmed, the rig loads all tracks from the selected set.
 
 ---
 
@@ -84,23 +76,22 @@ If only one set folder exists, this screen is skipped automatically.
 | `ESC` | Exit (graceful shutdown) |
 | `↑` + `←` + `→` | Exit combo (hold all three simultaneously) |
 
-The exit combo is non-destructive: if the combo is never completed, each key fires its normal action on release.
+If the combo is not completed, each key fires its normal action on release.
 
 ## OLED Layout
 
-```
-┌────────────────────────┐
-│01 Song Title 120bpm ..→│  ← scrolling ticker: track number + title/BPM/platform
-│    3 : 4 2   l e f t   │  ← countdown (or P A U S E D) while playing
-│                        │
-│        03:42           │  ← large set elapsed time (MM:SS), scales to fill
-│                        │
-└────────────────────────┘
-```
+**Playing:**
+![Playing screen](docs/screen_playing.png)
 
-- **Ticker** (top): large bold track number prefix on the left, scrolling small text on the right showing `title bpm platform`
-- **Countdown** (middle): remaining time for the current track (`M:SS left`) or `PAUSED` — characters are spaced out for readability
-- **Set clock** (bottom half): elapsed time since the first track of the set was started, rendered large and scaled to fit
+**Paused:**
+![Paused screen](docs/screen_paused.png)
+
+**Ready (before first play):**
+![Idle screen](docs/screen_idle.png)
+
+- **Ticker** (top): large track number on the left; scrolling `title bpm platform` on the right
+- **Countdown** (middle): remaining time (`M:SS left`) or `PAUSED`
+- **Set clock** (bottom half): elapsed time since the first track started, scaled to fill
 
 ---
 
@@ -141,9 +132,9 @@ PipeWire must be alive for the user session before `controller.py` starts — th
 
 The Zoom L6 presents as a multi-channel USB audio device. Connect via USB; no extra drivers needed on Pi OS.
 
-**`AUDIO_DEVICE = None` is the default** — the controller auto-detects the Zoom by searching sounddevice names for `"zoom"`, `"l6"`, or `"l-6"` with at least 4 output channels. No configuration needed in the normal case.
+**`AUDIO_DEVICE = None`** auto-detects by searching device names for `zoom`, `l6`, or `l-6` with ≥4 output channels. No configuration needed in the normal case.
 
-If auto-detect fails or you want to pin a specific device:
+To pin a specific device:
 ```bash
 python3 -c "import sounddevice as sd; print(sd.query_devices())"
 ```
@@ -153,7 +144,7 @@ Look for `L6: USB Audio` or `Zoom L-6`, then set the index in `controller.py`:
 AUDIO_DEVICE = 2      # pin to a specific device index
 ```
 
-If the pinned index is missing or has fewer than 4 output channels, the controller warns and falls back to auto-detect. If you see `PaErrorCode -9998` with a pinned index, the enumeration order changed after a reconnect — use `None` instead.
+If the index is stale after a reconnect (`PaErrorCode -9998`), use `None` instead.
 
 **Zoom L6 must be in 4-ch (multi-track) mode**, not stereo. On the device:
 - Menu → USB → Mode → Multi Track
@@ -184,21 +175,19 @@ aconnect -l
 # Should show: "Virtual Raw MIDI 0-0" or similar
 ```
 
-If VirMIDI doesn't appear, or after a fresh clone, run the full setup helper:
+If VirMIDI doesn't appear, run:
 ```bash
 sudo bash ~/rig/patch_midi.sh
 ```
 
-`patch_midi.sh` does three things:
+`patch_midi.sh` does three things (one-time only):
 1. Loads `snd_virmidi` and makes it persistent in `/etc/modules`
-2. Rewrites `MidiHandler.java` in the Processing sketch source to open the VirMIDI device instead of a named ALSA port
-3. Recompiles `MidiHandler.java` and hot-patches the compiled class back into `sticker_spinner.jar`
-
-This is a one-time operation. After running it, the Processing sketch will automatically connect to VirMIDI on every launch.
+2. Patches `MidiHandler.java` to open the VirMIDI device
+3. Recompiles and hot-patches the class into `sticker_spinner.jar`
 
 ### 5. Argon One V5 — Stopping the OLED Daemon
 
-The Argon One daemon controls the case OLED. On startup the rig tries to stop all three possible service names (`argononed`, `argone-oled`, `argonone-led`) and records which ones were actually running. On exit it restarts only those services.
+Stops all three Argon OLED service names (`argononed`, `argone-oled`, `argonone-led`) on startup and restarts only the ones that were active on exit.
 
 **Grant passwordless systemctl access** (only needed if running as a non-root user — see section 8):
 ```bash
@@ -220,31 +209,29 @@ sudo usermod -a -G input,i2c nmlstyl
 # log out and back in for group membership to take effect
 ```
 
-`evdev` keyboard access requires the `input` group; I2C requires the `i2c` group. Running without root and without these groups will cause keyboard grab and OLED display to fail.
+`evdev` needs the `input` group; I2C needs the `i2c` group. Without root or these groups, keyboard grab and OLED will fail.
 
 ### 7. Desktop Taskbar (labwc / wf-panel-pi)
 
-The rig runs under the labwc Wayland compositor. On startup, `controller.py` kills `lwrespawn wf-panel-pi` and `wf-panel-pi` to hide the taskbar during the performance. On exit it relaunches `lwrespawn wf-panel-pi` to restore it cleanly under its supervisor.
+On startup `controller.py` kills `wf-panel-pi`; on exit it relaunches it under `lwrespawn` to restore cleanly.
 
 **Do not kill the panel in autostart.** An earlier hack added these lines to `~/.config/labwc/autostart`:
 ```bash
 # BAD — causes panel to glitch / shell to break after controller exits
 sleep 1 && pkill -f "lwrespawn.*wf-panel-pi" && pkill wf-panel-pi &
 ```
-Killing `lwrespawn` externally and then trying to restart the panel manually causes it to oscillate between hide/show and eventually the shell stops responding.
-
-The controller handles the panel lifecycle itself — the autostart just needs to launch the controller (see section 8).
+Killing `lwrespawn` externally causes the panel to oscillate between hide/show until the shell stops responding. The controller manages the panel lifecycle — autostart just needs to launch the controller.
 
 ### 8. Autostart (recommended) vs Systemd Service
 
-**Use the labwc autostart** (`~/.config/labwc/autostart`) — this is the correct launch mechanism because `controller.py` needs the desktop session (Processing sketch needs a display, taskbar management requires labwc to be running).
+Launch from `~/.config/labwc/autostart` — the controller needs the desktop session (Processing needs a display, taskbar management needs labwc).
 
 The autostart waits for PipeWire before launching:
 ```bash
 bash -c 'until systemctl --user is-active pipewire > /dev/null 2>&1; do sleep 0.5; done; sudo python /home/nmlstyl/rig/controller.py' &
 ```
 
-**Do NOT enable `performance-rig.service` at the same time.** Running both causes a double-launch: the service fires at boot before the desktop exists, fails, then retries — colliding with the autostart once the desktop loads. Keep the service file disabled:
+**Do NOT enable `performance-rig.service`** — it fires before the desktop exists, fails, then retries and collides with the autostart. Keep it disabled:
 ```bash
 sudo systemctl disable performance-rig.service
 ```
@@ -329,7 +316,7 @@ evtest                            # list and test input devices
 ```
 
 **Keyboard grabbed but no events — silent-rebind loops forever**
-The keyboard enumerates on USB and gets grabbed, but sends zero HID reports. This means the device has no keymap in firmware and requires a host-side driver (common with driver-dependent keypads like the LINKEET KEY4T). The rig will power-cycle the USB port every ~20 seconds indefinitely. Solution: replace the keyboard with a plug-and-play HID device (see Keyboard Hardware section above).
+The device has no keymap in firmware and requires a host-side driver (see LINKEET KEY4T under Keyboard Hardware). Replace it with a plug-and-play HID keyboard.
 
 **Keyboard grab fails at startup**
 The display server may be holding an exclusive grab on the keyboard. The rig will automatically attempt a USB unbind/rebind to force re-enumeration and break the grab, then reconnect.
@@ -341,7 +328,7 @@ i2cdetect -y 1      # should show 0x3C
 ```
 
 **`Invalid number of channels` / `PaErrorCode -9998`**
-Only occurs when `AUDIO_DEVICE` is set to a fixed index and the enumeration order changed after a reconnect. Check:
+USB enumeration changed after a reconnect. Check the current index:
 ```bash
 python3 -c "import sounddevice as sd; print(sd.query_devices())"
 ```
@@ -396,7 +383,7 @@ self._midi_t = threading.Thread(target=self._midi_loop, args=(midi, start, 0.030
 **Tracks not found**
 ```bash
 tree ~/rig/ | head -30
-# Each song-XX folder needs title.wav, metronome.wav, midi-for-processing.midi
+# Each song-XX folder needs title.wav, metronome.wav, and a .mid file
 ```
 
 **Intermittent boot to terminal instead of GUI**
