@@ -226,9 +226,9 @@ Killing `lwrespawn` externally causes the panel to oscillate between hide/show u
 
 Launch from `~/.config/labwc/autostart` — the controller needs the desktop session (Processing needs a display, taskbar management needs labwc).
 
-The autostart waits for PipeWire before launching:
+The autostart waits for PipeWire then launches via the venv's Python (so all deps are available to root):
 ```bash
-bash -c 'until systemctl --user is-active pipewire > /dev/null 2>&1; do sleep 0.5; done; sudo python /home/nmlstyl/rig/controller.py' &
+bash -c 'until systemctl --user is-active pipewire > /dev/null 2>&1; do sleep 0.5; done; sudo /home/nmlstyl/rig/venv/bin/python /home/nmlstyl/rig/controller.py' &
 ```
 
 **Do NOT enable `performance-rig.service`** — it fires before the desktop exists, fails, then retries and collides with the autostart. Keep it disabled:
@@ -241,18 +241,74 @@ To check it's not running twice:
 pgrep -a python | grep controller
 ```
 
-### 9. Python Virtual Environment
+### 9. Python Dependencies
+
+Two ways to install. Pick one and use it consistently.
+
+---
+
+#### Option A — System-wide (simpler, current default)
+
+Installs packages into the system Python so `sudo python3` can find them directly.
 
 ```bash
-bash ~/rig/install_multichannel.sh
+sudo pip install sounddevice soundfile numpy mido python-rtmidi evdev \
+                 adafruit-circuitpython-ssd1306 pillow \
+                 --break-system-packages
 ```
 
-This creates `~/rig/venv` if needed and installs all dependencies. To install manually:
+> `--break-system-packages` is required on Pi OS 12 (Bookworm) and later — it acknowledges you're intentionally installing outside a venv.
+
+Autostart line:
+```bash
+bash -c 'until systemctl --user is-active pipewire > /dev/null 2>&1; do sleep 0.5; done; sudo python3 /home/nmlstyl/rig/controller.py' &
+```
+
+Manual run:
+```bash
+sudo python3 ~/rig/controller.py
+```
+
+---
+
+#### Option B — Virtual environment (isolated, recommended for clean installs)
+
+Keeps all rig packages separate from the system Python. `sudo` is pointed at the venv's binary directly — no activation needed.
 
 ```bash
-cd ~/rig && python3 -m venv venv && source venv/bin/activate
+bash ~/rig/install_multichannel.sh   # creates ~/rig/venv and installs all deps
+```
+
+Or manually:
+```bash
+cd ~/rig
+python3 -m venv venv
+source venv/bin/activate
 pip install sounddevice soundfile numpy mido python-rtmidi evdev \
             adafruit-circuitpython-ssd1306 pillow
+```
+
+Autostart line:
+```bash
+bash -c 'until systemctl --user is-active pipewire > /dev/null 2>&1; do sleep 0.5; done; sudo /home/nmlstyl/rig/venv/bin/python /home/nmlstyl/rig/controller.py' &
+```
+
+Manual run:
+```bash
+sudo ~/rig/venv/bin/python ~/rig/controller.py
+```
+
+---
+
+#### Switching between options
+
+If you switch from system-wide to venv (or vice versa), update the autostart line in `~/.config/labwc/autostart` to match. The two approaches don't conflict — they just use different Python binaries.
+
+To check which Python the rig is currently using:
+```bash
+pgrep -a python | grep controller
+# e.g. "sudo python3 ..." → system-wide
+# e.g. "sudo /home/nmlstyl/rig/venv/bin/python ..." → venv
 ```
 
 ---

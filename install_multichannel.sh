@@ -35,5 +35,6 @@ if not found:
 PYEOF
 
 echo ""
-echo "Done. Set AUDIO_DEVICE in controller.py if needed, then run:"
-echo "  sudo python3 ~/rig/controller.py"
+echo "Done. Set AUDIO_DEVICE in controller.py if needed."
+echo "The autostart uses this venv directly:"
+echo "  sudo /home/nmlstyl/rig/venv/bin/python /home/nmlstyl/rig/controller.py"

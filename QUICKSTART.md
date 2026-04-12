@@ -3,10 +3,22 @@
 ## Prerequisites (one-time setup)
 
 ```bash
-bash ~/rig/install_multichannel.sh   # creates venv + installs all Python deps
 sudo bash ~/rig/patch_midi.sh        # VirMIDI kernel module + Processing MIDI patch
 sudo bash ~/rig/setup_sudoers.sh     # passwordless systemctl for argon OLED daemon
 ```
+
+**Python deps — pick one:**
+
+```bash
+# Option A: system-wide (if your autostart uses `sudo python3`)
+sudo pip install sounddevice soundfile numpy mido python-rtmidi evdev \
+                 adafruit-circuitpython-ssd1306 pillow --break-system-packages
+
+# Option B: venv (if your autostart uses `sudo /home/nmlstyl/rig/venv/bin/python`)
+bash ~/rig/install_multichannel.sh
+```
+
+See README.md §9 for full details on both options.
 
 - Zoom L6 connected via USB, set to **Multi Track** mode (Menu → USB → Mode → Multi Track)
 - I2C enabled: `sudo raspi-config` → Interface Options → I2C → Enable
@@ -42,10 +54,10 @@ AUDIO_DEVICE = 2   # pin to specific index; None = always auto-detect
 
 ## Step 3: Run
 
-The controller normally launches automatically via `~/.config/labwc/autostart` on boot. To run manually:
+The controller launches automatically via `~/.config/labwc/autostart` on boot. To run manually:
 
 ```bash
-sudo python3 ~/rig/controller.py
+sudo ~/rig/venv/bin/python ~/rig/controller.py
 ```
 
 Expected startup output:
@@ -95,7 +107,7 @@ The rig is launched from `~/.config/labwc/autostart`, not as a systemd service. 
 
 ```bash
 # ~/.config/labwc/autostart
-bash -c 'until systemctl --user is-active pipewire > /dev/null 2>&1; do sleep 0.5; done; sudo python /home/nmlstyl/rig/controller.py' &
+bash -c 'until systemctl --user is-active pipewire > /dev/null 2>&1; do sleep 0.5; done; sudo /home/nmlstyl/rig/venv/bin/python /home/nmlstyl/rig/controller.py' &
 ```
 
 See README.md for full setup documentation.
