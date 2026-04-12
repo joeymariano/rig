@@ -7,8 +7,8 @@ Synchronizes four systems for live stage performance:
   - USB Keyboard   evdev arrow keys + ESC/combo detection  (Keyboard)
   - OLED Display   SSD1306 128×64 via I2C                  (Display)
   - 4-ch Audio     sounddevice → Zoom L6:
-                     ch 1-2: title.wav  (FOH)
-                     ch 3-4: metronome.wav (in-ear click)  (Player)
+                     ch 1-2: <song>.wav  (FOH — any name without 'metronome')
+                     ch 3-4: <song>_metronome.wav (in-ear click)  (Player)
   - Argon DAC      title audio mirrored to front 3.5mm     (Player)
   - MIDI Playback  mido virtual port → VirMIDI → Processing sketch  (Player)
 
@@ -86,9 +86,13 @@ KEY_ESC             = ecodes.KEY_ESC
 class Track:
     def __init__(self, path):
         self.path          = Path(path)
-        self.title_wav     = self.path / "title.wav"
-        self.metronome_wav = self.path / "metronome.wav"
-        self.midi_file     = self.path / "midi-for-processing.midi"
+        wavs = sorted(self.path.glob("*.wav"))
+        metro = [w for w in wavs if 'metronome' in w.name.lower()]
+        other = [w for w in wavs if 'metronome' not in w.name.lower()]
+        self.metronome_wav = metro[0] if metro else None
+        self.title_wav     = other[0] if other else None
+        midi_files = sorted(self.path.glob("*.mid")) + sorted(self.path.glob("*.midi"))
+        self.midi_file = midi_files[0] if midi_files else None
         self.song_name     = self.path.parts[-1]
         # Parse info.txt for title, bpm, platform, timing
         info = {}
@@ -110,7 +114,9 @@ class Track:
         except (TypeError, ValueError): self.bpm = None
 
     def is_complete(self):
-        return self.title_wav.exists() and self.metronome_wav.exists() and self.midi_file.exists()
+        return (self.title_wav is not None and self.title_wav.exists() and
+                self.metronome_wav is not None and self.metronome_wav.exists() and
+                self.midi_file is not None and self.midi_file.exists())
 
     def display_title(self):
         sn = ''.join(filter(str.isdigit, self.path.parts[-2]))
