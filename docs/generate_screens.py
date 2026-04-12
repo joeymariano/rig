@@ -18,8 +18,8 @@ from PIL import Image, ImageDraw, ImageFont
 W, H         = 128, 64
 TICKER_Y     = 1
 TICKER_GAP   = 14
-SCALE        = 3          # output at 3× native resolution (384×192) — integer-scaled, pixel-perfect
-BORDER       = 6          # px border around each screen
+SCALE        = 2          # output at 2× native resolution (256×128) — integer-scaled, pixel-perfect
+BORDER       = 3          # px border around each screen
 OLED_ON      = (230, 230, 218, 255)   # warm white — lit OLED pixel
 OLED_OFF     = (8,   8,   8,   255)   # near-black  — unlit OLED pixel
 OLED_BORDER  = (22,  22,  22,  255)   # slightly lighter for the bezel
@@ -145,8 +145,9 @@ def draw_drum_icon(draw, x, y, drumless=False):
     draw.line(     [x+5, y,    x+9,  y+6],  fill=255, width=1)
     draw.line(     [x+14, y,   x+10, y+6],  fill=255, width=1)
     if drumless:
-        draw.line([ x+1, y+1,  x+18, y+19], fill=255, width=2)
-        draw.line([x+18, y+1,  x+1,  y+19], fill=255, width=2)
+        # Pull endpoints 1px inward to prevent width=2 endpoint bleed at corners
+        draw.line([ x+2, y+2,  x+17, y+18], fill=255, width=2)
+        draw.line([x+17, y+2,  x+2,  y+18], fill=255, width=2)
 
 
 # ── Screen renderers ──────────────────────────────────────────────────────────
