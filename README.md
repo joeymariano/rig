@@ -91,7 +91,7 @@ If the combo is not completed, each key fires its normal action on release.
 
 - **Ticker** (top): large track number on the left; scrolling `title bpm platform` on the right
 - **Countdown** (middle): remaining time (`M:SS left`) or `PAUSED`
-- **Set clock** (bottom half): elapsed time since the first track started, scaled to fill
+- **Set clock** (bottom half): elapsed time since the first track started, rendered in large pixel font
 
 ---
 

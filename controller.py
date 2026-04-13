@@ -39,8 +39,8 @@ Design notes:
     joins) happens in the key-dispatch thread so the evdev read loop never blocks.
   - Display renders *outside* the lock (I2C ≈10 ms) so keyboard events are never
     stalled waiting for the bus.
-  - Elapsed-clock image (80 pt font, LANCZOS rescale) is cached per integer second
-    and reused across all 20 fps render calls within that second.
+  - Elapsed clock rendered with a 5×7 pixel bitmap font at 4× scale (PixelFont).
+    All display text uses PixelFont — no TTF rendering on the display path.
   - Drumless mode is selected once at the set screen and applies to the whole set.
     If a song has no drumless file, the full mix plays regardless of mode.
 """
@@ -81,7 +81,7 @@ import mido
 from mido import MidiFile, Message
 import board, busio
 from adafruit_ssd1306 import SSD1306_I2C
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 # ── Config ─────────────────────────────────────────────────────────────────── # README.md § "Configuration"
 MUSIC_ROOT        = Path("/home/nmlstyl/rig")
@@ -398,6 +398,101 @@ class Player:
         self.stop(); self.midi_out.close()
 
 
+# ── Pixel Font ───────────────────────────────────────────────────────────────
+
+class PixelFont:
+    """5×7 pixel bitmap font, scalable by an integer factor.
+
+    Lowercase letters render as uppercase (game-console aesthetic).
+    Unknown characters are silently skipped.
+    """
+
+    CHAR_W = 5
+    CHAR_H = 7
+
+    GLYPHS = {
+        ' ': ("00000","00000","00000","00000","00000","00000","00000"),
+        '0': ("01110","10001","10001","10001","10001","10001","01110"),
+        '1': ("00100","01100","00100","00100","00100","00100","01110"),
+        '2': ("01110","10001","00001","00010","00100","01000","11111"),
+        '3': ("01110","00001","00001","00111","00001","00001","01110"),
+        '4': ("00110","01010","10010","11111","00010","00010","00010"),
+        '5': ("11111","10000","10000","01111","00001","00001","01110"),
+        '6': ("01110","10000","10000","01111","10001","10001","01110"),
+        '7': ("11111","00001","00010","00100","01000","01000","01000"),
+        '8': ("01110","10001","10001","01110","10001","10001","01110"),
+        '9': ("01110","10001","10001","01111","00001","00010","01100"),
+        'A': ("01110","10001","10001","11111","10001","10001","10001"),
+        'B': ("11110","10001","10001","11110","10001","10001","11110"),
+        'C': ("01110","10001","10000","10000","10000","10001","01110"),
+        'D': ("11100","10010","10001","10001","10001","10010","11100"),
+        'E': ("11111","10000","10000","11110","10000","10000","11111"),
+        'F': ("11111","10000","10000","11110","10000","10000","10000"),
+        'G': ("01110","10001","10000","10111","10001","10001","01111"),
+        'H': ("10001","10001","10001","11111","10001","10001","10001"),
+        'I': ("01110","00100","00100","00100","00100","00100","01110"),
+        'J': ("00111","00010","00010","00010","10010","10010","01100"),
+        'K': ("10001","10010","10100","11000","10100","10010","10001"),
+        'L': ("10000","10000","10000","10000","10000","10000","11111"),
+        'M': ("10001","11011","10101","10001","10001","10001","10001"),
+        'N': ("10001","11001","10101","10011","10001","10001","10001"),
+        'O': ("01110","10001","10001","10001","10001","10001","01110"),
+        'P': ("11110","10001","10001","11110","10000","10000","10000"),
+        'Q': ("01110","10001","10001","10001","10101","10010","01101"),
+        'R': ("11110","10001","10001","11110","10100","10010","10001"),
+        'S': ("01111","10000","10000","01110","00001","00001","11110"),
+        'T': ("11111","00100","00100","00100","00100","00100","00100"),
+        'U': ("10001","10001","10001","10001","10001","10001","01110"),
+        'V': ("10001","10001","10001","01010","01010","00100","00100"),
+        'W': ("10001","10001","10101","10101","10101","11011","10001"),
+        'X': ("10001","01010","01010","00100","01010","01010","10001"),
+        'Y': ("10001","10001","01010","00100","00100","00100","00100"),
+        'Z': ("11111","00001","00010","00100","01000","10000","11111"),
+        ':': ("00000","01100","01100","00000","01100","01100","00000"),
+        '.': ("00000","00000","00000","00000","00000","01100","01100"),
+        '-': ("00000","00000","00000","11111","00000","00000","00000"),
+        '!': ("00100","00100","00100","00100","00000","00100","00000"),
+        '?': ("01110","10001","00001","00110","00100","00000","00100"),
+        '/': ("00001","00010","00100","00100","01000","10000","10000"),
+        "'": ("01100","01100","01000","00000","00000","00000","00000"),
+        ',': ("00000","00000","00000","00000","00000","01100","01000"),
+        '(': ("00010","00100","01000","01000","01000","00100","00010"),
+        ')': ("01000","00100","00010","00010","00010","00100","01000"),
+        '+': ("00000","00100","00100","11111","00100","00100","00000"),
+        '_': ("00000","00000","00000","00000","00000","00000","11111"),
+        '#': ("01010","01010","11111","01010","11111","01010","01010"),
+    }
+
+    def __init__(self, scale=1):
+        self.scale = scale
+        self.cw    = self.CHAR_W * scale   # rendered glyph width (px)
+        self.ch    = self.CHAR_H * scale   # rendered glyph height (px)
+        self.gap   = scale                 # inter-character gap (1 char-pixel)
+
+    def text_width(self, s):
+        if not s:
+            return 0
+        return len(s) * (self.cw + self.gap) - self.gap
+
+    def draw_text(self, draw, x, y, text, fill=255):
+        s  = self.scale
+        cx = x
+        for ch in text:
+            glyph = self.GLYPHS.get(ch.upper())
+            if glyph:
+                for ri, row in enumerate(glyph):
+                    for ci, bit in enumerate(row):
+                        if bit == '1':
+                            px, py = cx + ci * s, y + ri * s
+                            if s == 1:
+                                draw.point((px, py), fill=fill)
+                            else:
+                                draw.rectangle(
+                                    [px, py, px + s - 1, py + s - 1],
+                                    fill=fill)
+            cx += self.cw + self.gap
+
+
 # ── Display ──────────────────────────────────────────────────────────────────
 
 class Display:
@@ -416,39 +511,26 @@ class Display:
         self.oled = SSD1306_I2C(W, H, i2c, addr=0x3C)
         self.img  = Image.new("1", (W, H))
         self.draw = ImageDraw.Draw(self.img)
-        try:
-            sans  = "/usr/share/fonts/truetype/liberation/LiberationSans"
-            narrow = "/usr/share/fonts/truetype/liberation/LiberationSansNarrow"
-            self.fb = ImageFont.truetype(f"{sans}-Bold.ttf", 18)
-            self.fm = ImageFont.truetype(f"{sans}-Regular.ttf", 12)
-            self.fs = ImageFont.truetype(f"{sans}-Regular.ttf", 10)
-            self.fp = ImageFont.truetype(f"{sans}-Bold.ttf", 20)    # track number prefix (2× ticker)
-            self.fe = ImageFont.truetype(f"{narrow}-Bold.ttf", 80)  # elapsed stretch-render
-            self.fl = ImageFont.truetype(f"{sans}-Bold.ttf", 30)    # set selector large label
-        except:
-            self.fb = self.fm = self.fs = self.fe = self.fp = self.fl = ImageFont.load_default()
+        self.fs = PixelFont(scale=1)  # small text: ticker, countdown
+        self.fm = PixelFont(scale=1)  # medium text: hints, errors
+        self.fp = PixelFont(scale=2)  # track number prefix
+        self.fl = PixelFont(scale=3)  # set selector label
+        self.fe = PixelFont(scale=4)  # large elapsed clock
         self._lock           = threading.Lock()
         self._state          = None
         self._ticker_text    = ''
         self._ticker_prefix  = ''   # static track-number prefix
         self._ticker_offset  = 0.0
         self._dirty          = False
-        # Cache the rendered elapsed-clock image keyed by integer second.
-        # PIL+LANCZOS is ~5 ms; re-running it 20× per second wastes CPU since
-        # the value only changes once per second.  Tuple: (se_int, img, x, y).
-        self._elapsed_cache  = None
         self._clear()
         self._text(10, 20, "Performance Rig", self.fm)
         self._text(20, 40, "Initializing...", self.fs)
         self._show()
 
     def _clear(self): self.draw.rectangle((0, 0, W, H), fill=0)
-    def _text(self, x, y, s, f): self.draw.text((x, y), s, font=f, fill=255)
+    def _text(self, x, y, s, f): f.draw_text(self.draw, x, y, s, fill=255)
+    def _tw(self, s, f):         return f.text_width(s)
     def _show(self): self.oled.image(self.img); self.oled.show()
-
-    def _tw(self, s, f):
-        bb = self.draw.textbbox((0, 0), s, font=f)
-        return bb[2] - bb[0]
 
     def update(self, track, playing, paused, remaining_s=0.0, set_elapsed_s=0.0):
         with self._lock:
@@ -496,12 +578,12 @@ class Display:
 
         scroll_x = 2
         if prefix:
-            tdr.text((2, self.TICKER_Y), prefix, font=self.fp, fill=255)
-            scroll_x = 2 + self._tw(prefix, self.fp) + 3
+            self.fp.draw_text(tdr, 2, self.TICKER_Y, prefix, fill=255)
+            scroll_x = 2 + self.fp.text_width(prefix) + 3
 
         scroll_w = W - scroll_x
         if scroll_w > 0 and txt:
-            tw     = self._tw(txt, self.fs)
+            tw     = self.fs.text_width(txt)
             period = max(1, tw + self.TICKER_GAP)
             base   = int(tx) % period
             if base > 0:
@@ -510,7 +592,7 @@ class Display:
             stmp = Image.new("1", (scroll_w, 24), 0)
             stdr = ImageDraw.Draw(stmp)
             for n in range(n_copies):
-                stdr.text((base + n * period, self.TICKER_Y), txt, font=self.fs, fill=255)
+                self.fs.draw_text(stdr, base + n * period, self.TICKER_Y, txt, fill=255)
             tmp.paste(stmp, (scroll_x, 0))
 
         self.img.paste(tmp, (0, 0))
@@ -529,40 +611,15 @@ class Display:
         if cnt:
             self._text((W - self._tw(cnt, self.fs)) // 2, 15, cnt, self.fs)
 
-        # Elapsed clock — 80pt narrow bold, letter-spaced, scaled to fill the
-        # lower half of the OLED.  Rendering costs ~5 ms (PIL + LANCZOS), so
-        # cache the result by integer second and reuse it across all 20 fps frames.
-        se      = int(state['set_elapsed_s'])
-        el_y0   = 28
-        el_h    = H - el_y0 - 2
-
-        if self._elapsed_cache is None or self._elapsed_cache[0] != se:
-            elapsed_str = f"{se // 60:02d}:{se % 60:02d}"
-            # Render characters individually so we can control inter-character spacing.
-            tmp = Image.new("L", (512, 200), 0)
-            tdr = ImageDraw.Draw(tmp)
-            char_bbs = [tdr.textbbox((0, 0), c, font=self.fe) for c in elapsed_str]
-            char_ws  = [bb[2] - bb[0] for bb in char_bbs]
-            top      = min(bb[1] for bb in char_bbs)
-            char_h   = max(bb[3] for bb in char_bbs) - top
-            spacing  = max(1, int(sum(char_ws) / len(char_ws) * 0.25))
-            total_w  = sum(char_ws) + spacing * (len(elapsed_str) - 1)
-            x = 0
-            for c, bb, cw in zip(elapsed_str, char_bbs, char_ws):
-                tdr.text((x - bb[0], -top), c, font=self.fe, fill=255)
-                x += cw + spacing
-            text_img     = tmp.crop((0, 0, max(1, total_w), max(1, char_h)))
-            tw, th       = text_img.size
-            scale        = min(W / tw, el_h / th)
-            new_w, new_h = int(tw * scale), int(th * scale)
-            scaled       = text_img.resize((new_w, new_h), Image.LANCZOS).point(
-                               lambda p: 255 if p > 64 else 0, '1')
-            x_off = max(0, (W - new_w) // 2)
-            y_off = max(el_y0, el_y0 + (el_h - new_h) // 2)
-            self._elapsed_cache = (se, scaled, x_off, y_off)
-
-        _, scaled, x_off, y_off = self._elapsed_cache
-        self.img.paste(scaled, (x_off, y_off))
+        # Large elapsed clock — 5×7 pixel font at 4× scale, centred in lower zone.
+        se    = int(state['set_elapsed_s'])
+        el_y0 = 28
+        el_h  = H - el_y0 - 2
+        elapsed_str = f"{se // 60:02d}:{se % 60:02d}"
+        el_w = self.fe.text_width(elapsed_str)
+        el_x = max(0, (W - el_w) // 2)
+        el_y = el_y0 + (el_h - self.fe.ch) // 2
+        self.fe.draw_text(self.draw, el_x, el_y, elapsed_str, fill=255)
 
         self._show()
 
