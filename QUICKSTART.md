@@ -25,18 +25,29 @@ See README.md §9 for full details on both options.
 
 ## Step 1: Add your tracks
 
-Each song needs three files in a `set-XX/song-XX/` folder:
+Each song needs at least three files in a `set-XX/song-XX/` folder. Filenames are matched by keyword — the exact names don't matter as long as the keywords appear:
+
+| Keyword in filename | Role |
+|---------------------|------|
+| *(none — no 'metronome' or 'drumless')* | FOH / full mix → Zoom L6 ch 1-2 |
+| `metronome` | Click track → Zoom L6 ch 3-4 |
+| `drumless` | Drumless FOH mix (optional, selected at boot) |
+| `.mid` or `.midi` | MIDI for Processing sketch |
+
+Example layout:
 ```
-~/rig/set-01/song-01/title.wav
-~/rig/set-01/song-01/metronome.wav
-~/rig/set-01/song-01/midi-for-processing.midi
+~/rig/set-01/song-01/My Song.wav
+~/rig/set-01/song-01/My Song_metronome.wav
+~/rig/set-01/song-01/My Song_drumless.wav   ← optional
+~/rig/set-01/song-01/My Song.mid
 ```
 
 Optionally add `info.txt` for display metadata:
 ```
 title: My Song
 bpm: 120
-platform: Ableton
+platform: SMD
+timing: 4/4
 ```
 
 ## Step 2: Audio device (usually skip this)
@@ -63,17 +74,25 @@ sudo ~/rig/venv/bin/python ~/rig/controller.py
 Expected startup output:
 ```
 Starting Performance Rig...
-Stopped argononed           ← (or argone-oled / argonone-led)
 Taskbar hidden
+Stopped argononed           ← (or argone-oled / argonone-led)
+Virtual MIDI port: RigMIDI
+MIDI bridged 128:0 → 14:0
+Processing launched (PID 12345)
+[OLED shows set picker — use ↑/↓ to choose set, ←/→ to confirm]
+Selected: set-01  mode=drums
 Found 4 tracks
   1. Set 1 - Song 1
   2. Set 1 - Song 2
   ...
-Virtual MIDI port: RigMIDI
-Processing launched (PID 12345)
-MIDI bridged 128:0 → 14:0
-Auto-detected Zoom L6: L6: USB Audio (device 2)
 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+```
+
+On first play the Zoom L6 and Argon DAC are auto-detected:
+```
+Auto-detected Zoom L6: L6: USB Audio (device 2)
+Auto-detected DAC: USB Audio (device 1)
+Playing: Set 1 - Song 1  (210.5s, device 2)
 ```
 
 ## Controls

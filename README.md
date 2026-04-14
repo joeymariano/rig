@@ -13,13 +13,13 @@ USB Keyboard (←→↑↓ ESC)
        │
   controller.py
   ├── TrackManager  — scans ~/rig/set-*/song-*/
-  ├── Player        — sounddevice 4-ch audio + mido MIDI
+  ├── Player        — sounddevice audio + mido MIDI
   ├── Display       — SSD1306 OLED via I2C
   └── Keyboard      — evdev arrow keys
-       │                        │
-  Processing sketch        Zoom L6
-  (HDMI visuals)       Out 1-2: title.wav
-                       Out 3-4: metronome.wav
+       │                        │                   │
+  Processing sketch        Zoom L6           Argon One DAC
+  (HDMI visuals)       Out 1-2: FOH mix    front 3.5mm jack
+                       Out 3-4: click track  (FOH mirror)
 ```
 
 ## File Structure
@@ -28,13 +28,20 @@ USB Keyboard (←→↑↓ ESC)
 ~/rig/
 ├── set-01/
 │   ├── song-01/
-│   │   ├── title.wav              # main audio → L6 outputs 1-2
-│   │   ├── metronome.wav          # click track → L6 outputs 3-4
-│   │   ├── midi-for-processing.midi
+│   │   ├── My Song.wav            # FOH mix → L6 outputs 1-2  (no keyword)
+│   │   ├── My Song_drumless.wav   # drumless mix (optional, contains 'drumless')
+│   │   ├── My Song_metronome.wav  # click track → L6 outputs 3-4 (contains 'metronome')
+│   │   ├── My Song.mid            # MIDI for Processing (.mid or .midi)
 │   │   └── info.txt               # optional metadata (see below)
 │   └── song-02/...
 └── set-02/...
 ```
+
+Filenames are matched by keyword — the exact names don't matter:
+- **FOH mix**: any `.wav` with no `metronome` or `drumless` in the name
+- **Drumless mix**: `.wav` containing `drumless` (not `metronome`) — optional per song
+- **Click track**: `.wav` containing `metronome`
+- **MIDI**: any `.mid` or `.midi` file (one per folder)
 
 **`info.txt` format** (all fields optional):
 ```
@@ -128,9 +135,9 @@ systemctl --user enable --now pipewire pipewire-pulse wireplumber
 
 PipeWire must be alive for the user session before `controller.py` starts — the labwc autostart (section 8) handles this.
 
-### 3. Zoom L6 Multi-Channel Routing
+### 3. Audio Routing (Zoom L6 + Argon DAC)
 
-The Zoom L6 presents as a multi-channel USB audio device. Connect via USB; no extra drivers needed on Pi OS.
+**Zoom L6** presents as a multi-channel USB audio device. Connect via USB; no extra drivers needed on Pi OS.
 
 **`AUDIO_DEVICE = None`** auto-detects by searching device names for `zoom`, `l6`, or `l-6` with ≥4 output channels. No configuration needed in the normal case.
 
@@ -154,6 +161,8 @@ If the index is stale after a reconnect (`PaErrorCode -9998`), use `None` instea
 SUBSYSTEM=="sound", ATTRS{idVendor}=="1686", ATTRS{idProduct}=="0045", ATTR{id}="ZoomL6"
 ```
 Then `sudo udevadm control --reload && sudo udevadm trigger`. Now the device always appears as `hw:ZoomL6` for ALSA-level tools (this does not affect sounddevice auto-detection).
+
+**Argon One DAC** — the Argon One V5 exposes a USB audio device (front 3.5mm jack). The controller auto-detects it and mirrors the FOH mix there as a stereo headphone feed. No configuration needed; if the DAC isn't found, it's skipped silently.
 
 ### 4. VirMIDI Kernel Module (MIDI bridge to Processing)
 
