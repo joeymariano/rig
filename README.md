@@ -41,7 +41,7 @@ Filenames are matched by keyword — the exact names don't matter:
 - **FOH mix**: any `.wav` with no `metronome` or `drumless` in the name
 - **Drumless mix**: `.wav` containing `drumless` (not `metronome`) — optional per song
 - **Click track**: `.wav` containing `metronome`
-- **MIDI**: any `.mid` or `.midi` file (one per folder)
+- **MIDI**: any `.mid` or `.midi` file (one per folder) — optional; song plays audio-only without it
 
 **`info.txt` format** (all fields optional):
 ```
@@ -78,7 +78,7 @@ Once confirmed, the rig loads all tracks from the selected set.
 |-----|--------|
 | `←` | Stop and go to previous track |
 | `→` | Stop and go to next track |
-| `↓` | Play (starts audio + MIDI simultaneously) |
+| `↓` | Play (starts audio + MIDI if present) |
 | `↑` | Pause / Resume |
 | `ESC` | Exit (graceful shutdown) |
 | `↑` + `←` + `→` | Exit combo (hold all three simultaneously) |
@@ -99,6 +99,7 @@ If the combo is not completed, each key fires its normal action on release.
 - **Ticker** (top): large track number on the left; scrolling `title bpm platform` on the right
 - **Countdown** (middle): remaining time (`M:SS left`) or `PAUSED`
 - **Set clock** (bottom half): elapsed time since the first track started, rendered in large pixel font
+- **NO MIDI warning**: if a song has no MIDI file, `NO MIDI` replaces the ticker and clock for 30 seconds after playback starts, then the display returns to normal
 
 ---
 
@@ -448,7 +449,7 @@ self._midi_t = threading.Thread(target=self._midi_loop, args=(midi, start, 0.030
 **Tracks not found**
 ```bash
 tree ~/rig/ | head -30
-# Each song-XX folder needs title.wav, metronome.wav, and a .mid file
+# Each song-XX folder needs title.wav and metronome.wav (.mid is optional)
 ```
 
 **Intermittent boot to terminal instead of GUI**

@@ -136,8 +136,7 @@ class Track:
 
     def is_complete(self):
         return (self.title_wav is not None and self.title_wav.exists() and
-                self.metronome_wav is not None and self.metronome_wav.exists() and
-                self.midi_file is not None and self.midi_file.exists())
+                self.metronome_wav is not None and self.metronome_wav.exists())
 
     def display_title(self):
         sn = ''.join(filter(str.isdigit, self.path.parts[-2]))
@@ -245,15 +244,21 @@ class Player:
         try:
             title_data, sr  = sf.read(str(title_wav),           dtype='float32')
             metro_data, msr = sf.read(str(track.metronome_wav), dtype='float32')
-            midi            = MidiFile(str(track.midi_file))
         except Exception as e:
             print(f"Error loading track: {e}"); return False
 
         if sr != msr:
             print(f"WARNING: sample rate mismatch ({sr} vs {msr})"); return False
 
+        midi = None
+        if track.midi_file:
+            try:
+                midi = MidiFile(str(track.midi_file))
+            except Exception as e:
+                print(f"WARNING: could not load MIDI ({e}) — playing audio only")
+
         # Inject BPM tempo if set in info.txt and MIDI has no set_tempo
-        if track.bpm and not any(m.type == 'set_tempo' for tr in midi.tracks for m in tr):
+        if midi and track.bpm and not any(m.type == 'set_tempo' for tr in midi.tracks for m in tr):
             midi.tracks[0].insert(0, mido.MetaMessage('set_tempo', tempo=int(mido.bpm2tempo(track.bpm)), time=0))
             print(f"Injected tempo: {track.bpm} BPM")
 
@@ -274,9 +279,11 @@ class Player:
         start = threading.Event()
 
         self._audio_t = threading.Thread(target=self._audio_loop, args=(out, sr, dev, start), daemon=True)
-        self._midi_t  = threading.Thread(target=self._midi_loop,  args=(midi, start, 1024/sr), daemon=True)
+        self._midi_t  = threading.Thread(target=self._midi_loop,  args=(midi, start, 1024/sr), daemon=True) if midi else None
         self._dac_t   = threading.Thread(target=self._dac_loop,   args=(title_data, sr, dac_dev, start), daemon=True)
-        self._audio_t.start(); self._midi_t.start(); self._dac_t.start()
+        self._audio_t.start()
+        if self._midi_t: self._midi_t.start()
+        self._dac_t.start()
         # Set is_playing immediately so stop() can find the threads even during
         # the 200ms startup delay before start.set() fires.
         self.is_playing    = True
@@ -532,6 +539,7 @@ class Display:
         self._ticker_prefix  = ''   # static track-number prefix
         self._ticker_offset  = 0.0
         self._dirty          = False
+        self._no_midi_until  = 0.0  # epoch timestamp; warning shown while time.time() < this
         self._clear()
         self._text(10, 20, "Performance Rig", self.fm)
         self._text(20, 40, "Initializing...", self.fs)
@@ -607,9 +615,25 @@ class Display:
 
         self.img.paste(tmp, (0, 0))
 
+    def show_no_midi_warning(self):
+        """Trigger the NO MIDI warning overlay for 30 seconds."""
+        with self._lock:
+            self._no_midi_until = time.time() + 30
+            self._dirty = True
+
     def _do_render(self, state, ticker_text, ticker_offset, ticker_prefix):
         """Redraw full screen and push to OLED. Called from render thread only (no lock needed)."""
         self._clear()
+
+        if time.time() < self._no_midi_until:
+            # NO MIDI warning — replaces ticker and clock for 30 seconds
+            msg = "NO MIDI"
+            mw = self.fl.text_width(msg)
+            mx = max(0, (W - mw) // 2)
+            my = (H - self.fl.ch) // 2
+            self.fl.draw_text(self.draw, mx, my, msg, fill=255)
+            self._show()
+            return
 
         self._draw_ticker(ticker_text, ticker_offset, prefix=ticker_prefix)
 
@@ -1035,6 +1059,8 @@ class Rig:
             if t and self.player.play(t, drumless=self._drumless):
                 if self._set_start_time is None:
                     self._set_start_time = time.time()
+                if not t.midi_file:
+                    self.display.show_no_midi_warning()
                 self._refresh_display()
         elif code == KEY_UP:    self.player.toggle_pause();  self._refresh_display()
 
