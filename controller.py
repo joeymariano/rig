@@ -115,9 +115,13 @@ class Track:
         midi_files = sorted(self.path.glob("*.mid")) + sorted(self.path.glob("*.midi"))
         self.midi_file = midi_files[0] if midi_files else None
         self.song_name     = self.path.parts[-1]
-        # Parse info.txt for title, bpm, platform, timing
+        # Parse info file for title, bpm, platform, timing
+        # Accepts info.txt or any *.txt file in the song directory
         info = {}
         info_file = self.path / "info.txt"
+        if not info_file.exists():
+            txt_files = [f for f in self.path.glob("*.txt")]
+            info_file = txt_files[0] if txt_files else info_file
         if info_file.exists():
             for line in info_file.read_text().splitlines():
                 if ':' in line:
