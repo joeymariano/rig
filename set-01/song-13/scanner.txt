@@ -1,0 +1,4 @@
+title: scanner
+bpm: 202
+platform: GB
+timing: 4/4

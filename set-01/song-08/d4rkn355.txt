@@ -1,0 +1,4 @@
+title: d4rkn355
+bpm: 148.69
+platform: M8 SNES
+timing: 4/4

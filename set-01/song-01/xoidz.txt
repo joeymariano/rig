@@ -1,0 +1,4 @@
+title: xoidz
+bpm: 90
+platform: M8 SNES
+timing: 4/4

@@ -106949,3 +106949,2250 @@ SESSION START 2026-04-28 02:08:45
 Shutdown (key)
 02:09:37 Restarted argononed
 02:09:37 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+02:23:19 
+============================================================
+SESSION START 2026-04-28 02:23:19
+============================================================
+02:23:20 Starting Performance Rig...
+02:23:21 Taskbar hidden
+02:23:21 Stopped argononed
+02:23:21 Virtual MIDI port: RigMIDI
+02:23:21 MIDI bridged 128:0 → 24:0
+02:23:21 Processing launched (PID 1699)
+02:23:25 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:23:25 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:23:25 Keyboard: DOWN code=106 held={106}
+02:23:25 Keyboard: UP   code=106 combo_key=True triggered=False
+02:23:25 Selected: set-01  mode=drums
+02:23:25 Found 1 tracks
+02:23:25   1. Set 01 - Song 01
+02:23:26 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:23:26 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+02:23:26 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:23:30 Keyboard: DOWN code=106 held={106}
+02:23:30 Keyboard: UP   code=106 combo_key=True triggered=False
+02:23:32 Keyboard: DOWN code=105 held={105}
+02:23:32 Keyboard: UP   code=105 combo_key=True triggered=False
+02:23:33 Keyboard: DOWN code=106 held={106}
+02:23:33 Keyboard: UP   code=106 combo_key=True triggered=False
+02:23:33 Keyboard: DOWN code=105 held={105}
+02:23:33 Keyboard: UP   code=105 combo_key=True triggered=False
+02:23:34 Keyboard: DOWN code=106 held={106}
+02:23:34 Keyboard: UP   code=106 combo_key=True triggered=False
+02:23:34 Keyboard: DOWN code=105 held={105}
+02:23:34 Keyboard: UP   code=105 combo_key=True triggered=False
+02:23:35 Keyboard: DOWN code=106 held={106}
+02:23:35 Keyboard: UP   code=106 combo_key=True triggered=False
+02:23:35 Keyboard: DOWN code=105 held={105}
+02:23:35 Keyboard: UP   code=105 combo_key=True triggered=False
+02:23:35 Keyboard: DOWN code=106 held={106}
+02:23:35 Keyboard: UP   code=106 combo_key=True triggered=False
+02:23:35 Keyboard: DOWN code=105 held={105}
+02:23:35 Keyboard: UP   code=105 combo_key=True triggered=False
+02:23:35 Keyboard: DOWN code=106 held={106}
+02:23:36 Keyboard: UP   code=106 combo_key=True triggered=False
+02:23:36 Keyboard: DOWN code=108 held={108}
+02:23:36 Keyboard: UP   code=108 combo_key=False triggered=False
+02:23:36 Keyboard: DOWN code=103 held={103}
+02:23:36 Keyboard: UP   code=103 combo_key=True triggered=False
+02:23:36 Keyboard: DOWN code=106 held={106}
+02:23:36 Injected tempo: 180.0 BPM
+02:23:36 Keyboard: UP   code=106 combo_key=True triggered=False
+02:23:37 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+02:23:37 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+02:23:37 Playing: Set 01 - Song 01  (138.7s, device 1)
+02:23:37 Keyboard: DOWN code=108 held={108}
+02:23:37 Keyboard: UP   code=108 combo_key=False triggered=False
+02:23:37 Paused
+02:23:37 Keyboard: DOWN code=105 held={105}
+02:23:37 Keyboard: UP   code=105 combo_key=True triggered=False
+02:23:37 Keyboard: DOWN code=103 held={103}
+02:23:37 Injected tempo: 180.0 BPM
+02:23:37 Keyboard: UP   code=103 combo_key=True triggered=False
+02:23:37 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+02:23:37 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+02:23:37 Playing: Set 01 - Song 01  (138.7s, device 1)
+02:23:38 Keyboard: DOWN code=106 held={106}
+02:23:38 Keyboard: DOWN code=105 held={105, 106}
+02:23:38 Keyboard: DOWN code=103 held={105, 106, 103}
+02:23:38 
+Shutdown (key)
+02:23:38 Restarted argononed
+02:23:39 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+02:23:20 
+============================================================
+SESSION START 2026-04-28 02:23:20
+============================================================
+02:23:21 Starting Performance Rig...
+02:23:21 Taskbar hidden
+02:23:21 Stopped argononed
+02:23:22 Virtual MIDI port: RigMIDI
+02:23:22 MIDI bridged 128:0 → 24:0
+02:23:22 Processing launched (PID 1697)
+02:23:26 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:23:26 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:23:28 Keyboard: DOWN code=103 held={103}
+02:23:28 Keyboard: UP   code=103 combo_key=True triggered=False
+02:23:29 Keyboard: DOWN code=106 held={106}
+02:23:29 Keyboard: UP   code=106 combo_key=True triggered=False
+02:23:29 Selected: set-01  mode=drums
+02:23:29 Found 1 tracks
+02:23:29   1. Set 01 - Song 01
+02:23:30 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:23:30 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+02:23:30 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:23:31 Keyboard: DOWN code=106 held={106}
+02:23:31 Keyboard: UP   code=106 combo_key=True triggered=False
+02:23:32 Keyboard: DOWN code=105 held={105}
+02:23:32 Keyboard: UP   code=105 combo_key=True triggered=False
+02:23:34 Keyboard: DOWN code=103 held={103}
+02:23:35 Keyboard: UP   code=103 combo_key=True triggered=False
+02:23:36 Keyboard: DOWN code=108 held={108}
+02:23:36 Keyboard: UP   code=108 combo_key=False triggered=False
+02:23:36 Injected tempo: 180.0 BPM
+02:23:37 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+02:23:37 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+02:23:37 Playing: Set 01 - Song 01  (138.7s, device 1)
+02:23:38 Keyboard: DOWN code=106 held={106}
+02:23:38 Keyboard: UP   code=106 combo_key=True triggered=False
+02:23:42 Keyboard: DOWN code=106 held={106}
+02:23:42 Keyboard: UP   code=106 combo_key=True triggered=False
+02:23:43 Keyboard: DOWN code=108 held={108}
+02:23:43 Keyboard: UP   code=108 combo_key=False triggered=False
+02:23:43 Injected tempo: 180.0 BPM
+02:23:43 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+02:23:43 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+02:23:43 Playing: Set 01 - Song 01  (138.7s, device 1)
+02:23:44 Keyboard: DOWN code=103 held={103}
+02:23:44 Keyboard: UP   code=103 combo_key=True triggered=False
+02:23:44 Paused
+02:23:45 Keyboard: DOWN code=103 held={103}
+02:23:45 Keyboard: UP   code=103 combo_key=True triggered=False
+02:23:45 Resumed
+02:23:48 Keyboard: DOWN code=106 held={106}
+02:23:48 Keyboard: DOWN code=105 held={105, 106}
+02:23:48 Keyboard: DOWN code=103 held={105, 106, 103}
+02:23:48 
+Shutdown (key)
+02:23:49 Restarted argononed
+02:23:49 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+02:29:52 
+============================================================
+SESSION START 2026-04-28 02:29:52
+============================================================
+02:29:52 Starting Performance Rig...
+02:29:53 Taskbar hidden
+02:29:53 Stopped argononed
+02:29:54 Virtual MIDI port: RigMIDI
+02:29:54 MIDI bridged 128:0 → 24:0
+02:29:54 Processing launched (PID 1697)
+02:29:57 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:29:57 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:29:58 Keyboard: DOWN code=106 held={106}
+02:29:58 Keyboard: UP   code=106 combo_key=True triggered=False
+02:29:58 Selected: set-01  mode=drums
+02:29:58 Found 2 tracks
+02:29:58   1. Set 01 - Song 01
+02:29:58   2. Set 01 - Song 02
+02:29:58 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:29:58 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+02:29:59 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:30:00 Keyboard: DOWN code=106 held={106}
+02:30:00 Keyboard: UP   code=106 combo_key=True triggered=False
+02:30:01 Keyboard: DOWN code=108 held={108}
+02:30:01 Keyboard: UP   code=108 combo_key=False triggered=False
+02:30:02 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+02:30:02 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+02:30:02 Playing: Set 01 - Song 02  (112.0s, device 1)
+02:31:31 Keyboard: DOWN code=103 held={103}
+02:31:31 Keyboard: DOWN code=106 held={106, 103}
+02:31:31 Keyboard: DOWN code=105 held={105, 106, 103}
+02:31:31 
+Shutdown (key)
+02:31:31 Restarted argononed
+02:31:31 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+02:32:52 
+============================================================
+SESSION START 2026-04-28 02:32:52
+============================================================
+02:32:53 Starting Performance Rig...
+02:32:53 Taskbar hidden
+02:32:53 Stopped argononed
+02:32:54 Virtual MIDI port: RigMIDI
+02:32:54 MIDI bridged 128:0 → 24:0
+02:32:54 Processing launched (PID 1693)
+02:32:57 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+02:32:57 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+18:56:05 
+============================================================
+SESSION START 2026-04-30 18:56:05
+============================================================
+18:56:06 Starting Performance Rig...
+18:56:06 Taskbar hidden
+18:56:06 Stopped argononed
+18:56:07 Virtual MIDI port: RigMIDI
+18:56:07 MIDI bridged 128:0 → 24:0
+18:56:07 Processing launched (PID 1707)
+18:56:10 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+18:56:10 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+04:02:03 
+============================================================
+SESSION START 2026-05-01 04:02:03
+============================================================
+04:02:04 Starting Performance Rig...
+04:02:05 Taskbar hidden
+04:02:05 Stopped argononed
+04:02:05 Virtual MIDI port: RigMIDI
+04:02:05 MIDI bridged 128:0 → 24:0
+04:02:05 Processing launched (PID 1700)
+04:02:09 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+04:02:09 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+04:02:17 Keyboard: DOWN code=108 held={108}
+04:02:17 Keyboard: UP   code=108 combo_key=False triggered=False
+04:02:19 Keyboard: DOWN code=106 held={106}
+04:02:19 Keyboard: UP   code=106 combo_key=True triggered=False
+04:02:20 Selected: set-01  mode=drums
+04:02:20 Found 14 tracks
+04:02:20   1. Set 01 - Song 01
+04:02:20   2. Set 01 - Song 02
+04:02:20   3. Set 01 - Song 03
+04:02:20   4. Set 01 - Song 04
+04:02:20   5. Set 01 - Song 05
+04:02:20   6. Set 01 - Song 06
+04:02:20   7. Set 01 - Song 07
+04:02:20   8. Set 01 - Song 08
+04:02:20   9. Set 01 - Song 09
+04:02:20   10. Set 01 - Song 10
+04:02:20   11. Set 01 - Song 11
+04:02:20   12. Set 01 - Song 12
+04:02:20   13. Set 01 - Song 13
+04:02:20   14. Set 01 - Song 14
+04:02:20 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+04:02:20 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+04:02:20 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+04:02:25 Keyboard: DOWN code=108 held={108}
+04:02:25 Keyboard: UP   code=108 combo_key=False triggered=False
+04:02:26 WARNING: Zoom L6 not found, using default output
+04:02:26 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+04:02:26 Main audio error: Error opening OutputStream: Invalid number of channels [PaErrorCode -9998]
+04:02:26 Playing: Set 01 - Song 01  (217.5s, device None)
+04:03:05 Keyboard: DOWN code=105 held={105}
+04:03:05 Keyboard: DOWN code=103 held={105, 103}
+04:03:05 Keyboard: DOWN code=106 held={105, 106, 103}
+04:03:05 
+Shutdown (key)
+04:03:05 Restarted argononed
+04:03:05 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+04:04:08 
+============================================================
+SESSION START 2026-05-01 04:04:08
+============================================================
+04:04:09 Starting Performance Rig...
+04:04:10 Taskbar hidden
+04:04:10 Stopped argononed
+04:04:10 Virtual MIDI port: RigMIDI
+04:04:10 MIDI bridged 128:0 → 24:0
+04:04:10 Processing launched (PID 1703)
+04:04:14 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+04:04:14 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+04:04:16 Keyboard: DOWN code=106 held={106}
+04:04:17 Keyboard: UP   code=106 combo_key=True triggered=False
+04:04:17 Selected: set-01  mode=drums
+04:04:17 Found 14 tracks
+04:04:17   1. Set 01 - Song 01
+04:04:17   2. Set 01 - Song 02
+04:04:17   3. Set 01 - Song 03
+04:04:17   4. Set 01 - Song 04
+04:04:17   5. Set 01 - Song 05
+04:04:17   6. Set 01 - Song 06
+04:04:17   7. Set 01 - Song 07
+04:04:17   8. Set 01 - Song 08
+04:04:17   9. Set 01 - Song 09
+04:04:17   10. Set 01 - Song 10
+04:04:17   11. Set 01 - Song 11
+04:04:17   12. Set 01 - Song 12
+04:04:17   13. Set 01 - Song 13
+04:04:17   14. Set 01 - Song 14
+04:04:17 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+04:04:17 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+04:04:18 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+04:04:23 Keyboard: DOWN code=108 held={108}
+04:04:23 Keyboard: UP   code=108 combo_key=False triggered=False
+04:04:24 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+04:04:24 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+04:04:24 Main audio error: Error opening OutputStream: Invalid sample rate [PaErrorCode -9997]
+04:04:24 Playing: Set 01 - Song 01  (217.5s, device 2)
+04:04:45 Keyboard: DOWN code=108 held={108}
+04:04:45 Keyboard: DOWN code=105 held={105, 108}
+04:04:45 Keyboard: UP   code=105 combo_key=True triggered=False
+04:04:45 Keyboard: UP   code=108 combo_key=False triggered=False
+04:04:46 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+04:04:46 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+04:04:46 Playing: Set 01 - Song 01  (217.5s, device 2)
+Main audio error: Error opening OutputStream: Invalid sample rate [PaErrorCode -9997]
+04:04:48 Keyboard: DOWN code=108 held={108}
+04:04:48 Keyboard: UP   code=108 combo_key=False triggered=False
+04:04:50 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+04:04:50 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+04:04:50 Playing: Set 01 - Song 14  (292.3s, device 2)
+04:04:50 Main audio error: Error opening OutputStream: Invalid sample rate [PaErrorCode -9997]
+04:04:50 Keyboard: DOWN code=103 held={103}
+04:04:50 Keyboard: UP   code=103 combo_key=True triggered=False
+04:04:50 Paused
+04:04:51 Keyboard: DOWN code=106 held={106}
+04:04:51 Keyboard: UP   code=106 combo_key=True triggered=False
+04:04:51 Keyboard: DOWN code=106 held={106}
+04:04:52 Keyboard: UP   code=106 combo_key=True triggered=False
+04:04:52 Keyboard: DOWN code=108 held={108}
+04:04:52 Keyboard: UP   code=108 combo_key=False triggered=False
+04:04:53 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+04:04:53 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+04:04:53 Playing: Set 01 - Song 02  (128.3s, device 2)
+04:04:53 Main audio error: Error opening OutputStream: Invalid sample rate [PaErrorCode -9997]
+04:05:10 Keyboard: DOWN code=106 held={106}
+04:05:10 Keyboard: DOWN code=105 held={105, 106}
+04:05:10 Keyboard: DOWN code=103 held={105, 106, 103}
+04:05:10 
+Shutdown (key)
+04:05:11 Restarted argononed
+04:05:11 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+09:22:24 
+============================================================
+SESSION START 2026-05-01 09:22:24
+============================================================
+09:22:25 Starting Performance Rig...
+09:22:26 Taskbar hidden
+09:22:26 Stopped argononed
+09:22:26 Virtual MIDI port: RigMIDI
+09:22:26 MIDI bridged 128:0 → 24:0
+09:22:26 Processing launched (PID 1696)
+09:22:30 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+09:22:30 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+09:34:10 
+============================================================
+SESSION START 2026-05-01 09:34:10
+============================================================
+09:34:11 Starting Performance Rig...
+09:34:12 Taskbar hidden
+09:34:12 Stopped argononed
+09:34:12 Virtual MIDI port: RigMIDI
+09:34:12 MIDI bridged 128:0 → 24:0
+09:34:12 Processing launched (PID 1693)
+09:34:16 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+09:34:16 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+09:34:19 Keyboard: DOWN code=106 held={106}
+09:34:19 Keyboard: UP   code=106 combo_key=True triggered=False
+09:34:19 Selected: set-01  mode=drums
+09:34:19 Found 14 tracks
+09:34:19   1. Set 01 - Song 01
+09:34:19   2. Set 01 - Song 02
+09:34:19   3. Set 01 - Song 03
+09:34:19   4. Set 01 - Song 04
+09:34:19   5. Set 01 - Song 05
+09:34:19   6. Set 01 - Song 06
+09:34:19   7. Set 01 - Song 07
+09:34:19   8. Set 01 - Song 08
+09:34:19   9. Set 01 - Song 09
+09:34:19   10. Set 01 - Song 10
+09:34:19   11. Set 01 - Song 11
+09:34:19   12. Set 01 - Song 12
+09:34:19   13. Set 01 - Song 13
+09:34:19   14. Set 01 - Song 14
+09:34:20 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+09:34:20 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+09:34:20 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+09:34:23 Keyboard: DOWN code=108 held={108}
+09:34:23 Keyboard: UP   code=108 combo_key=False triggered=False
+09:34:25 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+09:34:25 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+09:34:25 Playing: Set 01 - Song 01  (217.5s, device 1)
+09:34:37 Keyboard: DOWN code=106 held={106}
+09:34:37 Keyboard: UP   code=106 combo_key=True triggered=False
+09:34:39 Keyboard: DOWN code=108 held={108}
+09:34:39 Keyboard: UP   code=108 combo_key=False triggered=False
+09:34:40 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+09:34:40 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+09:34:40 Playing: Set 01 - Song 02  (128.3s, device 1)
+09:36:17 Keyboard: DOWN code=106 held={106}
+09:36:18 Keyboard: UP   code=106 combo_key=True triggered=False
+09:36:19 Keyboard: DOWN code=108 held={108}
+09:36:19 Keyboard: DOWN code=106 held={106, 108}
+09:36:19 Keyboard: UP   code=106 combo_key=True triggered=False
+09:36:19 Keyboard: UP   code=108 combo_key=False triggered=False
+09:36:21 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+09:36:21 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+09:36:21 Playing: Set 01 - Song 03  (209.0s, device 1)
+09:36:34 Keyboard: DOWN code=105 held={105}
+09:36:34 Keyboard: UP   code=105 combo_key=True triggered=False
+09:36:36 Keyboard: DOWN code=106 held={106}
+09:36:36 Keyboard: UP   code=106 combo_key=True triggered=False
+09:36:37 Keyboard: DOWN code=106 held={106}
+09:36:37 Keyboard: UP   code=106 combo_key=True triggered=False
+09:36:38 Keyboard: DOWN code=105 held={105}
+09:36:39 Keyboard: UP   code=105 combo_key=True triggered=False
+09:36:39 Keyboard: DOWN code=106 held={106}
+09:36:39 Keyboard: UP   code=106 combo_key=True triggered=False
+09:36:39 Keyboard: DOWN code=105 held={105}
+09:36:39 Keyboard: UP   code=105 combo_key=True triggered=False
+09:36:39 Keyboard: DOWN code=103 held={103}
+09:36:39 Keyboard: UP   code=103 combo_key=True triggered=False
+09:36:40 Keyboard: DOWN code=106 held={106}
+09:36:40 Keyboard: UP   code=106 combo_key=True triggered=False
+09:36:40 Keyboard: DOWN code=108 held={108}
+09:36:40 Keyboard: UP   code=108 combo_key=False triggered=False
+09:36:41 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+09:36:41 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+09:36:41 Playing: Set 01 - Song 05  (91.7s, device 1)
+09:38:14 Keyboard: DOWN code=106 held={106}
+09:38:14 Keyboard: UP   code=106 combo_key=True triggered=False
+09:38:15 Keyboard: DOWN code=108 held={108}
+09:38:15 Keyboard: DOWN code=106 held={106, 108}
+09:38:15 Keyboard: UP   code=106 combo_key=True triggered=False
+09:38:15 Keyboard: UP   code=108 combo_key=False triggered=False
+09:38:16 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+09:38:16 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+09:38:16 Playing: Set 01 - Song 06  (112.0s, device 1)
+09:38:16 Keyboard: DOWN code=108 held={108}
+09:38:16 Keyboard: UP   code=108 combo_key=False triggered=False
+09:38:17 Keyboard: DOWN code=105 held={105}
+09:38:17 Keyboard: UP   code=105 combo_key=True triggered=False
+09:38:17 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+09:38:17 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+09:38:17 Playing: Set 01 - Song 07  (152.3s, device 1)
+09:38:18 Keyboard: DOWN code=108 held={108}
+09:38:19 Keyboard: UP   code=108 combo_key=False triggered=False
+09:38:19 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+09:38:19 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+09:38:19 Playing: Set 01 - Song 06  (112.0s, device 1)
+09:38:26 Keyboard: DOWN code=106 held={106}
+09:38:27 Keyboard: UP   code=106 combo_key=True triggered=False
+09:38:27 Keyboard: DOWN code=108 held={108}
+09:38:27 Keyboard: UP   code=108 combo_key=False triggered=False
+09:38:28 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+09:38:28 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+09:38:28 Playing: Set 01 - Song 07  (152.3s, device 1)
+09:40:57 Keyboard: DOWN code=106 held={106}
+09:40:57 Keyboard: UP   code=106 combo_key=True triggered=False
+09:40:58 Keyboard: DOWN code=108 held={108}
+09:40:58 Keyboard: UP   code=108 combo_key=False triggered=False
+09:41:00 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+09:41:00 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+09:41:00 Playing: Set 01 - Song 08  (177.6s, device 1)
+09:46:38 
+============================================================
+SESSION START 2026-05-01 09:46:38
+============================================================
+09:46:39 Starting Performance Rig...
+09:46:40 Taskbar hidden
+09:46:40 Stopped argononed
+09:46:41 Virtual MIDI port: RigMIDI
+09:46:41 MIDI bridged 128:0 → 24:0
+09:46:41 Processing launched (PID 1694)
+09:46:44 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+09:46:44 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+09:50:15 
+============================================================
+SESSION START 2026-05-01 09:50:15
+============================================================
+09:50:16 Starting Performance Rig...
+09:50:17 Taskbar hidden
+09:50:17 Stopped argononed
+09:50:18 Virtual MIDI port: RigMIDI
+09:50:18 MIDI bridged 128:0 → 24:0
+09:50:18 Processing launched (PID 1702)
+09:50:21 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+09:50:21 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+09:50:47 Keyboard: DOWN code=108 held={108}
+09:50:47 Keyboard: UP   code=108 combo_key=False triggered=False
+09:50:49 Keyboard: DOWN code=106 held={106}
+09:50:49 Keyboard: UP   code=106 combo_key=True triggered=False
+09:50:49 Selected: set-01  mode=drums
+09:50:49 Found 14 tracks
+09:50:49   1. Set 01 - Song 01
+09:50:49   2. Set 01 - Song 02
+09:50:49   3. Set 01 - Song 03
+09:50:49   4. Set 01 - Song 04
+09:50:49   5. Set 01 - Song 05
+09:50:49   6. Set 01 - Song 06
+09:50:49   7. Set 01 - Song 07
+09:50:49   8. Set 01 - Song 08
+09:50:49   9. Set 01 - Song 09
+09:50:49   10. Set 01 - Song 10
+09:50:49   11. Set 01 - Song 11
+09:50:49   12. Set 01 - Song 12
+09:50:49   13. Set 01 - Song 13
+09:50:49   14. Set 01 - Song 14
+09:50:49 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+09:50:49 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+09:50:50 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+09:50:52 Keyboard: DOWN code=108 held={108}
+09:50:52 Keyboard: UP   code=108 combo_key=False triggered=False
+09:50:53 Injected tempo: 90.49 BPM
+09:50:53 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:50:53 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:50:53 Playing: Set 01 - Song 01  (217.5s, device 2)
+09:51:09 Keyboard: DOWN code=103 held={103}
+09:51:09 Keyboard: UP   code=103 combo_key=True triggered=False
+09:51:09 Paused
+09:51:10 Keyboard: DOWN code=108 held={108}
+09:51:10 Keyboard: UP   code=108 combo_key=False triggered=False
+09:51:11 Injected tempo: 90.49 BPM
+09:51:11 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:51:11 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:51:11 Playing: Set 01 - Song 01  (217.5s, device 2)
+09:51:14 Keyboard: DOWN code=108 held={108}
+09:51:14 Keyboard: UP   code=108 combo_key=False triggered=False
+09:51:15 Injected tempo: 90.49 BPM
+09:51:15 Keyboard: DOWN code=103 held={103}
+09:51:15 Keyboard: UP   code=103 combo_key=True triggered=False
+09:51:15 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:51:15 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:51:15 Playing: Set 01 - Song 01  (217.5s, device 2)
+09:51:15 Paused
+09:51:18 Keyboard: DOWN code=103 held={103}
+09:51:18 Keyboard: UP   code=103 combo_key=True triggered=False
+09:51:18 Resumed
+09:51:41 Keyboard: DOWN code=103 held={103}
+09:51:41 Keyboard: UP   code=103 combo_key=True triggered=False
+09:51:41 Paused
+09:51:41 Keyboard: DOWN code=106 held={106}
+09:51:41 Keyboard: UP   code=106 combo_key=True triggered=False
+09:51:44 Keyboard: DOWN code=108 held={108}
+09:51:44 Keyboard: UP   code=108 combo_key=False triggered=False
+09:51:45 Injected tempo: 90.0 BPM
+09:51:45 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:51:45 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:51:45 Playing: Set 01 - Song 02  (128.3s, device 2)
+09:52:07 Keyboard: DOWN code=103 held={103}
+09:52:07 Keyboard: UP   code=103 combo_key=True triggered=False
+09:52:07 Paused
+09:52:08 Keyboard: DOWN code=106 held={106}
+09:52:08 Keyboard: UP   code=106 combo_key=True triggered=False
+09:52:11 Keyboard: DOWN code=108 held={108}
+09:52:11 Keyboard: UP   code=108 combo_key=False triggered=False
+09:52:12 Injected tempo: 98.77 BPM
+09:52:12 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:52:12 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:52:12 Playing: Set 01 - Song 03  (209.0s, device 2)
+09:52:52 Keyboard: DOWN code=103 held={103}
+09:52:52 Keyboard: UP   code=103 combo_key=True triggered=False
+09:52:52 Paused
+09:52:54 Keyboard: DOWN code=106 held={106}
+09:52:54 Keyboard: UP   code=106 combo_key=True triggered=False
+09:52:55 Keyboard: DOWN code=108 held={108}
+09:52:55 Keyboard: UP   code=108 combo_key=False triggered=False
+09:52:56 Injected tempo: 112.5 BPM
+09:52:57 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:52:57 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:52:57 Playing: Set 01 - Song 04  (184.5s, device 2)
+09:53:11 Keyboard: DOWN code=103 held={103}
+09:53:11 Keyboard: UP   code=103 combo_key=True triggered=False
+09:53:11 Paused
+09:53:12 Keyboard: DOWN code=106 held={106}
+09:53:12 Keyboard: UP   code=106 combo_key=True triggered=False
+09:53:14 Keyboard: DOWN code=108 held={108}
+09:53:14 Keyboard: UP   code=108 combo_key=False triggered=False
+09:53:15 Injected tempo: 112.5 BPM
+09:53:15 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:53:15 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:53:15 Playing: Set 01 - Song 05  (91.7s, device 2)
+09:54:03 Keyboard: DOWN code=103 held={103}
+09:54:03 Keyboard: UP   code=103 combo_key=True triggered=False
+09:54:03 Paused
+09:54:03 Keyboard: DOWN code=106 held={106}
+09:54:03 Keyboard: UP   code=106 combo_key=True triggered=False
+09:54:07 Keyboard: DOWN code=108 held={108}
+09:54:07 Keyboard: UP   code=108 combo_key=False triggered=False
+09:54:07 Injected tempo: 90.0 BPM
+09:54:08 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:54:08 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:54:08 Playing: Set 01 - Song 06  (112.0s, device 2)
+09:54:14 Keyboard: DOWN code=108 held={108}
+09:54:14 Keyboard: UP   code=108 combo_key=False triggered=False
+09:54:14 Injected tempo: 90.0 BPM
+09:54:15 Keyboard: DOWN code=106 held={106}
+09:54:15 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:54:15 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:54:15 Playing: Set 01 - Song 06  (112.0s, device 2)
+09:54:15 Keyboard: UP   code=106 combo_key=True triggered=False
+09:54:15 Keyboard: DOWN code=108 held={108}
+09:54:16 Keyboard: UP   code=108 combo_key=False triggered=False
+09:54:17 Injected tempo: 90.0 BPM
+09:54:17 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:54:17 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:54:17 Playing: Set 01 - Song 07  (152.3s, device 2)
+09:54:31 Keyboard: DOWN code=106 held={106}
+09:54:31 Keyboard: UP   code=106 combo_key=True triggered=False
+09:54:31 Keyboard: DOWN code=106 held={106}
+09:54:31 Keyboard: UP   code=106 combo_key=True triggered=False
+09:54:31 Keyboard: DOWN code=105 held={105}
+09:54:32 Keyboard: UP   code=105 combo_key=True triggered=False
+09:54:33 Keyboard: DOWN code=106 held={106}
+09:54:33 Keyboard: UP   code=106 combo_key=True triggered=False
+09:54:34 Keyboard: DOWN code=108 held={108}
+09:54:34 Keyboard: UP   code=108 combo_key=False triggered=False
+09:54:35 Injected tempo: 158.6 BPM
+09:54:35 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:54:35 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:54:35 Playing: Set 01 - Song 09  (184.6s, device 2)
+09:54:41 Keyboard: DOWN code=106 held={106}
+09:54:41 Keyboard: UP   code=106 combo_key=True triggered=False
+09:54:44 Keyboard: DOWN code=108 held={108}
+09:54:44 Keyboard: UP   code=108 combo_key=False triggered=False
+09:54:45 Injected tempo: 167.98 BPM
+09:54:46 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:54:46 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:54:46 Playing: Set 01 - Song 10  (169.3s, device 2)
+09:54:59 Keyboard: DOWN code=106 held={106}
+09:55:00 Keyboard: UP   code=106 combo_key=True triggered=False
+09:55:00 Keyboard: DOWN code=108 held={108}
+09:55:00 Keyboard: UP   code=108 combo_key=False triggered=False
+09:55:01 Injected tempo: 168.0 BPM
+09:55:02 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:55:02 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:55:02 Playing: Set 01 - Song 11  (170.0s, device 2)
+09:55:09 Keyboard: DOWN code=108 held={108}
+09:55:09 Keyboard: UP   code=108 combo_key=False triggered=False
+09:55:09 Injected tempo: 168.0 BPM
+09:55:09 Keyboard: DOWN code=106 held={106}
+09:55:09 Keyboard: UP   code=106 combo_key=True triggered=False
+09:55:09 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:55:09 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:55:09 Playing: Set 01 - Song 11  (170.0s, device 2)
+09:55:10 Keyboard: DOWN code=108 held={108}
+09:55:10 Keyboard: UP   code=108 combo_key=False triggered=False
+09:55:11 Injected tempo: 180.0 BPM
+09:55:11 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:55:11 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:55:11 Playing: Set 01 - Song 12  (138.7s, device 2)
+09:55:20 Keyboard: DOWN code=108 held={108}
+09:55:20 Keyboard: UP   code=108 combo_key=False triggered=False
+09:55:20 Keyboard: DOWN code=106 held={106}
+09:55:20 Injected tempo: 180.0 BPM
+09:55:20 Keyboard: UP   code=106 combo_key=True triggered=False
+09:55:20 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:55:20 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:55:20 Playing: Set 01 - Song 12  (138.7s, device 2)
+09:55:23 Keyboard: DOWN code=108 held={108}
+09:55:24 Keyboard: UP   code=108 combo_key=False triggered=False
+09:55:25 Injected tempo: 202.0 BPM
+09:55:25 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+09:55:25 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+09:55:25 Playing: Set 01 - Song 13  (227.0s, device 2)
+10:01:00 Keyboard: DOWN code=106 held={106}
+10:01:01 Keyboard: UP   code=106 combo_key=True triggered=False
+10:01:01 Keyboard: DOWN code=106 held={106}
+10:01:01 Keyboard: UP   code=106 combo_key=True triggered=False
+10:01:02 Keyboard: DOWN code=105 held={105}
+10:01:03 Keyboard: UP   code=105 combo_key=True triggered=False
+10:01:03 Keyboard: DOWN code=106 held={106}
+10:01:03 Keyboard: DOWN code=105 held={105, 106}
+10:01:03 Keyboard: DOWN code=103 held={105, 106, 103}
+10:01:03 
+Shutdown (key)
+10:01:03 Restarted argononed
+10:01:04 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+10:28:37 
+============================================================
+SESSION START 2026-05-01 10:28:37
+============================================================
+10:28:38 Starting Performance Rig...
+10:28:38 Taskbar hidden
+10:28:38 Stopped argononed
+10:28:39 Virtual MIDI port: RigMIDI
+10:28:39 MIDI bridged 128:0 → 24:0
+10:28:39 Processing launched (PID 1761)
+10:28:43 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event5)
+10:28:43 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event6)
+10:28:43 Keyboard grabbed: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event5)
+10:28:43 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event6)
+10:28:58 Keyboard: DOWN code=108 held={108}
+10:28:59 Keyboard: UP   code=108 combo_key=False triggered=False
+10:29:03 Keyboard: DOWN code=106 held={106}
+10:29:03 Keyboard: UP   code=106 combo_key=True triggered=False
+10:29:03 Selected: set-01  mode=drums
+10:29:03 Found 14 tracks
+10:29:03   1. Set 01 - Song 01
+10:29:03   2. Set 01 - Song 02
+10:29:03   3. Set 01 - Song 03
+10:29:03   4. Set 01 - Song 04
+10:29:03   5. Set 01 - Song 05
+10:29:03   6. Set 01 - Song 06
+10:29:03   7. Set 01 - Song 07
+10:29:03   8. Set 01 - Song 08
+10:29:03   9. Set 01 - Song 09
+10:29:03   10. Set 01 - Song 10
+10:29:03   11. Set 01 - Song 11
+10:29:03   12. Set 01 - Song 12
+10:29:03   13. Set 01 - Song 13
+10:29:03   14. Set 01 - Song 14
+10:29:03 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event5)
+10:29:03 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event6)
+10:29:03 Keyboard grabbed: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event5)
+10:29:03 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+10:29:04 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event6)
+10:29:08 Keyboard: DOWN code=108 held={108}
+10:29:08 Keyboard: UP   code=108 combo_key=False triggered=False
+10:29:09 Injected tempo: 90.49 BPM
+10:29:10 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:29:10 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:29:10 Playing: Set 01 - Song 01  (217.5s, device 2)
+10:29:56 Keyboard: DOWN code=103 held={103}
+10:29:56 Keyboard: UP   code=103 combo_key=True triggered=False
+10:29:56 Paused
+10:29:58 Keyboard: DOWN code=106 held={106}
+10:29:58 Keyboard: UP   code=106 combo_key=True triggered=False
+10:29:59 Keyboard: DOWN code=108 held={108}
+10:29:59 Keyboard: UP   code=108 combo_key=False triggered=False
+10:30:00 Injected tempo: 90.0 BPM
+10:30:00 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:30:00 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:30:00 Playing: Set 01 - Song 02  (128.3s, device 2)
+10:30:23 Keyboard: DOWN code=106 held={106}
+10:30:23 Keyboard: UP   code=106 combo_key=True triggered=False
+10:30:24 Keyboard: DOWN code=108 held={108}
+10:30:24 Keyboard: UP   code=108 combo_key=False triggered=False
+10:30:25 Injected tempo: 98.77 BPM
+10:30:26 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:30:26 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:30:26 Playing: Set 01 - Song 03  (209.0s, device 2)
+10:30:34 Keyboard: DOWN code=106 held={106}
+10:30:34 Keyboard: UP   code=106 combo_key=True triggered=False
+10:30:35 Keyboard: DOWN code=108 held={108}
+10:30:36 Keyboard: UP   code=108 combo_key=False triggered=False
+10:30:37 Injected tempo: 112.5 BPM
+10:30:37 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:30:37 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:30:37 Playing: Set 01 - Song 04  (184.5s, device 2)
+10:35:08 Keyboard: DOWN code=106 held={106}
+10:35:08 Keyboard: DOWN code=103 held={106, 103}
+10:35:08 Keyboard: DOWN code=105 held={105, 106, 103}
+10:35:08 
+Shutdown (key)
+10:35:08 Restarted argononed
+10:35:08 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+10:37:26 
+============================================================
+SESSION START 2026-05-01 10:37:26
+============================================================
+10:37:27 Starting Performance Rig...
+10:37:28 Taskbar hidden
+10:37:28 Stopped argononed
+10:37:28 Virtual MIDI port: RigMIDI
+10:37:28 MIDI bridged 128:0 → 24:0
+10:37:28 Processing launched (PID 1761)
+10:37:32 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+10:37:32 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+10:37:32 Keyboard grabbed: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+10:37:39 Keyboard: DOWN code=106 held={106}
+10:37:39 Keyboard: UP   code=106 combo_key=True triggered=False
+10:37:39 Selected: set-01  mode=drums
+10:37:39 Found 14 tracks
+10:37:39   1. Set 01 - Song 01
+10:37:39   2. Set 01 - Song 02
+10:37:39   3. Set 01 - Song 03
+10:37:39   4. Set 01 - Song 04
+10:37:39   5. Set 01 - Song 05
+10:37:39   6. Set 01 - Song 06
+10:37:39   7. Set 01 - Song 07
+10:37:39   8. Set 01 - Song 08
+10:37:39   9. Set 01 - Song 09
+10:37:39   10. Set 01 - Song 10
+10:37:39   11. Set 01 - Song 11
+10:37:39   12. Set 01 - Song 12
+10:37:39   13. Set 01 - Song 13
+10:37:39   14. Set 01 - Song 14
+10:37:40 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+10:37:40 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+10:37:40 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+10:37:40 Keyboard grabbed: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+10:37:40 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+10:37:40 Keyboard: DOWN code=108 held={108}
+10:37:40 Keyboard: UP   code=108 combo_key=False triggered=False
+10:37:42 Injected tempo: 90.49 BPM
+10:37:42 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:37:42 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:37:42 Playing: Set 01 - Song 01  (217.5s, device 2)
+10:38:04 Keyboard: DOWN code=106 held={106}
+10:38:04 Keyboard: UP   code=106 combo_key=True triggered=False
+10:38:06 Keyboard: DOWN code=108 held={108}
+10:38:06 Keyboard: UP   code=108 combo_key=False triggered=False
+10:38:07 Injected tempo: 90.0 BPM
+10:38:07 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:38:07 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:38:07 Playing: Set 01 - Song 02  (128.3s, device 2)
+10:38:21 Keyboard: DOWN code=106 held={106}
+10:38:21 Keyboard: UP   code=106 combo_key=True triggered=False
+10:38:22 Keyboard: DOWN code=108 held={108}
+10:38:23 Keyboard: UP   code=108 combo_key=False triggered=False
+10:38:24 Injected tempo: 98.77 BPM
+10:38:24 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:38:24 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:38:24 Playing: Set 01 - Song 03  (209.0s, device 2)
+10:46:30 Keyboard: DOWN code=106 held={106}
+10:46:30 Keyboard: DOWN code=103 held={106, 103}
+10:46:30 Keyboard: DOWN code=105 held={105, 106, 103}
+10:46:30 
+Shutdown (key)
+10:46:31 Restarted argononed
+10:46:31 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+10:50:50 
+============================================================
+SESSION START 2026-05-01 10:50:50
+============================================================
+10:50:51 Starting Performance Rig...
+10:50:51 Taskbar hidden
+10:50:51 Stopped argononed
+10:50:52 Virtual MIDI port: RigMIDI
+10:50:52 MIDI bridged 128:0 → 24:0
+10:50:52 Processing launched (PID 2493)
+10:50:55 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+10:50:55 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+10:50:55 Keyboard grabbed: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+
+10:51:02 Keyboard: DOWN code=106 held={106}
+10:51:02 Keyboard: UP   code=106 combo_key=True triggered=False
+10:51:02 Selected: set-01  mode=drums
+10:51:02 Found 14 tracks
+10:51:02   1. Set 01 - Song 01
+10:51:02   2. Set 01 - Song 02
+10:51:02   3. Set 01 - Song 03
+10:51:02   4. Set 01 - Song 04
+10:51:02   5. Set 01 - Song 05
+10:51:02   6. Set 01 - Song 06
+10:51:02   7. Set 01 - Song 07
+10:51:02   8. Set 01 - Song 08
+10:51:02   9. Set 01 - Song 09
+10:51:02   10. Set 01 - Song 10
+10:51:02   11. Set 01 - Song 11
+10:51:02   12. Set 01 - Song 12
+10:51:02   13. Set 01 - Song 13
+10:51:02   14. Set 01 - Song 14
+10:51:02 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+10:51:02 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+10:51:02 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+10:51:02 Keyboard grabbed: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+10:51:03 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+10:51:03 Keyboard: DOWN code=108 held={108}
+10:51:03 Keyboard: UP   code=108 combo_key=False triggered=False
+10:51:03 Injected tempo: 90.49 BPM
+10:51:04 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:51:04 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:51:04 Playing: Set 01 - Song 01  (217.5s, device 2)
+10:51:13 Keyboard: DOWN code=108 held={108}
+10:51:13 Keyboard: UP   code=108 combo_key=False triggered=False
+10:51:14 Injected tempo: 90.49 BPM
+10:51:14 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:51:14 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:51:14 Playing: Set 01 - Song 01  (217.5s, device 2)
+10:51:15 Keyboard: DOWN code=106 held={106}
+10:51:15 Keyboard: UP   code=106 combo_key=True triggered=False
+10:51:17 Keyboard: DOWN code=108 held={108}
+10:51:17 Keyboard: UP   code=108 combo_key=False triggered=False
+10:51:17 Injected tempo: 90.0 BPM
+10:51:17 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:51:17 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:51:17 Playing: Set 01 - Song 02  (128.3s, device 2)
+10:51:23 Keyboard: DOWN code=106 held={106}
+10:51:23 Keyboard: UP   code=106 combo_key=True triggered=False
+10:51:24 Keyboard: DOWN code=108 held={108}
+10:51:25 Keyboard: UP   code=108 combo_key=False triggered=False
+10:51:25 Injected tempo: 98.77 BPM
+10:51:25 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:51:25 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:51:25 Playing: Set 01 - Song 03  (209.0s, device 2)
+10:51:29 Keyboard: DOWN code=106 held={106}
+10:51:29 Keyboard: UP   code=106 combo_key=True triggered=False
+10:51:30 Keyboard: DOWN code=108 held={108}
+10:51:30 Keyboard: UP   code=108 combo_key=False triggered=False
+10:51:32 Injected tempo: 112.5 BPM
+10:51:32 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:51:32 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:51:32 Playing: Set 01 - Song 04  (184.5s, device 2)
+10:51:47 Keyboard: DOWN code=106 held={106}
+10:51:47 Keyboard: UP   code=106 combo_key=True triggered=False
+10:51:48 Keyboard: DOWN code=105 held={105}
+10:51:48 Keyboard: UP   code=105 combo_key=True triggered=False
+10:51:54 Keyboard: DOWN code=106 held={106}
+10:51:54 Keyboard: UP   code=106 combo_key=True triggered=False
+10:51:55 Keyboard: DOWN code=108 held={108}
+10:51:55 Keyboard: UP   code=108 combo_key=False triggered=False
+10:51:55 Injected tempo: 112.5 BPM
+10:51:55 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:51:55 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:51:55 Playing: Set 01 - Song 05  (91.7s, device 2)
+10:52:51 Keyboard: DOWN code=106 held={106}
+10:52:51 Keyboard: UP   code=106 combo_key=True triggered=False
+10:52:51 Keyboard: DOWN code=108 held={108}
+10:52:51 Keyboard: UP   code=108 combo_key=False triggered=False
+10:52:52 Injected tempo: 90.0 BPM
+10:52:52 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:52:52 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:52:52 Playing: Set 01 - Song 06  (112.0s, device 2)
+10:54:48 Keyboard: DOWN code=106 held={106}
+10:54:48 Keyboard: UP   code=106 combo_key=True triggered=False
+10:54:48 Keyboard: DOWN code=108 held={108}
+10:54:48 Keyboard: UP   code=108 combo_key=False triggered=False
+10:54:49 Injected tempo: 90.0 BPM
+10:54:50 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:54:50 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:54:50 Playing: Set 01 - Song 07  (152.3s, device 2)
+10:54:57 Keyboard: DOWN code=106 held={106}
+10:54:58 Keyboard: UP   code=106 combo_key=True triggered=False
+10:54:58 Keyboard: DOWN code=108 held={108}
+10:54:58 Keyboard: UP   code=108 combo_key=False triggered=False
+10:54:59 Injected tempo: 148.69 BPM
+10:54:59 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:54:59 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:54:59 Playing: Set 01 - Song 08  (177.6s, device 2)
+10:55:05 Keyboard: DOWN code=106 held={106}
+10:55:05 Keyboard: UP   code=106 combo_key=True triggered=False
+10:55:05 Keyboard: DOWN code=108 held={108}
+10:55:05 Keyboard: UP   code=108 combo_key=False triggered=False
+10:55:07 Injected tempo: 158.6 BPM
+10:55:07 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:55:07 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:55:07 Playing: Set 01 - Song 09  (184.6s, device 2)
+10:55:29 Keyboard: DOWN code=106 held={106}
+10:55:30 Keyboard: UP   code=106 combo_key=True triggered=False
+10:55:30 Keyboard: DOWN code=108 held={108}
+10:55:30 Keyboard: DOWN code=106 held={106, 108}
+10:55:30 Keyboard: UP   code=106 combo_key=True triggered=False
+10:55:30 Keyboard: UP   code=108 combo_key=False triggered=False
+10:55:31 Injected tempo: 167.98 BPM
+10:55:31 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:55:31 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:55:31 Playing: Set 01 - Song 10  (169.3s, device 2)
+10:55:37 Keyboard: DOWN code=108 held={108}
+10:55:37 Keyboard: UP   code=108 combo_key=False triggered=False
+10:55:38 Injected tempo: 168.0 BPM
+10:55:39 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+10:55:39 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+10:55:39 Playing: Set 01 - Song 11  (170.0s, device 2)
+11:21:01 Keyboard: DOWN code=105 held={105}
+11:21:01 Keyboard: DOWN code=106 held={105, 106}
+11:21:01 Keyboard: DOWN code=103 held={105, 106, 103}
+11:21:01 
+Shutdown (key)
+11:21:01 Restarted argononed
+11:21:01 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+11:22:48 
+============================================================
+SESSION START 2026-05-01 11:22:48
+============================================================
+11:22:49 Starting Performance Rig...
+11:22:49 Taskbar hidden
+11:22:49 Stopped argononed
+11:22:50 Virtual MIDI port: RigMIDI
+11:22:50 MIDI bridged 128:0 → 24:0
+11:22:50 Processing launched (PID 1776)
+11:22:53 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+11:22:53 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+11:22:54 Keyboard grabbed: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+11:22:59 Keyboard disconnected (SayoDevice SayoDevice 1_3P): [Errno 19] No such device
+11:22:59 Keyboard: waiting to reconnect...
+11:22:59 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+11:23:01 Keyboard grab failed (Microsoft Microsoft® Nano Transceiver v2.0) after retries — will retry
+11:23:01 Keyboard: waiting to reconnect...
+11:23:02 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+11:23:04 Keyboard grab failed (Microsoft Microsoft® Nano Transceiver v2.0) after retries — will retry
+11:23:04 Keyboard: waiting to reconnect...
+11:23:05 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+11:23:07 Keyboard grab failed (Microsoft Microsoft® Nano Transceiver v2.0) after retries — will retry
+11:23:07 Keyboard: waiting to reconnect...
+11:23:08 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+11:23:08 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+11:23:08 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+11:23:24 Keyboard disconnected (SayoDevice SayoDevice 1_3P): [Errno 19] No such device
+11:23:24 Keyboard: waiting to reconnect...
+11:23:25 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+11:23:27 Keyboard grab failed (Microsoft Microsoft® Nano Transceiver v2.0) after retries — will retry
+11:23:27 Keyboard: waiting to reconnect...
+11:23:28 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+11:23:28 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+11:23:28 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+11:24:24 Keyboard: DOWN code=105 held={105}
+11:24:24 Keyboard: DOWN code=106 held={105, 106}
+11:24:24 Keyboard: DOWN code=103 held={105, 106, 103}
+11:24:24 Keyboard: UP   code=103 combo_key=True triggered=False
+11:24:24 Keyboard: UP   code=105 combo_key=True triggered=False
+11:24:24 Keyboard: UP   code=106 combo_key=True triggered=False
+11:24:25 Selected: set-01  mode=drumless
+11:24:25 Found 14 tracks
+11:24:25   1. Set 01 - Song 01
+11:24:25   2. Set 01 - Song 02
+11:24:25   3. Set 01 - Song 03
+11:24:25   4. Set 01 - Song 04
+11:24:25   5. Set 01 - Song 05
+11:24:25   6. Set 01 - Song 06
+11:24:25   7. Set 01 - Song 07
+11:24:25   8. Set 01 - Song 08
+11:24:25   9. Set 01 - Song 09
+11:24:25   10. Set 01 - Song 10
+11:24:25   11. Set 01 - Song 11
+11:24:25   12. Set 01 - Song 12
+11:24:25   13. Set 01 - Song 13
+11:24:25   14. Set 01 - Song 14
+11:24:25 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+11:24:25 Keyboard: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+11:24:25 Keyboard grabbed: Microsoft Microsoft® Nano Transceiver v2.0 (/dev/input/event6)
+11:24:25 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+11:24:26 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+11:24:33 Keyboard: DOWN code=106 held={106}
+11:24:33 Keyboard: DOWN code=105 held={105, 106}
+11:24:33 Keyboard: DOWN code=103 held={105, 106, 103}
+11:24:33 
+Shutdown (key)
+11:24:33 Restarted argononed
+11:24:33 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+13:34:28 
+============================================================
+SESSION START 2026-05-01 13:34:28
+============================================================
+13:34:29 Starting Performance Rig...
+13:34:29 Taskbar hidden
+13:34:29 Stopped argononed
+13:34:30 Virtual MIDI port: RigMIDI
+13:34:30 MIDI bridged 128:0 → 24:0
+13:34:30 Processing launched (PID 1730)
+13:34:33 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:34:33 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:42:03 Keyboard: DOWN code=105 held={105}
+13:42:03 Keyboard: DOWN code=106 held={105, 106}
+13:42:03 Keyboard: DOWN code=103 held={105, 106, 103}
+13:42:03 Keyboard: UP   code=106 combo_key=True triggered=False
+13:42:03 Selected: set-01  mode=drums
+13:42:03 Found 14 tracks
+13:42:03   1. Set 01 - Song 01
+13:42:03   2. Set 01 - Song 02
+13:42:03   3. Set 01 - Song 03
+13:42:03   4. Set 01 - Song 04
+13:42:03   5. Set 01 - Song 05
+13:42:03   6. Set 01 - Song 06
+13:42:03   7. Set 01 - Song 07
+13:42:03   8. Set 01 - Song 08
+13:42:03   9. Set 01 - Song 09
+13:42:03   10. Set 01 - Song 10
+13:42:03   11. Set 01 - Song 11
+13:42:03   12. Set 01 - Song 12
+13:42:03   13. Set 01 - Song 13
+13:42:03   14. Set 01 - Song 14
+13:42:03 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:42:03 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:42:03 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+13:42:05 Keyboard: DOWN code=105 held={105}
+13:42:05 Keyboard: DOWN code=106 held={105, 106}
+13:42:05 Keyboard: DOWN code=103 held={105, 106, 103}
+13:42:05 
+Shutdown (key)
+13:42:05 Restarted argononed
+13:42:05 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+13:46:58 
+============================================================
+SESSION START 2026-05-01 13:46:58
+============================================================
+13:46:59 Starting Performance Rig...
+13:46:59 Taskbar hidden
+13:46:59 Stopped argononed
+13:47:00 Virtual MIDI port: RigMIDI
+13:47:00 MIDI bridged 128:0 → 24:0
+13:47:00 Processing launched (PID 1733)
+13:47:03 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:47:03 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:46:59 
+============================================================
+SESSION START 2026-05-01 13:46:59
+============================================================
+13:47:00 Starting Performance Rig...
+13:47:00 Taskbar hidden
+13:47:00 Stopped argononed
+13:47:01 Virtual MIDI port: RigMIDI
+13:47:01 MIDI bridged 128:0 → 24:0
+13:47:01 Processing launched (PID 1734)
+13:47:04 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:47:04 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:47:49 Keyboard: DOWN code=106 held={106}
+13:47:49 Keyboard: UP   code=106 combo_key=True triggered=False
+13:47:50 Selected: set-01  mode=drums
+13:47:50 Found 14 tracks
+13:47:50   1. Set 01 - Song 01
+13:47:50   2. Set 01 - Song 02
+13:47:50   3. Set 01 - Song 03
+13:47:50   4. Set 01 - Song 04
+13:47:50   5. Set 01 - Song 05
+13:47:50   6. Set 01 - Song 06
+13:47:50   7. Set 01 - Song 07
+13:47:50   8. Set 01 - Song 08
+13:47:50   9. Set 01 - Song 09
+13:47:50   10. Set 01 - Song 10
+13:47:50   11. Set 01 - Song 11
+13:47:50   12. Set 01 - Song 12
+13:47:50   13. Set 01 - Song 13
+13:47:50   14. Set 01 - Song 14
+13:47:50 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:47:50 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+13:47:50 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:49:55 Keyboard: DOWN code=103 held={103}
+13:49:55 Keyboard: DOWN code=106 held={106, 103}
+13:49:55 Keyboard: DOWN code=105 held={105, 106, 103}
+13:49:55 
+Shutdown (key)
+13:49:56 Restarted argononed
+13:49:56 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+13:53:51 
+============================================================
+SESSION START 2026-05-01 13:53:51
+============================================================
+13:53:52 Starting Performance Rig...
+13:53:52 Taskbar hidden
+13:53:52 Stopped argononed
+13:53:53 Virtual MIDI port: RigMIDI
+13:53:53 MIDI bridged 128:0 → 24:0
+13:53:53 Processing launched (PID 1740)
+13:53:56 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:53:56 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:05:52 
+============================================================
+SESSION START 2026-05-01 14:05:52
+============================================================
+14:05:52 Starting Performance Rig...
+14:05:53 Taskbar hidden
+14:05:53 Stopped argononed
+14:05:54 Virtual MIDI port: RigMIDI
+14:05:54 MIDI bridged 128:0 → 24:0
+14:05:54 Processing launched (PID 1736)
+14:05:57 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:05:57 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:05:53 
+============================================================
+SESSION START 2026-05-01 14:05:53
+============================================================
+14:05:54 Starting Performance Rig...
+14:05:54 Taskbar hidden
+14:05:54 Stopped argononed
+14:05:55 Virtual MIDI port: RigMIDI
+14:05:55 MIDI bridged 128:0 → 24:0
+14:05:55 Processing launched (PID 1738)
+14:05:58 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:05:58 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:13:44 Keyboard: DOWN code=105 held={105}
+14:13:44 Keyboard: DOWN code=106 held={105, 106}
+14:13:44 Keyboard: DOWN code=103 held={105, 106, 103}
+14:13:44 Keyboard: UP   code=103 combo_key=True triggered=False
+14:13:44 Keyboard: UP   code=106 combo_key=True triggered=False
+14:13:44 Keyboard: UP   code=105 combo_key=True triggered=False
+14:13:46 Selected: set-01  mode=drums
+14:13:46 Found 14 tracks
+14:13:46   1. Set 01 - Song 01
+14:13:46   2. Set 01 - Song 02
+14:13:46   3. Set 01 - Song 03
+14:13:46   4. Set 01 - Song 04
+14:13:46   5. Set 01 - Song 05
+14:13:46   6. Set 01 - Song 06
+14:13:46   7. Set 01 - Song 07
+14:13:46   8. Set 01 - Song 08
+14:13:46   9. Set 01 - Song 09
+14:13:46   10. Set 01 - Song 10
+14:13:46   11. Set 01 - Song 11
+14:13:46   12. Set 01 - Song 12
+14:13:46   13. Set 01 - Song 13
+14:13:46   14. Set 01 - Song 14
+14:13:46 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:13:46 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+14:13:46 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:13:48 Keyboard: DOWN code=105 held={105}
+14:13:48 Keyboard: DOWN code=103 held={105, 103}
+14:13:48 Keyboard: DOWN code=106 held={105, 106, 103}
+14:13:48 
+Shutdown (key)
+14:13:48 Restarted argononed
+14:13:49 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+14:15:10 
+============================================================
+SESSION START 2026-05-01 14:15:10
+============================================================
+14:15:10 Starting Performance Rig...
+14:15:11 Taskbar hidden
+14:15:11 Stopped argononed
+14:15:12 Virtual MIDI port: RigMIDI
+14:15:12 MIDI bridged 128:0 → 24:0
+14:15:12 Processing launched (PID 1730)
+14:15:15 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:15:15 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:15:42 Keyboard: DOWN code=103 held={103}
+14:15:42 Keyboard: DOWN code=105 held={105, 103}
+14:15:42 Keyboard: DOWN code=106 held={105, 106, 103}
+14:15:42 Keyboard: UP   code=103 combo_key=True triggered=False
+14:15:42 Keyboard: UP   code=105 combo_key=True triggered=False
+14:15:42 Keyboard: UP   code=106 combo_key=True triggered=False
+14:15:44 Selected: set-01  mode=drumless
+14:15:44 Found 14 tracks
+14:15:44   1. Set 01 - Song 01
+14:15:44   2. Set 01 - Song 02
+14:15:44   3. Set 01 - Song 03
+14:15:44   4. Set 01 - Song 04
+14:15:44   5. Set 01 - Song 05
+14:15:44   6. Set 01 - Song 06
+14:15:44   7. Set 01 - Song 07
+14:15:44   8. Set 01 - Song 08
+14:15:44   9. Set 01 - Song 09
+14:15:44   10. Set 01 - Song 10
+14:15:44   11. Set 01 - Song 11
+14:15:44   12. Set 01 - Song 12
+14:15:44   13. Set 01 - Song 13
+14:15:44   14. Set 01 - Song 14
+14:15:44 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:15:44 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+14:15:44 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:15:45 Keyboard: DOWN code=103 held={103}
+14:15:45 Keyboard: DOWN code=106 held={106, 103}
+14:15:45 Keyboard: DOWN code=105 held={105, 106, 103}
+14:15:45 
+Shutdown (key)
+14:15:46 Restarted argononed
+14:15:46 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+14:15:10 
+============================================================
+SESSION START 2026-05-01 14:15:10
+============================================================
+14:15:11 Starting Performance Rig...
+14:15:12 Taskbar hidden
+14:15:12 Stopped argononed
+14:15:12 Virtual MIDI port: RigMIDI
+14:15:12 MIDI bridged 128:0 → 24:0
+14:15:12 Processing launched (PID 1732)
+14:15:16 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:15:16 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:22:09 
+============================================================
+SESSION START 2026-05-01 14:22:09
+============================================================
+14:22:09 Starting Performance Rig...
+14:22:10 Taskbar hidden
+14:22:10 Stopped argononed
+14:22:11 Virtual MIDI port: RigMIDI
+14:22:11 MIDI bridged 128:0 → 24:0
+14:22:11 Processing launched (PID 1739)
+14:22:14 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:22:14 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:22:10 
+============================================================
+SESSION START 2026-05-01 14:22:10
+============================================================
+14:22:10 Starting Performance Rig...
+14:22:11 Taskbar hidden
+14:22:11 Stopped argononed
+14:22:12 Virtual MIDI port: RigMIDI
+14:22:12 MIDI bridged 128:0 → 24:0
+14:22:12 Processing launched (PID 1734)
+14:22:15 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:22:15 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:26:27 Keyboard: DOWN code=103 held={103}
+14:26:28 Keyboard: UP   code=103 combo_key=True triggered=False
+14:26:31 Keyboard: DOWN code=106 held={106}
+14:26:31 Keyboard: DOWN code=105 held={105, 106}
+14:26:31 Keyboard: DOWN code=103 held={105, 106, 103}
+14:26:31 Keyboard: DOWN code=108 held={105, 106, 108, 103}
+14:26:32 Keyboard: UP   code=106 combo_key=True triggered=False
+14:26:32 Keyboard: UP   code=103 combo_key=True triggered=False
+14:26:32 Keyboard: UP   code=108 combo_key=False triggered=False
+14:26:32 Keyboard: UP   code=105 combo_key=True triggered=False
+14:26:32 Keyboard: DOWN code=105 held={105}
+14:26:32 Keyboard: DOWN code=106 held={105, 106}
+14:26:32 Keyboard: DOWN code=103 held={105, 106, 103}
+14:26:32 Keyboard: UP   code=103 combo_key=True triggered=False
+14:26:33 Keyboard: UP   code=105 combo_key=True triggered=False
+14:26:33 Keyboard: UP   code=106 combo_key=True triggered=False
+14:26:33 Selected: set-01  mode=drums
+14:26:33 Found 14 tracks
+14:26:33   1. Set 01 - Song 01
+14:26:33   2. Set 01 - Song 02
+14:26:33   3. Set 01 - Song 03
+14:26:33   4. Set 01 - Song 04
+14:26:33   5. Set 01 - Song 05
+14:26:33   6. Set 01 - Song 06
+14:26:33   7. Set 01 - Song 07
+14:26:33   8. Set 01 - Song 08
+14:26:33   9. Set 01 - Song 09
+14:26:33   10. Set 01 - Song 10
+14:26:33   11. Set 01 - Song 11
+14:26:33   12. Set 01 - Song 12
+14:26:33   13. Set 01 - Song 13
+14:26:33   14. Set 01 - Song 14
+14:26:33 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:26:33 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:26:33 Keyboard: UP   code=106 combo_key=False triggered=False
+14:26:33 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+14:26:33 Keyboard: DOWN code=106 held={106}
+14:26:33 Keyboard: DOWN code=105 held={105, 106}
+14:26:33 Keyboard: DOWN code=103 held={105, 106, 103}
+14:26:33 
+Shutdown (key)
+14:26:34 Restarted argononed
+14:26:34 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+14:22:11 
+============================================================
+SESSION START 2026-05-01 14:22:11
+============================================================
+14:22:12 Starting Performance Rig...
+14:22:12 Taskbar hidden
+14:22:12 Stopped argononed
+14:22:13 Virtual MIDI port: RigMIDI
+14:22:13 MIDI bridged 128:0 → 24:0
+14:22:13 Processing launched (PID 1740)
+14:22:16 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:22:16 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:25:22 Keyboard: DOWN code=106 held={106}
+14:25:23 Keyboard: UP   code=106 combo_key=True triggered=False
+14:25:23 Selected: set-01  mode=drums
+14:25:23 Found 14 tracks
+14:25:23   1. Set 01 - Song 01
+14:25:23   2. Set 01 - Song 02
+14:25:23   3. Set 01 - Song 03
+14:25:23   4. Set 01 - Song 04
+14:25:23   5. Set 01 - Song 05
+14:25:23   6. Set 01 - Song 06
+14:25:23   7. Set 01 - Song 07
+14:25:23   8. Set 01 - Song 08
+14:25:23   9. Set 01 - Song 09
+14:25:23   10. Set 01 - Song 10
+14:25:23   11. Set 01 - Song 11
+14:25:23   12. Set 01 - Song 12
+14:25:23   13. Set 01 - Song 13
+14:25:23   14. Set 01 - Song 14
+14:25:23 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:25:23 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+14:25:24 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:25:43 Keyboard: DOWN code=106 held={106}
+14:25:43 Keyboard: UP   code=106 combo_key=True triggered=False
+14:25:51 Keyboard: DOWN code=108 held={108}
+14:25:52 Keyboard: UP   code=108 combo_key=False triggered=False
+14:25:53 Injected tempo: 90.49 BPM
+14:25:53 WARNING: Zoom L6 not found, using default output
+14:25:53 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:25:53 Main audio error: Error opening OutputStream: Invalid number of channels [PaErrorCode -9998]
+14:25:53 Playing: Set 01 - Song 02  (217.5s, device None)
+14:26:28 Keyboard: DOWN code=105 held={105}
+14:26:28 Keyboard: DOWN code=106 held={105, 106}
+14:26:28 Keyboard: DOWN code=103 held={105, 106, 103}
+14:26:28 
+Shutdown (key)
+14:26:29 Restarted argononed
+14:26:29 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+14:22:12 
+============================================================
+SESSION START 2026-05-01 14:22:12
+============================================================
+14:22:13 Starting Performance Rig...
+14:22:13 Taskbar hidden
+14:22:13 Stopped argononed
+14:22:14 Virtual MIDI port: RigMIDI
+14:22:14 MIDI bridged 128:0 → 24:0
+14:22:14 Processing launched (PID 1744)
+14:22:17 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:22:17 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:22:18 Keyboard: DOWN code=106 held={106}
+14:22:18 Keyboard: UP   code=106 combo_key=True triggered=False
+14:22:19 Selected: set-01  mode=drums
+14:22:19 Found 14 tracks
+14:22:19   1. Set 01 - Song 01
+14:22:19   2. Set 01 - Song 02
+14:22:19   3. Set 01 - Song 03
+14:22:19   4. Set 01 - Song 04
+14:22:19   5. Set 01 - Song 05
+14:22:19   6. Set 01 - Song 06
+14:22:19   7. Set 01 - Song 07
+14:22:19   8. Set 01 - Song 08
+14:22:19   9. Set 01 - Song 09
+14:22:19   10. Set 01 - Song 10
+14:22:19   11. Set 01 - Song 11
+14:22:19   12. Set 01 - Song 12
+14:22:19   13. Set 01 - Song 13
+14:22:19   14. Set 01 - Song 14
+14:22:19 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:22:19 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+14:22:20 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:22:21 Keyboard: DOWN code=108 held={108}
+14:22:21 Keyboard: UP   code=108 combo_key=False triggered=False
+14:22:22 Injected tempo: 90.0 BPM
+14:22:22 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:22:22 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:22:22 Playing: Set 01 - Song 01  (128.3s, device 2)
+14:22:31 Keyboard: DOWN code=103 held={103}
+14:22:31 Keyboard: UP   code=103 combo_key=True triggered=False
+14:22:31 Paused
+14:22:33 Keyboard: DOWN code=103 held={103}
+14:22:33 Keyboard: UP   code=103 combo_key=True triggered=False
+14:22:33 Resumed
+14:22:34 Keyboard: DOWN code=103 held={103}
+14:22:34 Keyboard: UP   code=103 combo_key=True triggered=False
+14:22:34 Paused
+14:22:42 Keyboard: DOWN code=103 held={103}
+14:22:42 Keyboard: UP   code=103 combo_key=True triggered=False
+14:22:42 Resumed
+14:22:43 Keyboard: DOWN code=103 held={103}
+14:22:43 Keyboard: UP   code=103 combo_key=True triggered=False
+14:22:43 Paused
+14:22:45 Keyboard: DOWN code=103 held={103}
+14:22:45 Keyboard: UP   code=103 combo_key=True triggered=False
+14:22:45 Resumed
+14:22:47 Keyboard: DOWN code=103 held={103}
+14:22:47 Keyboard: UP   code=103 combo_key=True triggered=False
+14:22:47 Paused
+14:22:13 
+============================================================
+SESSION START 2026-05-01 14:22:13
+============================================================
+14:22:14 Starting Performance Rig...
+14:22:14 Taskbar hidden
+14:22:14 Stopped argononed
+14:22:15 Virtual MIDI port: RigMIDI
+14:22:15 MIDI bridged 128:0 → 24:0
+14:22:15 Processing launched (PID 1742)
+14:22:18 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:22:18 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:24:38 Keyboard: DOWN code=108 held={108}
+14:24:38 Keyboard: UP   code=108 combo_key=False triggered=False
+14:24:40 Keyboard: DOWN code=106 held={106}
+14:24:40 Keyboard: UP   code=106 combo_key=True triggered=False
+14:24:40 Selected: set-01  mode=drums
+14:24:40 Found 14 tracks
+14:24:40   1. Set 01 - Song 01
+14:24:40   2. Set 01 - Song 02
+14:24:40   3. Set 01 - Song 03
+14:24:40   4. Set 01 - Song 04
+14:24:40   5. Set 01 - Song 05
+14:24:40   6. Set 01 - Song 06
+14:24:40   7. Set 01 - Song 07
+14:24:40   8. Set 01 - Song 08
+14:24:40   9. Set 01 - Song 09
+14:24:40   10. Set 01 - Song 10
+14:24:40   11. Set 01 - Song 11
+14:24:40   12. Set 01 - Song 12
+14:24:40   13. Set 01 - Song 13
+14:24:40   14. Set 01 - Song 14
+14:24:40 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:24:40 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+14:24:41 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:24:42 Keyboard: DOWN code=108 held={108}
+14:24:42 Keyboard: UP   code=108 combo_key=False triggered=False
+14:24:43 Injected tempo: 90.0 BPM
+14:24:43 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:24:43 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:24:43 Playing: Set 01 - Song 01  (128.3s, device 2)
+14:26:56 Keyboard: DOWN code=106 held={106}
+14:26:56 Keyboard: UP   code=106 combo_key=True triggered=False
+14:26:58 Keyboard: DOWN code=108 held={108}
+14:26:58 Keyboard: UP   code=108 combo_key=False triggered=False
+14:27:00 Injected tempo: 90.49 BPM
+14:27:00 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:27:00 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:27:00 Playing: Set 01 - Song 02  (217.5s, device 2)
+14:30:45 Keyboard: DOWN code=106 held={106}
+14:30:45 Keyboard: UP   code=106 combo_key=True triggered=False
+14:31:18 Keyboard: DOWN code=106 held={106}
+14:31:18 Keyboard: UP   code=106 combo_key=True triggered=False
+14:31:22 Keyboard: DOWN code=105 held={105}
+14:31:22 Keyboard: UP   code=105 combo_key=True triggered=False
+14:31:24 Keyboard: DOWN code=108 held={108}
+14:31:24 Keyboard: UP   code=108 combo_key=False triggered=False
+14:31:25 Injected tempo: 98.77 BPM
+14:31:26 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:31:26 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:31:26 Playing: Set 01 - Song 03  (209.0s, device 2)
+14:34:59 Keyboard: DOWN code=106 held={106}
+14:34:59 Keyboard: UP   code=106 combo_key=True triggered=False
+14:35:00 Keyboard: DOWN code=108 held={108}
+14:35:00 Keyboard: UP   code=108 combo_key=False triggered=False
+14:35:01 Injected tempo: 112.5 BPM
+14:35:02 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:35:02 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:35:02 Playing: Set 01 - Song 04  (184.5s, device 2)
+14:38:07 Keyboard: DOWN code=106 held={106}
+14:38:07 Keyboard: UP   code=106 combo_key=True triggered=False
+14:38:12 Keyboard: DOWN code=108 held={108}
+14:38:12 Keyboard: UP   code=108 combo_key=False triggered=False
+14:38:13 Injected tempo: 112.5 BPM
+14:38:13 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:38:13 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:38:13 Playing: Set 01 - Song 05  (91.7s, device 2)
+14:39:45 Keyboard: DOWN code=106 held={106}
+14:39:46 Keyboard: UP   code=106 combo_key=True triggered=False
+14:39:46 Keyboard: DOWN code=108 held={108}
+14:39:46 Keyboard: UP   code=108 combo_key=False triggered=False
+14:39:47 Injected tempo: 90.0 BPM
+14:39:47 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:39:47 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:39:47 Playing: Set 01 - Song 06  (112.0s, device 2)
+14:41:41 Keyboard: DOWN code=106 held={106}
+14:41:41 Keyboard: UP   code=106 combo_key=True triggered=False
+14:41:42 Keyboard: DOWN code=108 held={108}
+14:41:42 Keyboard: UP   code=108 combo_key=False triggered=False
+14:41:43 Injected tempo: 90.0 BPM
+14:41:43 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:41:43 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:41:43 Playing: Set 01 - Song 07  (152.3s, device 2)
+14:44:16 Keyboard: DOWN code=106 held={106}
+14:44:16 Keyboard: UP   code=106 combo_key=True triggered=False
+14:44:25 Keyboard: DOWN code=108 held={108}
+14:44:25 Keyboard: DOWN code=106 held={106, 108}
+14:44:25 Keyboard: UP   code=106 combo_key=True triggered=False
+14:44:25 Keyboard: UP   code=108 combo_key=False triggered=False
+14:44:26 Injected tempo: 148.69 BPM
+14:44:26 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:44:26 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:44:26 Playing: Set 01 - Song 08  (177.6s, device 2)
+14:44:27 Keyboard: DOWN code=105 held={105}
+14:44:27 Keyboard: UP   code=105 combo_key=True triggered=False
+14:44:28 Keyboard: DOWN code=108 held={108}
+14:44:29 Keyboard: UP   code=108 combo_key=False triggered=False
+14:44:29 Injected tempo: 148.69 BPM
+14:44:29 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:44:29 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:44:29 Playing: Set 01 - Song 08  (177.6s, device 2)
+14:47:30 Keyboard: DOWN code=106 held={106}
+14:47:30 Keyboard: UP   code=106 combo_key=True triggered=False
+14:47:32 Keyboard: DOWN code=108 held={108}
+14:47:32 Keyboard: UP   code=108 combo_key=False triggered=False
+14:47:33 Injected tempo: 158.6 BPM
+14:47:33 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:47:33 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:47:33 Playing: Set 01 - Song 09  (184.6s, device 2)
+14:50:42 Keyboard: DOWN code=106 held={106}
+14:50:42 Keyboard: UP   code=106 combo_key=True triggered=False
+14:50:44 Keyboard: DOWN code=106 held={106}
+14:50:44 Keyboard: UP   code=106 combo_key=True triggered=False
+14:50:50 Keyboard: DOWN code=108 held={108}
+14:50:50 Keyboard: UP   code=108 combo_key=False triggered=False
+14:50:51 Injected tempo: 168.0 BPM
+14:50:51 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:50:51 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:50:51 Playing: Set 01 - Song 11  (170.0s, device 2)
+14:53:44 Keyboard: DOWN code=106 held={106}
+14:53:44 Keyboard: UP   code=106 combo_key=True triggered=False
+14:53:49 Keyboard: DOWN code=108 held={108}
+14:53:49 Keyboard: UP   code=108 combo_key=False triggered=False
+14:53:50 Injected tempo: 180.0 BPM
+14:53:50 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:53:50 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:53:50 Playing: Set 01 - Song 12  (138.7s, device 2)
+14:56:20 Keyboard: DOWN code=106 held={106}
+14:56:20 Keyboard: UP   code=106 combo_key=True triggered=False
+14:56:28 Keyboard: DOWN code=108 held={108}
+14:56:28 Keyboard: UP   code=108 combo_key=False triggered=False
+14:56:29 Injected tempo: 202.0 BPM
+14:56:30 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+14:56:30 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+14:56:30 Playing: Set 01 - Song 13  (227.0s, device 2)
+15:00:19 Keyboard: DOWN code=106 held={106}
+15:00:19 Keyboard: UP   code=106 combo_key=True triggered=False
+15:00:48 Keyboard: DOWN code=108 held={108}
+15:00:48 Keyboard: UP   code=108 combo_key=False triggered=False
+15:00:50 Injected tempo: 202.0 BPM
+15:00:51 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+15:00:51 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+15:00:51 Playing: Set 01 - Song 14  (292.3s, device 2)
+15:06:12 Keyboard: DOWN code=103 held={103}
+15:06:12 Keyboard: DOWN code=105 held={105, 103}
+15:06:12 Keyboard: DOWN code=106 held={105, 106, 103}
+15:06:12 
+Shutdown (key)
+15:06:12 Restarted argononed
+15:06:12 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+15:07:54 
+============================================================
+SESSION START 2026-05-01 15:07:54
+============================================================
+15:07:54 Starting Performance Rig...
+15:07:55 Taskbar hidden
+15:07:55 Stopped argononed
+15:07:56 Virtual MIDI port: RigMIDI
+15:07:56 MIDI bridged 128:0 → 24:0
+15:07:56 Processing launched (PID 1732)
+15:07:59 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+15:07:59 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:08:00 Keyboard: DOWN code=105 held={105}
+13:08:00 Keyboard: DOWN code=103 held={105, 103}
+13:08:00 Keyboard: DOWN code=106 held={105, 106, 103}
+13:08:01 Keyboard: UP   code=105 combo_key=True triggered=False
+13:08:01 Selected: set-01  mode=drumless
+13:08:01 Found 14 tracks
+13:08:01   1. Set 01 - Song 01
+13:08:01   2. Set 01 - Song 02
+13:08:01   3. Set 01 - Song 03
+13:08:01   4. Set 01 - Song 04
+13:08:01   5. Set 01 - Song 05
+13:08:01   6. Set 01 - Song 06
+13:08:01   7. Set 01 - Song 07
+13:08:01   8. Set 01 - Song 08
+13:08:01   9. Set 01 - Song 09
+13:08:01   10. Set 01 - Song 10
+13:08:01   11. Set 01 - Song 11
+13:08:01   12. Set 01 - Song 12
+13:08:01   13. Set 01 - Song 13
+13:08:01   14. Set 01 - Song 14
+13:08:01 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:08:01 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:08:01 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+13:08:04 Keyboard: DOWN code=105 held={105}
+13:08:04 Keyboard: DOWN code=106 held={105, 106}
+13:08:04 Keyboard: DOWN code=103 held={105, 106, 103}
+13:08:04 
+Shutdown (key)
+13:08:04 Restarted argononed
+13:08:04 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+13:11:06 
+============================================================
+SESSION START 2026-05-03 13:11:06
+============================================================
+13:11:07 Starting Performance Rig...
+13:11:08 Taskbar hidden
+13:11:08 Stopped argononed
+13:11:08 Virtual MIDI port: RigMIDI
+13:11:08 MIDI bridged 128:0 → 24:0
+13:11:08 Processing launched (PID 1738)
+13:11:12 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:11:12 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:19:12 Keyboard: DOWN code=105 held={105}
+13:19:13 Keyboard: UP   code=105 combo_key=True triggered=False
+13:19:13 Selected: set-01  mode=drumless
+13:19:13 Found 14 tracks
+13:19:13   1. Set 01 - Song 01
+13:19:13   2. Set 01 - Song 02
+13:19:13   3. Set 01 - Song 03
+13:19:13   4. Set 01 - Song 04
+13:19:13   5. Set 01 - Song 05
+13:19:13   6. Set 01 - Song 06
+13:19:13   7. Set 01 - Song 07
+13:19:13   8. Set 01 - Song 08
+13:19:13   9. Set 01 - Song 09
+13:19:13   10. Set 01 - Song 10
+13:19:13   11. Set 01 - Song 11
+13:19:13   12. Set 01 - Song 12
+13:19:13   13. Set 01 - Song 13
+13:19:13   14. Set 01 - Song 14
+13:19:13 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:19:13 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+13:19:13 Keyboard: UP   code=106 combo_key=False triggered=False
+13:19:13 Keyboard: DOWN code=108 held={108}
+13:19:13 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+13:19:13 Keyboard: UP   code=108 combo_key=False triggered=False
+13:19:13 Keyboard: DOWN code=105 held={105}
+13:19:13 Keyboard: UP   code=105 combo_key=True triggered=False
+13:19:14 Injected tempo: 90.0 BPM
+13:19:14 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+13:19:14 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+13:19:14 Playing: Set 01 - Song 01  (128.3s, device 1)
+13:19:15 Keyboard: DOWN code=105 held={105}
+13:19:15 Keyboard: UP   code=105 combo_key=True triggered=False
+13:19:15 Keyboard: DOWN code=108 held={108}
+13:19:15 Keyboard: UP   code=108 combo_key=False triggered=False
+13:19:15 Keyboard: DOWN code=106 held={106}
+13:19:15 Keyboard: UP   code=106 combo_key=True triggered=False
+13:19:16 Injected tempo: 202.0 BPM
+13:19:17 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+13:19:17 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+13:19:17 Playing: Set 01 - Song 13  (227.0s, device 1)
+13:19:19 Keyboard: DOWN code=105 held={105}
+13:19:19 Keyboard: UP   code=105 combo_key=True triggered=False
+13:19:20 Keyboard: DOWN code=108 held={108}
+13:19:20 Keyboard: UP   code=108 combo_key=False triggered=False
+13:19:21 Keyboard: DOWN code=106 held={106}
+13:19:21 Keyboard: DOWN code=105 held={105, 106}
+13:19:21 Keyboard: DOWN code=103 held={105, 106, 103}
+13:19:21 
+Shutdown (key)
+13:19:21 Injected tempo: 202.0 BPM
+13:19:21 Restarted argononed
+13:19:21 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 1)
+13:19:21 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 0)
+13:19:21 Playing: Set 01 - Song 13  (227.0s, device 1)
+13:19:21 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+15:13:06 
+============================================================
+SESSION START 2026-05-03 15:13:06
+============================================================
+15:13:06 Starting Performance Rig...
+15:13:07 Taskbar hidden
+15:13:07 Stopped argononed
+15:13:08 Virtual MIDI port: RigMIDI
+15:13:08 MIDI bridged 128:0 → 24:0
+15:13:08 Processing launched (PID 1745)
+15:13:11 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+15:13:11 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+12:40:17 Keyboard: DOWN code=108 held={108}
+12:40:17 Keyboard: UP   code=108 combo_key=False triggered=False
+12:40:19 Keyboard: DOWN code=106 held={106}
+12:40:20 Keyboard: UP   code=106 combo_key=True triggered=False
+12:40:20 Selected: set-01  mode=drums
+12:40:20 Found 14 tracks
+12:40:20   1. Set 01 - Song 01
+12:40:20   2. Set 01 - Song 02
+12:40:20   3. Set 01 - Song 03
+12:40:20   4. Set 01 - Song 04
+12:40:20   5. Set 01 - Song 05
+12:40:20   6. Set 01 - Song 06
+12:40:20   7. Set 01 - Song 07
+12:40:20   8. Set 01 - Song 08
+12:40:20   9. Set 01 - Song 09
+12:40:20   10. Set 01 - Song 10
+12:40:20   11. Set 01 - Song 11
+12:40:20   12. Set 01 - Song 12
+12:40:20   13. Set 01 - Song 13
+12:40:20   14. Set 01 - Song 14
+12:40:20 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+12:40:20 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+12:40:21 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+12:40:23 Keyboard: DOWN code=108 held={108}
+12:40:23 Keyboard: UP   code=108 combo_key=False triggered=False
+12:40:24 Injected tempo: 90.0 BPM
+12:40:24 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+12:40:24 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+12:40:24 Playing: Set 01 - Song 01  (128.3s, device 2)
+12:42:38 Keyboard: DOWN code=106 held={106}
+12:42:38 Keyboard: UP   code=106 combo_key=True triggered=False
+12:42:40 Keyboard: DOWN code=108 held={108}
+12:42:40 Keyboard: UP   code=108 combo_key=False triggered=False
+12:42:41 Injected tempo: 90.49 BPM
+12:42:42 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+12:42:42 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+12:42:42 Playing: Set 01 - Song 02  (217.5s, device 2)
+12:46:25 Keyboard: DOWN code=106 held={106}
+12:46:25 Keyboard: UP   code=106 combo_key=True triggered=False
+12:46:26 Keyboard: DOWN code=108 held={108}
+12:46:26 Keyboard: UP   code=108 combo_key=False triggered=False
+12:46:28 Injected tempo: 98.77 BPM
+12:46:28 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+12:46:28 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+12:46:28 Playing: Set 01 - Song 03  (209.0s, device 2)
+12:50:01 Keyboard: DOWN code=106 held={106}
+12:50:01 Keyboard: UP   code=106 combo_key=True triggered=False
+12:50:02 Keyboard: DOWN code=108 held={108}
+12:50:02 Keyboard: UP   code=108 combo_key=False triggered=False
+12:50:03 Injected tempo: 112.5 BPM
+12:50:03 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+12:50:03 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+12:50:03 Playing: Set 01 - Song 04  (184.5s, device 2)
+12:54:05 Keyboard: DOWN code=106 held={106}
+12:54:05 Keyboard: UP   code=106 combo_key=True triggered=False
+12:54:05 Keyboard: DOWN code=108 held={108}
+12:54:06 Keyboard: UP   code=108 combo_key=False triggered=False
+12:54:06 Injected tempo: 112.5 BPM
+12:54:06 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+12:54:06 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+12:54:06 Playing: Set 01 - Song 05  (91.7s, device 2)
+12:55:42 Keyboard: DOWN code=106 held={106}
+12:55:42 Keyboard: UP   code=106 combo_key=True triggered=False
+12:55:43 Keyboard: DOWN code=108 held={108}
+12:55:43 Keyboard: UP   code=108 combo_key=False triggered=False
+12:55:43 Injected tempo: 90.0 BPM
+12:55:43 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+12:55:43 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+12:55:43 Playing: Set 01 - Song 06  (112.0s, device 2)
+12:58:48 Keyboard: DOWN code=106 held={106}
+12:58:48 Keyboard: UP   code=106 combo_key=True triggered=False
+12:58:48 Keyboard: DOWN code=108 held={108}
+12:58:48 Keyboard: UP   code=108 combo_key=False triggered=False
+12:58:49 Injected tempo: 90.0 BPM
+12:58:50 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+12:58:50 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+12:58:50 Playing: Set 01 - Song 07  (152.3s, device 2)
+13:01:56 Keyboard: DOWN code=106 held={106}
+13:01:56 Keyboard: UP   code=106 combo_key=True triggered=False
+13:01:56 Keyboard: DOWN code=108 held={108}
+13:01:56 Keyboard: UP   code=108 combo_key=False triggered=False
+13:01:57 Injected tempo: 148.69 BPM
+13:01:58 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+13:01:58 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+13:01:58 Playing: Set 01 - Song 08  (177.6s, device 2)
+13:41:39 Keyboard: DOWN code=108 held={108}
+13:41:39 Keyboard: UP   code=108 combo_key=False triggered=False
+13:41:39 Injected tempo: 148.69 BPM
+13:41:39 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+13:41:39 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+13:41:39 Playing: Set 01 - Song 08  (177.6s, device 2)
+13:41:41 Keyboard: DOWN code=106 held={106}
+13:41:41 Keyboard: UP   code=106 combo_key=True triggered=False
+13:41:42 Keyboard: DOWN code=108 held={108}
+13:41:42 Keyboard: UP   code=108 combo_key=False triggered=False
+13:41:43 Injected tempo: 158.6 BPM
+13:41:43 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+13:41:43 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+13:41:43 Playing: Set 01 - Song 09  (184.6s, device 2)
+13:46:05 Keyboard: DOWN code=106 held={106}
+13:46:05 Keyboard: UP   code=106 combo_key=True triggered=False
+13:46:05 Keyboard: DOWN code=108 held={108}
+13:46:05 Keyboard: UP   code=108 combo_key=False triggered=False
+13:46:06 Injected tempo: 167.98 BPM
+13:46:07 Auto-detected Zoom L6: L6: USB Audio (hw:4,0) (device 2)
+13:46:07 Auto-detected DAC: USB Audio Device: - (hw:3,0) (device 1)
+13:46:07 Playing: Set 01 - Song 10  (169.3s, device 2)
+14:46:01 Keyboard: DOWN code=105 held={105}
+14:46:01 Keyboard: DOWN code=103 held={105, 103}
+14:46:01 Keyboard: DOWN code=106 held={105, 106, 103}
+14:46:01 
+Shutdown (key)
+14:46:01 Restarted argononed
+14:46:01 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+14:46:21 
+============================================================
+SESSION START 2026-05-05 14:46:21
+============================================================
+14:46:22 Starting Performance Rig...
+14:46:22 Taskbar hidden
+14:46:22 Stopped argononed
+14:46:23 Virtual MIDI port: RigMIDI
+14:46:23 MIDI bridged 128:0 → 24:0
+14:46:23 Processing launched (PID 1733)
+14:46:26 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+14:46:26 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+00:47:07 
+============================================================
+SESSION START 2026-05-07 00:47:07
+============================================================
+00:47:08 Starting Performance Rig...
+00:47:08 Taskbar hidden
+00:47:08 Stopped argononed
+00:47:09 Virtual MIDI port: RigMIDI
+00:47:09 MIDI bridged 128:0 → 24:0
+00:47:09 Processing launched (PID 1734)
+00:47:12 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+00:47:12 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+21:53:54 Keyboard: DOWN code=105 held={105}
+21:53:54 Keyboard: DOWN code=103 held={105, 103}
+21:53:54 Keyboard: DOWN code=106 held={105, 106, 103}
+21:53:54 Keyboard: UP   code=105 combo_key=True triggered=False
+21:53:54 Selected: set-01  mode=drumless
+21:53:54 Found 14 tracks
+21:53:54   1. Set 01 - Song 01
+21:53:54   2. Set 01 - Song 02
+21:53:54   3. Set 01 - Song 03
+21:53:54   4. Set 01 - Song 04
+21:53:54   5. Set 01 - Song 05
+21:53:54   6. Set 01 - Song 06
+21:53:54   7. Set 01 - Song 07
+21:53:54   8. Set 01 - Song 08
+21:53:54   9. Set 01 - Song 09
+21:53:54   10. Set 01 - Song 10
+21:53:54   11. Set 01 - Song 11
+21:53:54   12. Set 01 - Song 12
+21:53:54   13. Set 01 - Song 13
+21:53:54   14. Set 01 - Song 14
+21:53:54 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+21:53:54 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+21:53:54 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+21:53:57 Keyboard: DOWN code=106 held={106}
+21:53:57 Keyboard: DOWN code=105 held={105, 106}
+21:53:57 Keyboard: DOWN code=103 held={105, 106, 103}
+21:53:57 
+Shutdown (key)
+21:53:57 Restarted argononed
+21:53:58 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+22:01:15 
+============================================================
+SESSION START 2026-05-07 22:01:15
+============================================================
+22:01:16 Starting Performance Rig...
+22:01:16 Taskbar hidden
+22:01:16 Stopped argononed
+22:01:17 Virtual MIDI port: RigMIDI
+22:01:17 MIDI bridged 128:0 → 24:0
+22:01:17 Processing launched (PID 1738)
+22:01:21 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:01:21 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:01:44 Keyboard: DOWN code=106 held={106}
+22:01:44 Keyboard: UP   code=106 combo_key=True triggered=False
+22:01:44 Selected: set-01  mode=drums
+22:01:44 Found 14 tracks
+22:01:44   1. Set 01 - Song 01
+22:01:44   2. Set 01 - Song 02
+22:01:44   3. Set 01 - Song 03
+22:01:44   4. Set 01 - Song 04
+22:01:44   5. Set 01 - Song 05
+22:01:44   6. Set 01 - Song 06
+22:01:44   7. Set 01 - Song 07
+22:01:44   8. Set 01 - Song 08
+22:01:44   9. Set 01 - Song 09
+22:01:44   10. Set 01 - Song 10
+22:01:44   11. Set 01 - Song 11
+22:01:44   12. Set 01 - Song 12
+22:01:44   13. Set 01 - Song 13
+22:01:44   14. Set 01 - Song 14
+22:01:44 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:01:44 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+22:01:45 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:01:45 Keyboard: DOWN code=105 held={105}
+22:01:45 Keyboard: DOWN code=103 held={105, 103}
+22:01:45 Keyboard: DOWN code=106 held={105, 106, 103}
+22:01:45 
+Shutdown (key)
+22:01:45 Restarted argononed
+22:01:45 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+22:11:00 
+============================================================
+SESSION START 2026-05-07 22:11:00
+============================================================
+22:11:00 Starting Performance Rig...
+22:11:01 Taskbar hidden
+22:11:01 Stopped argononed
+22:11:02 Virtual MIDI port: RigMIDI
+22:11:02 MIDI bridged 128:0 → 24:0
+22:11:02 Processing launched (PID 1743)
+22:11:05 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:11:05 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:22:15 Keyboard: DOWN code=108 held={108}
+22:22:15 Keyboard: UP   code=108 combo_key=False triggered=False
+22:22:16 Keyboard: DOWN code=106 held={106}
+22:22:16 Keyboard: UP   code=106 combo_key=True triggered=False
+22:22:16 Selected: set-01  mode=drums
+22:22:16 Found 14 tracks
+22:22:16   1. Set 01 - Song 01
+22:22:16   2. Set 01 - Song 02
+22:22:16   3. Set 01 - Song 03
+22:22:16   4. Set 01 - Song 04
+22:22:16   5. Set 01 - Song 05
+22:22:16   6. Set 01 - Song 06
+22:22:16   7. Set 01 - Song 07
+22:22:16   8. Set 01 - Song 08
+22:22:16   9. Set 01 - Song 09
+22:22:16   10. Set 01 - Song 10
+22:22:16   11. Set 01 - Song 11
+22:22:16   12. Set 01 - Song 12
+22:22:16   13. Set 01 - Song 13
+22:22:16   14. Set 01 - Song 14
+22:22:17 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:22:17 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+22:22:17 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:22:17 Keyboard: DOWN code=106 held={106}
+22:22:17 Keyboard: DOWN code=105 held={105, 106}
+22:22:17 Keyboard: DOWN code=103 held={105, 106, 103}
+22:22:17 
+Shutdown (key)
+22:22:18 Restarted argononed
+22:22:18 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+22:24:35 
+============================================================
+SESSION START 2026-05-07 22:24:35
+============================================================
+22:24:35 Starting Performance Rig...
+22:24:36 Taskbar hidden
+22:24:36 Stopped argononed
+22:24:37 Virtual MIDI port: RigMIDI
+22:24:37 MIDI bridged 128:0 → 24:0
+22:24:37 Processing launched (PID 1740)
+22:24:40 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:24:40 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:25:17 Keyboard: DOWN code=108 held={108}
+22:25:18 Keyboard: UP   code=108 combo_key=False triggered=False
+22:25:19 Keyboard: DOWN code=106 held={106}
+22:25:19 Keyboard: UP   code=106 combo_key=True triggered=False
+22:25:19 Selected: set-01  mode=drums
+22:25:19 Found 14 tracks
+22:25:19   1. Set 01 - Song 01
+22:25:19   2. Set 01 - Song 02
+22:25:19   3. Set 01 - Song 03
+22:25:19   4. Set 01 - Song 04
+22:25:19   5. Set 01 - Song 05
+22:25:19   6. Set 01 - Song 06
+22:25:19   7. Set 01 - Song 07
+22:25:19   8. Set 01 - Song 08
+22:25:19   9. Set 01 - Song 09
+22:25:19   10. Set 01 - Song 10
+22:25:19   11. Set 01 - Song 11
+22:25:19   12. Set 01 - Song 12
+22:25:19   13. Set 01 - Song 13
+22:25:19   14. Set 01 - Song 14
+22:25:19 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:25:19 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+22:25:20 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:25:20 Keyboard: DOWN code=106 held={106}
+22:25:20 Keyboard: DOWN code=103 held={106, 103}
+22:25:20 Keyboard: DOWN code=105 held={105, 106, 103}
+22:25:20 
+Shutdown (key)
+22:25:21 Restarted argononed
+22:25:21 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+22:26:03 
+============================================================
+SESSION START 2026-05-07 22:26:03
+============================================================
+22:26:03 Starting Performance Rig...
+22:26:04 Taskbar hidden
+22:26:04 Stopped argononed
+22:26:05 Virtual MIDI port: RigMIDI
+22:26:05 MIDI bridged 128:0 → 24:0
+22:26:05 Processing launched (PID 1737)
+22:26:08 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:26:08 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:29:45 Keyboard: DOWN code=105 held={105}
+22:29:45 Keyboard: DOWN code=103 held={105, 103}
+22:29:45 Keyboard: DOWN code=106 held={105, 106, 103}
+22:29:45 Keyboard: UP   code=103 combo_key=True triggered=False
+22:29:45 Keyboard: UP   code=105 combo_key=True triggered=False
+22:29:45 Keyboard: UP   code=106 combo_key=True triggered=False
+22:29:46 Selected: set-01  mode=drumless
+22:29:46 Found 14 tracks
+22:29:46   1. Set 01 - Song 01
+22:29:46   2. Set 01 - Song 02
+22:29:46   3. Set 01 - Song 03
+22:29:46   4. Set 01 - Song 04
+22:29:46   5. Set 01 - Song 05
+22:29:46   6. Set 01 - Song 06
+22:29:46   7. Set 01 - Song 07
+22:29:46   8. Set 01 - Song 08
+22:29:46   9. Set 01 - Song 09
+22:29:46   10. Set 01 - Song 10
+22:29:46   11. Set 01 - Song 11
+22:29:46   12. Set 01 - Song 12
+22:29:46   13. Set 01 - Song 13
+22:29:46   14. Set 01 - Song 14
+22:29:47 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:29:47 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+22:29:47 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:29:51 Keyboard: DOWN code=105 held={105}
+22:29:51 Keyboard: DOWN code=106 held={105, 106}
+22:29:51 Keyboard: DOWN code=103 held={105, 106, 103}
+22:29:51 
+Shutdown (key)
+22:29:51 Restarted argononed
+22:29:52 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+22:31:41 
+============================================================
+SESSION START 2026-05-07 22:31:41
+============================================================
+22:31:42 Starting Performance Rig...
+22:31:43 Taskbar hidden
+22:31:43 Stopped argononed
+22:31:43 Virtual MIDI port: RigMIDI
+22:31:44 MIDI bridged 128:0 → 24:0
+22:31:44 Processing launched (PID 1741)
+22:31:47 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+22:31:47 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+18:32:13 Keyboard: DOWN code=106 held={106}
+18:32:13 Keyboard: UP   code=106 combo_key=True triggered=False
+18:32:13 Selected: set-01  mode=drums
+18:32:13 Found 14 tracks
+18:32:13   1. Set 01 - Song 01
+18:32:13   2. Set 01 - Song 02
+18:32:13   3. Set 01 - Song 03
+18:32:13   4. Set 01 - Song 04
+18:32:13   5. Set 01 - Song 05
+18:32:13   6. Set 01 - Song 06
+18:32:13   7. Set 01 - Song 07
+18:32:13   8. Set 01 - Song 08
+18:32:13   9. Set 01 - Song 09
+18:32:13   10. Set 01 - Song 10
+18:32:13   11. Set 01 - Song 11
+18:32:13   12. Set 01 - Song 12
+18:32:13   13. Set 01 - Song 13
+18:32:13   14. Set 01 - Song 14
+18:32:13 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+18:32:13 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+18:32:14 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+18:32:15 Keyboard: DOWN code=106 held={106}
+18:32:15 Keyboard: DOWN code=105 held={105, 106}
+18:32:15 Keyboard: DOWN code=103 held={105, 106, 103}
+18:32:15 
+Shutdown (key)
+18:32:15 Restarted argononed
+18:32:15 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+18:39:37 
+============================================================
+SESSION START 2026-05-09 18:39:37
+============================================================
+18:39:38 Starting Performance Rig...
+18:39:38 Taskbar hidden
+18:39:38 Stopped argononed
+18:39:39 Virtual MIDI port: RigMIDI
+18:39:39 MIDI bridged 128:0 → 24:0
+18:39:39 Processing launched (PID 1746)
+18:39:42 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+18:39:42 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+19:21:31 
+============================================================
+SESSION START 2026-05-09 19:21:31
+============================================================
+19:21:32 Starting Performance Rig...
+19:21:33 Taskbar hidden
+19:21:33 Stopped argononed
+19:21:33 Virtual MIDI port: RigMIDI
+19:21:33 MIDI bridged 128:0 → 24:0
+19:21:33 Processing launched (PID 1748)
+19:21:37 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+19:21:37 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+19:22:12 Keyboard: DOWN code=108 held={108}
+19:22:12 Keyboard: UP   code=108 combo_key=False triggered=False
+19:22:13 Keyboard: DOWN code=106 held={106}
+19:22:13 Keyboard: UP   code=106 combo_key=True triggered=False
+19:22:13 Selected: set-01  mode=drums
+19:22:13 Found 14 tracks
+19:22:13   1. Set 01 - Song 01
+19:22:13   2. Set 01 - Song 02
+19:22:13   3. Set 01 - Song 03
+19:22:13   4. Set 01 - Song 04
+19:22:13   5. Set 01 - Song 05
+19:22:13   6. Set 01 - Song 06
+19:22:13   7. Set 01 - Song 07
+19:22:13   8. Set 01 - Song 08
+19:22:13   9. Set 01 - Song 09
+19:22:13   10. Set 01 - Song 10
+19:22:13   11. Set 01 - Song 11
+19:22:13   12. Set 01 - Song 12
+19:22:13   13. Set 01 - Song 13
+19:22:13   14. Set 01 - Song 14
+19:22:14 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+19:22:14 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+19:22:14 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+19:22:15 Keyboard: DOWN code=105 held={105}
+19:22:15 Keyboard: DOWN code=106 held={105, 106}
+19:22:15 Keyboard: DOWN code=103 held={105, 106, 103}
+19:22:15 
+Shutdown (key)
+19:22:15 Restarted argononed
+19:22:15 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+00:11:35 
+============================================================
+SESSION START 2026-05-10 00:11:35
+============================================================
+00:11:36 Starting Performance Rig...
+00:11:36 Taskbar hidden
+00:11:36 Stopped argononed
+00:11:37 Virtual MIDI port: RigMIDI
+00:11:37 MIDI bridged 128:0 → 24:0
+00:11:37 Processing launched (PID 1747)
+00:11:40 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+00:11:40 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+00:32:17 
+============================================================
+SESSION START 2026-05-10 00:32:17
+============================================================
+00:32:17 Starting Performance Rig...
+00:32:18 Taskbar hidden
+00:32:18 Stopped argononed
+00:32:19 Virtual MIDI port: RigMIDI
+00:32:19 MIDI bridged 128:0 → 24:0
+00:32:19 Processing launched (PID 1763)
+00:32:22 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+00:32:22 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+00:32:58 Keyboard: DOWN code=106 held={106}
+00:32:58 Keyboard: UP   code=106 combo_key=True triggered=False
+00:32:58 Selected: set-01  mode=drums
+00:32:58 Found 14 tracks
+00:32:58   1. Set 01 - Song 01
+00:32:58   2. Set 01 - Song 02
+00:32:58   3. Set 01 - Song 03
+00:32:58   4. Set 01 - Song 04
+00:32:58   5. Set 01 - Song 05
+00:32:58   6. Set 01 - Song 06
+00:32:58   7. Set 01 - Song 07
+00:32:58   8. Set 01 - Song 08
+00:32:58   9. Set 01 - Song 09
+00:32:58   10. Set 01 - Song 10
+00:32:58   11. Set 01 - Song 11
+00:32:58   12. Set 01 - Song 12
+00:32:58   13. Set 01 - Song 13
+00:32:58   14. Set 01 - Song 14
+00:32:59 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+00:32:59 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+00:32:59 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+00:32:59 Keyboard: DOWN code=103 held={103}
+00:32:59 Keyboard: DOWN code=105 held={105, 103}
+00:32:59 Keyboard: UP   code=103 combo_key=True triggered=False
+00:32:59 Keyboard: UP   code=106 combo_key=False triggered=False
+00:32:59 Keyboard: UP   code=105 combo_key=True triggered=False
+00:33:02 Keyboard: DOWN code=105 held={105}
+00:33:02 Keyboard: DOWN code=106 held={105, 106}
+00:33:02 Keyboard: DOWN code=103 held={105, 106, 103}
+00:33:02 
+Shutdown (key)
+00:33:02 Restarted argononed
+00:33:03 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+00:39:15 
+============================================================
+SESSION START 2026-05-10 00:39:15
+============================================================
+00:39:16 Starting Performance Rig...
+00:39:17 Taskbar hidden
+00:39:17 Stopped argononed
+00:39:17 Virtual MIDI port: RigMIDI
+00:39:17 MIDI bridged 128:0 → 24:0
+00:39:17 Processing launched (PID 1768)
+00:39:21 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+00:39:21 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+00:50:11 Keyboard: DOWN code=106 held={106}
+00:50:11 Keyboard: UP   code=106 combo_key=True triggered=False
+00:50:12 Selected: set-01  mode=drums
+00:50:12 Found 14 tracks
+00:50:12   1. Set 01 - Song 01
+00:50:12   2. Set 01 - Song 02
+00:50:12   3. Set 01 - Song 03
+00:50:12   4. Set 01 - Song 04
+00:50:12   5. Set 01 - Song 05
+00:50:12   6. Set 01 - Song 06
+00:50:12   7. Set 01 - Song 07
+00:50:12   8. Set 01 - Song 08
+00:50:12   9. Set 01 - Song 09
+00:50:12   10. Set 01 - Song 10
+00:50:12   11. Set 01 - Song 11
+00:50:12   12. Set 01 - Song 12
+00:50:12   13. Set 01 - Song 13
+00:50:12   14. Set 01 - Song 14
+00:50:12 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+00:50:12 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+00:50:13 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event5)
+00:50:13 Keyboard: DOWN code=105 held={105}
+00:50:13 Keyboard: DOWN code=103 held={105, 103}
+00:50:13 Keyboard: UP   code=103 combo_key=True triggered=False
+00:50:13 Keyboard: UP   code=105 combo_key=True triggered=False
+00:50:13 Keyboard: UP   code=106 combo_key=False triggered=False
+00:50:14 Keyboard: DOWN code=105 held={105}
+00:50:14 Keyboard: DOWN code=106 held={105, 106}
+00:50:14 Keyboard: DOWN code=103 held={105, 106, 103}
+00:50:14 
+Shutdown (key)
+00:50:15 Restarted argononed
+00:50:15 Taskbar restored (WAYLAND_DISPLAY=wayland-0)
+11:52:06 
+============================================================
+SESSION START 2026-05-10 11:52:06
+============================================================
+11:52:06 Starting Performance Rig...
+11:52:07 Taskbar hidden
+11:52:07 Stopped argononed
+11:52:07 Virtual MIDI port: RigMIDI
+11:52:07 MIDI bridged 128:0 → 24:0
+11:52:07 Processing launched (PID 1768)
+11:52:11 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event4)
+11:52:11 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event4)
+11:56:39 Keyboard: DOWN code=108 held={108}
+11:56:39 Keyboard: UP   code=108 combo_key=False triggered=False
+11:56:41 Keyboard: DOWN code=106 held={106}
+11:56:41 Keyboard: UP   code=106 combo_key=True triggered=False
+11:56:41 Selected: set-01  mode=drums
+11:56:42 Found 14 tracks
+11:56:42   1. Set 01 - Song 01
+11:56:42   2. Set 01 - Song 02
+11:56:42   3. Set 01 - Song 03
+11:56:42   4. Set 01 - Song 04
+11:56:42   5. Set 01 - Song 05
+11:56:42   6. Set 01 - Song 06
+11:56:42   7. Set 01 - Song 07
+11:56:42   8. Set 01 - Song 08
+11:56:42   9. Set 01 - Song 09
+11:56:42   10. Set 01 - Song 10
+11:56:42   11. Set 01 - Song 11
+11:56:42   12. Set 01 - Song 12
+11:56:42   13. Set 01 - Song 13
+11:56:42   14. Set 01 - Song 14
+11:56:42 Keyboard: SayoDevice SayoDevice 1_3P (/dev/input/event4)
+11:56:42 Ready!  ← prev  → next  ↓ play  ↑ pause  ESC/↑←→ quit
+11:56:42 Keyboard grabbed: SayoDevice SayoDevice 1_3P (/dev/input/event4)
+11:56:43 Keyboard: DOWN code=106 held={106}
+11:56:43 Keyboard: DOWN code=103 held={106, 103}
+11:56:43 Keyboard: DOWN code=105 held={105, 106, 103}
+11:56:43 
+Shutdown (key)
+11:56:43 Restarted argononed
+11:56:43 Taskbar restored (WAYLAND_DISPLAY=wayland-0)

@@ -1,0 +1,4 @@
+title: r0ll c4ll
+bpm: 90.49
+platform: M8 SNES
+timing: 4/4

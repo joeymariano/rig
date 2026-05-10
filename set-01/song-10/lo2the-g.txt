@@ -1,0 +1,4 @@
+title: lo 2 the g
+bpm: 167.98
+platform: M8 SNES
+timing: 4/4

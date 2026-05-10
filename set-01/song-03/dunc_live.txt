@@ -1,0 +1,4 @@
+title: Dunc
+bpm: 98.77
+platform: GB
+timing: 4/4

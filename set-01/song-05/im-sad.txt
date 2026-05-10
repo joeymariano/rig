@@ -1,0 +1,4 @@
+title: im sad
+bpm: 112.5
+platform: SMD
+timing: 4/4

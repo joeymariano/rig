@@ -373,6 +373,32 @@ The rig requires a USB keypad with **standard HID arrow keys** and **no host-sid
 
 ---
 
+## NVMe Storage
+
+The rig boots from an NVMe SSD in the Argon One V5 PCIe slot (`BOOT_ORDER=0xf146`, with the SD card kept as fallback).
+
+### Required `config.txt` entries
+
+For any NVMe drive in the Argon One V5, both lines must be present in `/boot/firmware/config.txt`:
+```
+dtparam=pciex1
+dtparam=nvme
+```
+Without `dtparam=pciex1` the PCIe slot stays disabled and the drive will not enumerate — the bootloader may even hang at the Raspberry Pi logo while attempting to read it. Add this line first before suspecting a faulty drive.
+
+Optionally pin the link to Gen3 for higher throughput (the Pi 5 defaults to Gen2):
+```
+dtparam=pciex1_gen=3
+```
+
+### Confirmed working
+
+**Silicon Power 128GB NVMe M.2 PCIe Gen3x4 2280** (model `SP128GBP34A60M28`)
+- Boots cleanly from cold power-on with the `config.txt` entries above
+- Stable as the live root filesystem
+
+---
+
 ## Troubleshooting
 
 **No keyboard detected**

@@ -1,0 +1,4 @@
+title: It’s OK
+bpm: 90
+platform: SMD
+timing: 6/8

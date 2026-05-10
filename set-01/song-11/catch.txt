@@ -1,0 +1,4 @@
+title: catch
+bpm: 168
+platform: M8 SNES
+timing: 4/4

@@ -1,0 +1,4 @@
+title: sp33k
+bpm: 158.6
+platform: M8 SNES
+timing: 4/4

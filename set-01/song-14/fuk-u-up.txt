@@ -1,0 +1,4 @@
+title: fuk u up
+bpm: 202
+platform: GB
+timing: 4/4
