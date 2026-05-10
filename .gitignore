@@ -4,3 +4,13 @@
 */set-01
 */set-02
 */set-03
+
+# OS / editor cruft
+.DS_Store
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Local logs
+boot.log
